@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<!-- saved from url=(0071)file:///Users/Sophi/Downloads/Wiederholung_Funktionen_EscapeRoom_1.html -->
+<html lang="de"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔐 Escape Room: Lineare Funktionen</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a0e1a;
+  --surface: #111827;
+  --surface2: #1c2638;
+  --border: #2d3f5a;
+  --border-bright: #4a6fa5;
+  --text: #e8edf5;
+  --text-muted: #8a9ab8;
+  --gold: #f0c040;
+  --gold-dim: #a07820;
+  --green: #22c55e;
+  --green-dim: #166534;
+  --red: #ef4444;
+  --red-dim: #7f1d1d;
+  --blue: #60a5fa;
+  --blue-dim: #1e3a5f;
+  --purple: #a78bfa;
+  --purple-dim: #3b1f8c;
+  --stars: #f0c040;
+  --font: 'Segoe UI', system-ui, sans-serif;
+  --mono: 'Courier New', monospace;
+}
+body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; }
+
+/* ═══════════════════════════════════════════════
+   AVATAR SYSTEM
+════════════════════════════════════════════════ */
+.avatar-float {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  pointer-events: none;
+}
+.avatar-bubble {
+  background: var(--surface);
+  border: 1px solid var(--border-bright);
+  border-radius: 12px 12px 4px 12px;
+  padding: 0.5rem 0.8rem;
+  font-size: 0.8rem;
+  color: var(--text);
+  max-width: 200px;
+  text-align: center;
+  line-height: 1.4;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all 0.4s ease;
+}
+.avatar-bubble.show { opacity: 1; transform: translateY(0); }
+.avatar-body {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 3px solid var(--border-bright);
+  background: var(--surface2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  transition: all 0.5s ease;
+  cursor: pointer;
+  pointer-events: all;
+  position: relative;
+  overflow: hidden;
+}
+.avatar-body.bounce { animation: avatarBounce 0.5s ease; }
+@keyframes avatarBounce {
+  0%,100% { transform: scale(1); }
+  30% { transform: scale(1.25) rotate(-5deg); }
+  60% { transform: scale(0.92) rotate(3deg); }
+}
+.avatar-body.glow-gold { border-color: var(--gold); box-shadow: 0 0 16px rgba(240,192,64,0.5); }
+.avatar-body.glow-purple { border-color: var(--purple); box-shadow: 0 0 20px rgba(167,139,250,0.6); }
+.avatar-skin-badge {
+  position: absolute;
+  bottom: 4px; right: 4px;
+  font-size: 0.6rem;
+  background: rgba(0,0,0,0.6);
+  border-radius: 99px;
+  padding: 1px 4px;
+  color: var(--gold);
+  font-weight: 700;
+}
+
+/* ═══════════════════════════════════════════════
+   SKIN SELECTOR MODAL
+════════════════════════════════════════════════ */
+.skin-modal-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,0.75);
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+.skin-modal-overlay.open { opacity: 1; pointer-events: all; }
+.skin-modal {
+  background: var(--surface);
+  border: 1px solid var(--purple);
+  border-radius: 20px;
+  padding: 2rem;
+  max-width: 480px;
+  width: 100%;
+  transform: scale(0.9);
+  transition: transform 0.3s;
+}
+.skin-modal-overlay.open .skin-modal { transform: scale(1); }
+.skin-modal-title {
+  font-size: 1.4rem; font-weight: 800;
+  color: var(--purple);
+  text-align: center; margin-bottom: 0.25rem;
+}
+.skin-modal-sub {
+  font-size: 0.85rem; color: var(--text-muted);
+  text-align: center; margin-bottom: 1.5rem;
+}
+.skin-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+.skin-option {
+  background: var(--surface2);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 0.75rem 0.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.skin-option:hover { border-color: var(--purple); background: #1e1535; }
+.skin-option.selected { border-color: var(--purple); background: var(--purple-dim); }
+.skin-option.locked { opacity: 0.35; cursor: not-allowed; filter: grayscale(1); }
+.skin-emoji { font-size: 2rem; display: block; margin-bottom: 0.25rem; }
+.skin-name { font-size: 0.7rem; color: var(--text-muted); }
+.skin-option.selected .skin-name { color: var(--purple); font-weight: 700; }
+.btn-skin-close {
+  width: 100%; background: var(--purple-dim); border: 1px solid var(--purple);
+  color: var(--purple); border-radius: 12px; padding: 0.75rem;
+  font-size: 1rem; font-weight: 700; cursor: pointer; font-family: var(--font);
+  transition: all 0.15s;
+}
+.btn-skin-close:hover { background: #4c1d95; color: #fff; }
+
+/* ═══════════════════════════════════════════════
+   INTRO SCREEN
+════════════════════════════════════════════════ */
+#intro-screen {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 2rem;
+  background: radial-gradient(ellipse at 50% 30%, #0d1f3c 0%, #0a0e1a 70%);
+}
+.intro-lock { font-size: 5rem; animation: pulse 2s ease-in-out infinite; margin-bottom: 1rem; }
+@keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+.intro-title {
+  font-size: 2.4rem; font-weight: 800; letter-spacing: -1px;
+  color: var(--gold); text-align: center; margin-bottom: 0.5rem;
+  text-shadow: 0 0 30px rgba(240,192,64,0.3);
+}
+.intro-subtitle { font-size: 1.1rem; color: var(--text-muted); text-align: center; margin-bottom: 1.5rem; }
+.intro-avatar-greeting {
+  display: flex; align-items: center; gap: 1rem;
+  background: var(--surface); border: 1px solid var(--border-bright);
+  border-radius: 16px; padding: 1rem 1.5rem; margin-bottom: 1.5rem;
+  max-width: 520px; width: 100%;
+}
+.intro-av-big { font-size: 3rem; flex-shrink: 0; }
+.intro-av-text { font-size: 0.95rem; color: var(--text-muted); line-height: 1.5; }
+.intro-av-text strong { color: var(--text); }
+.intro-rooms { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; max-width: 540px; margin-bottom: 1.5rem; }
+.room-preview {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 0.65rem 0.9rem; text-align: center;
+  width: 120px; opacity: 0.4; transition: all 0.3s;
+}
+.room-preview.unlocked { opacity: 1; border-color: var(--gold-dim); }
+.room-preview.done { border-color: var(--green); background: #0f2a1a; opacity: 1; }
+.room-preview .room-emoji { font-size: 1.8rem; display: block; margin-bottom: 0.2rem; }
+.room-preview .room-name { font-size: 0.7rem; color: var(--text-muted); }
+.room-preview .room-check { font-size: 0.8rem; color: var(--green); }
+.btn-start {
+  background: var(--gold); color: #1a1000; border: none; border-radius: 12px;
+  padding: 1rem 3rem; font-size: 1.2rem; font-weight: 700; cursor: pointer;
+  transition: all 0.2s; letter-spacing: 0.5px; margin-bottom: 0.75rem;
+}
+.btn-start:hover { background: #f5d060; transform: translateY(-2px); }
+.intro-note { font-size: 0.8rem; color: var(--text-muted); text-align: center; }
+.expert-badge {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  background: var(--purple-dim); border: 1px solid var(--purple);
+  color: var(--purple); border-radius: 99px; padding: 0.2rem 0.6rem;
+  font-size: 0.75rem; font-weight: 700;
+}
+
+/* ═══════════════════════════════════════════════
+   LEVEL SELECT SCREEN
+════════════════════════════════════════════════ */
+#levelselect-screen {
+  display: none; min-height: 100vh;
+  flex-direction: column; align-items: center; justify-content: center;
+  padding: 2rem;
+  background: radial-gradient(ellipse at 50% 40%, #0d1f3c 0%, #0a0e1a 70%);
+}
+.ls-title { font-size: 1.8rem; font-weight: 800; color: var(--gold); margin-bottom: 0.4rem; text-align: center; }
+.ls-sub { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 2rem; text-align: center; }
+.ls-cards { display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 500px; }
+.ls-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 1.25rem 1.5rem;
+  display: flex; align-items: center; gap: 1rem;
+  cursor: pointer; transition: all 0.2s;
+  text-decoration: none; color: var(--text);
+}
+.ls-card:hover:not(.locked) { border-color: var(--border-bright); transform: translateX(4px); }
+.ls-card.locked { opacity: 0.4; cursor: not-allowed; }
+.ls-card.done { border-color: var(--green); background: #0a1f11; }
+.ls-card.expert-card { border-color: var(--purple-dim); }
+.ls-card.expert-card:hover { border-color: var(--purple); background: #13102a; }
+.ls-card-icon { font-size: 2.5rem; flex-shrink: 0; }
+.ls-card-info { flex: 1; }
+.ls-card-title { font-size: 1rem; font-weight: 700; margin-bottom: 0.15rem; }
+.ls-card-desc { font-size: 0.8rem; color: var(--text-muted); }
+.ls-card-status { flex-shrink: 0; font-size: 1.2rem; }
+.ls-card.done .ls-card-title { color: var(--green); }
+.ls-card.expert-card .ls-card-title { color: var(--purple); }
+.ls-expert-hint {
+  margin-top: 1.25rem; max-width: 500px; width: 100%;
+  background: #13102a; border: 1px solid var(--purple-dim);
+  border-radius: 12px; padding: 0.75rem 1rem;
+  font-size: 0.82rem; color: var(--text-muted); text-align: center;
+}
+.btn-ls-back {
+  margin-top: 1.5rem;
+  background: transparent; border: 1px solid var(--border);
+  color: var(--text-muted); border-radius: 12px; padding: 0.6rem 1.5rem;
+  cursor: pointer; font-family: var(--font); transition: all 0.15s;
+}
+.btn-ls-back:hover { border-color: var(--border-bright); color: var(--text); }
+
+/* ═══════════════════════════════════════════════
+   ROOM COMPLETE SCREEN
+════════════════════════════════════════════════ */
+#roomdone-screen {
+  display: none; min-height: 100vh;
+  flex-direction: column; align-items: center; justify-content: center;
+  padding: 2rem; text-align: center;
+  background: radial-gradient(ellipse at 50% 30%, #0d2a14 0%, #0a0e1a 70%);
+}
+.rd-icon { font-size: 5rem; margin-bottom: 1rem; animation: popIn 0.5s cubic-bezier(.18,.89,.32,1.28); }
+@keyframes popIn { 0% { transform: scale(0.3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+.rd-title { font-size: 2rem; font-weight: 800; color: var(--green); margin-bottom: 0.5rem; }
+.rd-subtitle { font-size: 1rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+.rd-code-box {
+  background: var(--surface); border: 2px solid var(--gold-dim);
+  border-radius: 16px; padding: 1.25rem 2rem; margin-bottom: 1.5rem; display: inline-block;
+}
+.rd-code-label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+.rd-code-digits { font-family: var(--mono); font-size: 2.5rem; font-weight: 800; color: var(--gold); letter-spacing: 10px; }
+.rd-avatar-msg {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 1rem 1.5rem;
+  max-width: 420px; margin-bottom: 1.5rem;
+  display: flex; align-items: center; gap: 1rem;
+  font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;
+}
+.rd-av { font-size: 2.5rem; flex-shrink: 0; }
+.rd-score-box {
+  background: var(--surface2); border-radius: 12px; padding: 0.75rem 2rem;
+  margin-bottom: 1.5rem; display: inline-block;
+}
+.rd-score-num { font-size: 2rem; font-weight: 800; color: var(--gold); }
+.rd-score-label { font-size: 0.8rem; color: var(--text-muted); }
+.rd-btn-row { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+.btn-rd {
+  background: var(--gold); color: #1a1000; border: none;
+  border-radius: 12px; padding: 0.85rem 2rem;
+  font-size: 1rem; font-weight: 700; cursor: pointer; font-family: var(--font);
+  transition: all 0.15s;
+}
+.btn-rd:hover { background: #f5d060; transform: translateY(-2px); }
+.btn-rd.secondary {
+  background: transparent; border: 1px solid var(--border-bright);
+  color: var(--text); font-weight: 500;
+}
+.btn-rd.secondary:hover { border-color: var(--text); transform: translateY(-2px); }
+.btn-rd.expert {
+  background: var(--purple-dim); border: 1px solid var(--purple);
+  color: var(--purple); font-weight: 700;
+}
+.btn-rd.expert:hover { background: #4c1d95; color: #fff; }
+
+/* ═══════════════════════════════════════════════
+   EXPERT UNLOCK SCREEN
+════════════════════════════════════════════════ */
+#expertunlock-screen {
+  display: none; min-height: 100vh;
+  flex-direction: column; align-items: center; justify-content: center;
+  padding: 2rem; text-align: center;
+  background: radial-gradient(ellipse at 50% 30%, #1a0a3c 0%, #0a0e1a 70%);
+}
+.eu-icon { font-size: 5rem; margin-bottom: 1rem; animation: spinIn 0.7s cubic-bezier(.18,.89,.32,1.28); }
+@keyframes spinIn { 0% { transform: scale(0) rotate(-180deg); opacity: 0; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
+.eu-title { font-size: 2.2rem; font-weight: 800; color: var(--purple); margin-bottom: 0.5rem; }
+.eu-subtitle { font-size: 1rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+.eu-skin-preview {
+  background: var(--surface); border: 2px solid var(--purple);
+  border-radius: 20px; padding: 1.5rem 2.5rem; margin-bottom: 1.5rem;
+}
+.eu-skin-label { font-size: 0.8rem; color: var(--purple); margin-bottom: 0.75rem; font-weight: 700; }
+.eu-skin-choices { display: flex; gap: 1rem; justify-content: center; }
+.eu-skin-pick {
+  background: var(--surface2); border: 2px solid var(--border);
+  border-radius: 14px; padding: 1rem 0.75rem; cursor: pointer;
+  transition: all 0.2s; text-align: center; min-width: 80px;
+}
+.eu-skin-pick:hover { border-color: var(--purple); background: var(--purple-dim); }
+.eu-skin-pick.chosen { border-color: var(--purple); background: var(--purple-dim); }
+.eu-skin-pick .sk-em { font-size: 2.5rem; display: block; margin-bottom: 0.3rem; }
+.eu-skin-pick .sk-nm { font-size: 0.72rem; color: var(--text-muted); }
+.eu-skin-pick.chosen .sk-nm { color: var(--purple); font-weight: 700; }
+.eu-av-msg {
+  background: var(--surface); border: 1px solid var(--purple-dim);
+  border-radius: 16px; padding: 1rem 1.5rem; max-width: 420px;
+  margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem;
+  font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;
+}
+.eu-av { font-size: 2.5rem; flex-shrink: 0; }
+.btn-eu-done {
+  background: var(--purple-dim); border: 1px solid var(--purple);
+  color: var(--purple); border-radius: 12px; padding: 0.85rem 2.5rem;
+  font-size: 1.1rem; font-weight: 700; cursor: pointer; font-family: var(--font);
+  transition: all 0.15s; margin-bottom: 0.75rem;
+}
+.btn-eu-done:hover { background: #4c1d95; color: #fff; }
+.btn-eu-back {
+  background: transparent; border: 1px solid var(--border);
+  color: var(--text-muted); border-radius: 12px; padding: 0.6rem 1.5rem;
+  cursor: pointer; font-family: var(--font); transition: all 0.15s; display: block;
+}
+.btn-eu-back:hover { color: var(--text); }
+
+/* ═══════════════════════════════════════════════
+   GAME SCREEN
+════════════════════════════════════════════════ */
+#game-screen { display: none; }
+.top-bar {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 0.55rem 1.25rem;
+  display: flex; align-items: center; gap: 0.75rem;
+}
+.btn-home {
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text-muted); border-radius: 8px;
+  padding: 0.35rem 0.75rem; font-size: 0.8rem;
+  cursor: pointer; font-family: var(--font); white-space: nowrap;
+  transition: all 0.15s; flex-shrink: 0;
+}
+.btn-home:hover { border-color: var(--border-bright); color: var(--text); }
+.progress-track { flex: 1; height: 7px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold-dim), var(--gold)); border-radius: 99px; transition: width 0.5s ease; width: 0%; }
+.progress-score { font-size: 0.82rem; font-weight: 700; color: var(--gold); white-space: nowrap; }
+.room-header {
+  background: var(--surface2); border-bottom: 1px solid var(--border);
+  padding: 1.1rem 1.4rem 0.9rem;
+  display: flex; align-items: center; gap: 0.9rem;
+}
+.room-icon-big { font-size: 2.2rem; }
+.room-title { font-size: 1.3rem; font-weight: 700; color: var(--text); }
+.room-desc { font-size: 0.82rem; color: var(--text-muted); margin-top: 0.1rem; }
+.room-stars { margin-left: auto; font-size: 1rem; color: var(--stars); letter-spacing: 2px; }
+.question-container { padding: 1.25rem 1.25rem 0; max-width: 720px; margin: 0 auto; }
+.question-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem; transition: border-color 0.3s;
+}
+.question-card.answered-correct { border-color: var(--green); background: #0d1f14; }
+.question-card.answered-wrong { border-color: var(--red); background: #1f0d0d; }
+.q-meta { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.65rem; }
+.q-stars { color: var(--stars); font-size: 0.9rem; }
+.q-num { font-size: 0.72rem; color: var(--text-muted); background: var(--surface2); padding: 2px 8px; border-radius: 99px; }
+.q-text { font-size: 1rem; line-height: 1.55; color: var(--text); margin-bottom: 0.9rem; }
+.q-hint { font-size: 0.83rem; color: var(--blue); background: var(--blue-dim); padding: 0.45rem 0.7rem; border-radius: 8px; margin-bottom: 0.9rem; border-left: 3px solid var(--blue); }
+.choices { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; }
+.choice-btn {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 0.6rem 0.9rem; color: var(--text); font-size: 0.88rem;
+  cursor: pointer; text-align: left; transition: all 0.15s; font-family: var(--font);
+}
+.choice-btn:hover:not(:disabled) { border-color: var(--border-bright); background: #1e2d45; }
+.choice-btn.correct { background: var(--green-dim); border-color: var(--green); color: #86efac; }
+.choice-btn.wrong { background: var(--red-dim); border-color: var(--red); color: #fca5a5; }
+.choice-btn:disabled { cursor: default; }
+.input-row { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+.ans-input {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 0.55rem 0.9rem; color: var(--text);
+  font-size: 1rem; font-family: var(--mono); width: 150px; transition: border-color 0.2s;
+}
+.ans-input:focus { outline: none; border-color: var(--border-bright); }
+.ans-input.correct { border-color: var(--green); background: var(--green-dim); }
+.ans-input.wrong { border-color: var(--red); background: var(--red-dim); }
+.btn-check {
+  background: var(--blue-dim); border: 1px solid var(--blue); color: var(--blue);
+  border-radius: 10px; padding: 0.55rem 1.1rem; font-size: 0.88rem; cursor: pointer;
+  font-family: var(--font); font-weight: 600; transition: all 0.15s;
+}
+.btn-check:hover:not(:disabled) { background: #1e3a5f; }
+.btn-check:disabled { opacity: 0.4; cursor: default; }
+.feedback { margin-top: 0.65rem; font-size: 0.88rem; padding: 0.45rem 0.7rem; border-radius: 8px; display: none; }
+.feedback.show { display: block; }
+.feedback.ok { background: var(--green-dim); color: #86efac; border-left: 3px solid var(--green); }
+.feedback.nok { background: var(--red-dim); color: #fca5a5; border-left: 3px solid var(--red); }
+.nav-row {
+  padding: 1rem 1.25rem 2rem; max-width: 720px; margin: 0 auto;
+  display: flex; gap: 0.75rem; justify-content: flex-end;
+}
+.btn-nav {
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+  border-radius: 12px; padding: 0.7rem 1.35rem; font-size: 0.92rem;
+  cursor: pointer; font-family: var(--font); transition: all 0.15s;
+}
+.btn-nav:hover:not(:disabled) { border-color: var(--border-bright); }
+.btn-nav:disabled { opacity: 0.3; cursor: default; }
+.btn-nav.primary { background: var(--gold); color: #1a1000; border-color: var(--gold); font-weight: 700; }
+.btn-nav.primary:hover { background: #f5d060; }
+@media (max-width: 520px) {
+  .choices { grid-template-columns: 1fr; }
+  .intro-title { font-size: 1.8rem; }
+  .skin-grid { grid-template-columns: repeat(3, 1fr); }
+  .eu-skin-choices { flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ AVATAR FLOAT ══════════ -->
+<div class="avatar-float" id="avatar-float">
+  <div class="avatar-bubble" id="avatar-bubble">Bereit für den Escape Room? Los geht's!</div>
+  <div class="avatar-body" id="avatar-body" onclick="openSkinModal()">
+    <span id="avatar-emoji">🧑‍🏫</span>
+    <span class="avatar-skin-badge" id="av-badge" style="display:none">✨</span>
+  </div>
+</div>
+
+<!-- ══════════ SKIN MODAL ══════════ -->
+<div class="skin-modal-overlay" id="skin-modal">
+  <div class="skin-modal">
+    <div class="skin-modal-title">✨ Dein Avatar</div>
+    <div class="skin-modal-sub" id="skin-modal-sub">Klicke einen Skin an, um ihn auszuwählen.</div>
+    <div class="skin-grid" id="skin-grid"></div>
+    <button class="btn-skin-close" onclick="closeSkinModal()">Schließen</button>
+  </div>
+</div>
+
+<!-- ══════════ INTRO ══════════ -->
+<div id="intro-screen">
+  <div class="intro-lock">🔐</div>
+  <div class="intro-title">Escape Room: Lineare Funktionen</div>
+  <div class="intro-subtitle">Klasse 8 · LB 5 · Wiederholung Pfingstferien</div>
+
+  <div class="intro-avatar-greeting">
+    <div class="intro-av-big" id="intro-av-big">🧑‍🏫</div>
+    <div class="intro-av-text">
+      <strong>Hallo! Ich bin dein Mathe-Begleiter.</strong><br>
+      Ich begleite dich durch alle vier Räume. Löse die Aufgaben, sammle Punkte — und wenn du das <span class="expert-badge">★★★ Experten-Level</span> schaffst, schaltest du meine geheimen Skins frei!
+    </div>
+  </div>
+
+  <div class="intro-rooms" id="intro-room-previews"><div class="room-preview unlocked">
+      <span class="room-emoji">📊</span>
+      <span class="room-name">Graphen &amp; Wertetabellen</span>
+      
+    </div><div class="room-preview unlocked">
+      <span class="room-emoji">📐</span>
+      <span class="room-name">Steigung m</span>
+      
+    </div><div class="room-preview unlocked">
+      <span class="room-emoji">📈</span>
+      <span class="room-name">Gleichungen &amp; Graphen</span>
+      
+    </div><div class="room-preview unlocked">
+      <span class="room-emoji">🧩</span>
+      <span class="room-name">Meisteraufgaben</span>
+      
+    </div></div>
+
+  <button class="btn-start" onclick="goToLevelSelect()">Räume auswählen →</button>
+  <div class="intro-note">Nach Level 1 &amp; 2 kannst du zurück zur Auswahl • Experten-Level schaltet Skins frei</div>
+</div>
+
+<!-- ══════════ LEVEL SELECT ══════════ -->
+<div id="levelselect-screen" style="display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;background:radial-gradient(ellipse at 50% 40%,#0d1f3c 0%,#0a0e1a 70%);">
+  <div class="ls-title">Welchen Raum willst du betreten?</div>
+  <div class="ls-sub">Wähle deinen nächsten Raum</div>
+  <div class="ls-cards" id="ls-cards"></div>
+  <div class="ls-expert-hint" id="ls-expert-hint"></div>
+  <button class="btn-ls-back" onclick="goToIntro()">← Zur Startseite</button>
+</div>
+
+<!-- ══════════ GAME ══════════ -->
+<div id="game-screen">
+  <div class="top-bar">
+    <button class="btn-home" id="btn-home-top" onclick="goHomeFromGame()">⌂ Übersicht</button>
+    <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+    <span class="progress-score" id="prog-score">0 Pkt</span>
+  </div>
+  <div class="room-header" id="room-header"></div>
+  <div class="question-container" id="question-container"></div>
+  <div class="nav-row">
+    <button class="btn-nav primary" id="btn-finish" onclick="finishRoom()" disabled="">Raum abschließen ✓</button>
+  </div>
+</div>
+
+<!-- ══════════ ROOM DONE ══════════ -->
+<div id="roomdone-screen" style="display:none;">
+  <div class="rd-icon" id="rd-icon">🎉</div>
+  <div class="rd-title" id="rd-title">Raum geschafft!</div>
+  <div class="rd-subtitle" id="rd-subtitle"></div>
+  <div class="rd-code-box" id="rd-code-box" style="display:none">
+    <div class="rd-code-label">🔑 Code-Fragment freigeschaltet:</div>
+    <div class="rd-code-digits" id="rd-code-digit"></div>
+  </div>
+  <div class="rd-score-box">
+    <div class="rd-score-num" id="rd-score-num">0</div>
+    <div class="rd-score-label">Punkte in diesem Raum</div>
+  </div>
+  <div class="rd-avatar-msg">
+    <div class="rd-av" id="rd-av">🧑‍🏫</div>
+    <div id="rd-av-text"></div>
+  </div>
+  <div class="rd-btn-row" id="rd-btn-row"></div>
+</div>
+
+<!-- ══════════ EXPERT UNLOCK ══════════ -->
+<div id="expertunlock-screen" style="display:none;">
+  <div class="eu-icon">🏆</div>
+  <div class="eu-title">Experten-Level gemeistert!</div>
+  <div class="eu-subtitle">Du hast alle geheimen Skins freigeschaltet. Wähl deinen Favoriten:</div>
+  <div class="eu-skin-preview">
+    <div class="eu-skin-label">✨ Wähle deinen neuen Look:</div>
+    <div class="eu-skin-choices" id="eu-skin-choices"></div>
+  </div>
+  <div class="eu-av-msg">
+    <div class="eu-av" id="eu-av">🧑‍🏫</div>
+    <div id="eu-av-text">Wow, du hast alle Räume geschafft! Ich bin stolz auf dich. Such dir jetzt meinen neuen Look aus — er bleibt dauerhaft aktiv!</div>
+  </div>
+  <button class="btn-eu-done" onclick="applyExpertSkin()">Diesen Skin aktivieren ✨</button>
+  <button class="btn-eu-back" onclick="goToLevelSelect()">← Zurück zur Übersicht</button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════
+const SKINS = [
+  { id: 'default', em: '🧑‍🏫', name: 'Lehrer', locked: false },
+  { id: 'rocket',  em: '🚀',   name: 'Rakete',  locked: true },
+  { id: 'wizard',  em: '🧙',   name: 'Magier',  locked: true },
+  { id: 'robot',   em: '🤖',   name: 'Roboter', locked: true },
+  { id: 'star',    em: '⭐',   name: 'Star',    locked: true },
+  { id: 'fox',     em: '🦊',   name: 'Fuchs',   locked: true },
+  { id: 'alien',   em: '👾',   name: 'Alien',   locked: true },
+  { id: 'ninja',   em: '🥷',   name: 'Ninja',   locked: true },
+];
+
+const ROOMS = [
+  {
+    id: 'r1', emoji: '📊', name: 'Raum 1: Graphen & Wertetabellen',
+    desc: '★ M-Niveau', stars: '★', codeDigit: '7', returnable: true,
+    questions: [
+      { id:'r1q1', stars:'★', type:'choice',
+        text:'Eine Wertetabelle zeigt: x=0→y=2, x=1→y=5, x=2→y=8. Wächst oder fällt diese Funktion?',
+        choices:['Sie fällt (m < 0)','Sie wächst (m > 0)','Sie ist konstant (m = 0)','Nicht erkennbar'],
+        correct:1, feedback:'Die y-Werte werden größer → die Funktion wächst → m > 0.' },
+      { id:'r1q2', stars:'★', type:'choice',
+        text:'Welche Wertetabelle gehört zur Funktion y = 2x − 1?',
+        hint:'Setze x = 0, 1, 2 in y = 2x − 1 ein.',
+        choices:['x: 0,1,2 → y: −1, 1, 3','x: 0,1,2 → y: 1, 3, 5','x: 0,1,2 → y: −1, 2, 5','x: 0,1,2 → y: 0, 2, 4'],
+        correct:0, feedback:'y(0) = −1, y(1) = 1, y(2) = 3. ✓' },
+      { id:'r1q3', stars:'★', type:'choice',
+        text:'Bei x=2 und x=4 hat eine Funktion beide Male y=3. Was gilt?',
+        choices:['Die Funktion ist konstant (m = 0)','Die Funktion fällt','Keine y-Achse vorhanden','Unmöglich bei linearen Funktionen'],
+        correct:0, feedback:'Gleiche y-Werte → m = 0, waagrechte Gerade.' }
+    ]
+  },
+  {
+    id: 'r2', emoji: '📐', name: 'Raum 2: Steigung m',
+    desc: '★★ R-Niveau', stars: '★★', codeDigit: '4', returnable: true,
+    questions: [
+      { id:'r2q1', stars:'★★', type:'choice',
+        text:'Berechne die Steigung m aus A(1 | 3) und B(4 | 9).',
+        hint:'Steigungsformel: m = (y₂ − y₁) / (x₂ − x₁)',
+        choices:['m = 1','m = 2','m = 3','m = 6'],
+        correct:1, feedback:'m = (9−3)/(4−1) = 6/3 = 2. ✓' },
+      { id:'r2q2', stars:'★★', type:'choice',
+        text:'Ein Graph verläuft durch P(0 | −2) und Q(3 | 4). Funktionsgleichung?',
+        hint:'Erst m berechnen, dann t = y-Achsenabschnitt ablesen.',
+        choices:['y = 2x − 2','y = 3x − 2','y = 2x + 2','y = −2x + 4'],
+        correct:0, feedback:'m = (4−(−2))/(3−0) = 2, t = −2 → y = 2x − 2. ✓' },
+      { id:'r2q3', stars:'★★', type:'input',
+        text:'Berechne die Steigung m aus A(−2 | 5) und B(2 | −3).',
+        hint:'Achte auf die Vorzeichen!',
+        correctAnswer:'-2', altAnswers:['−2','- 2','-2,0'],
+        feedback:'m = (−3−5)/(2−(−2)) = −8/4 = −2. Negatives m → fallend.' }
+    ]
+  },
+  {
+    id: 'r3', emoji: '📈', name: 'Raum 3: Gleichungen & Graphen',
+    desc: '★★ R-Niveau', stars: '★★', codeDigit: '2', returnable: true,
+    questions: [
+      { id:'r3q1', stars:'★★', type:'choice',
+        text:'Welche Aussage über y = −3x + 5 ist richtig?',
+        choices:['Fällt, schneidet y-Achse bei 5','Steigt, schneidet y-Achse bei −3','Parallel zur x-Achse','Verläuft durch den Ursprung'],
+        correct:0, feedback:'m = −3 < 0 → fallend. t = 5 → y-Achse bei (0|5). ✓' },
+      { id:'r3q2', stars:'★★', type:'choice',
+        text:'Welche zwei Geraden sind parallel?',
+        choices:['y = 2x+1 und y = 2x−4','y = 3x+1 und y = −3x+1','y = 4x+2 und y = 2x+4','y = x und y = −x'],
+        correct:0, feedback:'Gleiche Steigung m = 2 → parallel. ✓' },
+      { id:'r3q3', stars:'★★', type:'choice',
+        text:'Graph durch (0|3) mit m = −1. Welcher Punkt liegt darauf?',
+        hint:'Funktionsgleichung: y = −x + 3, Punkt einsetzen.',
+        choices:['P(2 | 1)','P(2 | 5)','P(4 | 0)','P(−1 | 5)'],
+        correct:0, feedback:'y = −x+3. Bei x=2: y = −2+3 = 1 → P(2|1). ✓' }
+    ]
+  },
+  {
+    id: 'r4', emoji: '🧩', name: 'Raum 4: Meisteraufgaben',
+    desc: '★★★ E-Niveau', stars: '★★★', codeDigit: '8', returnable: false,
+    questions: [
+      { id:'r4q1', stars:'★★★', type:'choice',
+        text:'Taxifahrer: Grundgebühr 3 € + 1,50 €/km. Gleichung für Gesamtpreis y (km = x)?',
+        choices:['y = 1,50x + 3','y = 3x + 1,50','y = 4,50x','y = 1,50 + 3'],
+        correct:0, feedback:'m = 1,50 (pro km), t = 3 (Grundgebühr) → y = 1,50x + 3. ✓' },
+      { id:'r4q2', stars:'★★★', type:'input',
+        text:'Gerade durch P(2 | 7), parallel zu y = 3x − 1. Gib den y-Achsenabschnitt t ein.',
+        hint:'Parallel → gleiche Steigung m = 3. Einsetzen: 7 = 3·2 + t → t = ?',
+        correctAnswer:'1', altAnswers:['+1','1,0'],
+        feedback:'7 = 3·2 + t → t = 7 − 6 = 1. Gleichung: y = 3x + 1. ✓' },
+      { id:'r4q3', stars:'★★★', type:'choice',
+        text:'g: y = 2x + 1 und h: y = −½x + 6. Was gilt?',
+        hint:'Senkrechte Geraden: m₁ · m₂ = −1',
+        choices:['g ⊥ h (senkrecht, m₁·m₂ = −1)','g ∥ h (parallel)','g und h sind identisch','Schneiden sich auf der y-Achse'],
+        correct:0, feedback:'2 · (−½) = −1 → g und h stehen senkrecht aufeinander. ✓' }
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+let state = {
+  currentSkin: 'default',
+  unlockedSkins: ['default'],
+  expertDone: false,
+  answers: {},       // qid → {correct, value}
+  roomScores: {},    // rid → points
+  currentRoom: null,
+};
+
+// ═══════════════════════════════════════════════════
+// AVATAR HELPERS
+// ═══════════════════════════════════════════════════
+const AV_MSGS = {
+  intro: ['Bereit für den Escape Room? Los geht\'s!', 'Ich helfe dir durch alle Räume! 💪', 'Zeig was du kannst!'],
+  r1start: ['Raum 1: Wertetabellen. Das schaffst du!', 'Denk an steigende und fallende Funktionen!'],
+  r2start: ['Raum 2: Steigung m — die Steigungsformel hilft dir!', 'Δy geteilt durch Δx — du weißt das!'],
+  r3start: ['Raum 3: Gleichungen und Graphen. Konzentriere dich!', 'Parallele Geraden — denk an die Steigung!'],
+  r4start: ['🔥 Das Experten-Level! Ich glaube an dich!', '★★★ Fast am Ziel — zeig dein Können!'],
+  correct: ['Super!', 'Klasse!', 'Richtig!', 'Weiter so!', '🎉 Top!', 'Genau!'],
+  wrong: ['Nicht schlimm, schau dir die Lösung an.', 'Fast! Lies das Feedback.', 'Beim nächsten Mal!'],
+  r1done: ['Raum 1 geschafft! Du bist auf dem richtigen Weg! 🗝️'],
+  r2done: ['Steigung m — du hast es drauf! 🗝️', 'Raum 2 erledigt! Weiter!'],
+  r3done: ['Raum 3 down! Nur noch das Experten-Level! 🔥'],
+  r4done: ['ALLE RÄUME GESCHAFFT! 🏆 Du bist ein Mathe-Profi!'],
+  expert: ['Du hast ALLE Skins freigeschaltet! Such dir deinen Look aus!'],
+};
+
+function getMsg(key) {
+  const arr = AV_MSGS[key] || ['...'];
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function currentSkinEmoji() {
+  return SKINS.find(s => s.id === state.currentSkin)?.em || '🧑‍🏫';
+}
+
+function updateAllAvatars() {
+  const em = currentSkinEmoji();
+  document.getElementById('avatar-emoji').textContent = em;
+  document.getElementById('intro-av-big').textContent = em;
+  const badge = document.getElementById('av-badge');
+  badge.style.display = state.currentSkin !== 'default' ? 'block' : 'none';
+}
+
+let bubbleTimer = null;
+function showBubble(msg, duration = 3500) {
+  const b = document.getElementById('avatar-bubble');
+  clearTimeout(bubbleTimer);
+  b.textContent = msg;
+  b.classList.add('show');
+  bubbleTimer = setTimeout(() => b.classList.remove('show'), duration);
+}
+
+function avatarBounce() {
+  const body = document.getElementById('avatar-body');
+  body.classList.remove('bounce');
+  void body.offsetWidth;
+  body.classList.add('bounce');
+}
+
+// ═══════════════════════════════════════════════════
+// SKIN MODAL (accessible anytime)
+// ═══════════════════════════════════════════════════
+function buildSkinGrid() {
+  const grid = document.getElementById('skin-grid');
+  grid.innerHTML = SKINS.map(s => {
+    const unlocked = state.unlockedSkins.includes(s.id);
+    const sel = state.currentSkin === s.id;
+    let cls = 'skin-option';
+    if (!unlocked) cls += ' locked';
+    if (sel) cls += ' selected';
+    return `<div class="${cls}" onclick="selectSkin('${s.id}')">
+      <span class="skin-emoji">${s.em}</span>
+      <span class="skin-name">${s.locked && !unlocked ? '🔒 '+s.name : s.name}</span>
+    </div>`;
+  }).join('');
+  const sub = document.getElementById('skin-modal-sub');
+  sub.textContent = state.expertDone
+    ? 'Alle Skins freigeschaltet! ✨ Klicke einen an.'
+    : 'Schließe das ★★★ Experten-Level ab, um weitere Skins freizuschalten.';
+}
+
+function openSkinModal() {
+  buildSkinGrid();
+  document.getElementById('skin-modal').classList.add('open');
+}
+function closeSkinModal() {
+  document.getElementById('skin-modal').classList.remove('open');
+}
+function selectSkin(id) {
+  if (!state.unlockedSkins.includes(id)) {
+    showBubble('🔒 Schließe das Experten-Level ab, um diesen Skin freizuschalten!');
+    return;
+  }
+  state.currentSkin = id;
+  updateAllAvatars();
+  buildSkinGrid();
+  avatarBounce();
+  const skin = SKINS.find(s => s.id === id);
+  showBubble(`Ich bin jetzt ${skin.em} ${skin.name}!`);
+}
+
+// ═══════════════════════════════════════════════════
+// SCREEN NAVIGATION
+// ═══════════════════════════════════════════════════
+const SCREENS = ['intro-screen','levelselect-screen','game-screen','roomdone-screen','expertunlock-screen'];
+function showScreen(id) {
+  SCREENS.forEach(s => {
+    const el = document.getElementById(s);
+    if (s === id) {
+      el.style.display = ['roomdone-screen','expertunlock-screen'].includes(s)
+        ? 'flex' : (s === 'levelselect-screen' ? 'flex' : 'block');
+      if (['roomdone-screen','expertunlock-screen','levelselect-screen'].includes(s)) {
+        el.style.flexDirection = 'column';
+        el.style.alignItems = 'center';
+        el.style.justifyContent = 'center';
+        el.style.minHeight = '100vh';
+        el.style.padding = '2rem';
+        if (s === 'roomdone-screen') el.style.textAlign = 'center';
+        if (s === 'expertunlock-screen') el.style.textAlign = 'center';
+        if (s === 'expertunlock-screen') el.style.background = 'radial-gradient(ellipse at 50% 30%,#1a0a3c 0%,#0a0e1a 70%)';
+        if (s === 'roomdone-screen') el.style.background = 'radial-gradient(ellipse at 50% 30%,#0d2a14 0%,#0a0e1a 70%)';
+        if (s === 'levelselect-screen') el.style.background = 'radial-gradient(ellipse at 50% 40%,#0d1f3c 0%,#0a0e1a 70%)';
+      }
+    } else {
+      el.style.display = 'none';
+    }
+  });
+  window.scrollTo(0,0);
+}
+
+function goToIntro() {
+  buildIntroRoomPreviews();
+  showScreen('intro-screen');
+  setTimeout(() => showBubble(getMsg('intro')), 400);
+}
+
+function goToLevelSelect() {
+  buildLevelSelect();
+  showScreen('levelselect-screen');
+}
+
+function goHomeFromGame() {
+  goToLevelSelect();
+}
+
+// ═══════════════════════════════════════════════════
+// INTRO ROOM PREVIEWS
+// ═══════════════════════════════════════════════════
+function buildIntroRoomPreviews() {
+  const wrap = document.getElementById('intro-room-previews');
+  wrap.innerHTML = ROOMS.map(r => {
+    const done = roomComplete(r.id);
+    let cls = 'room-preview unlocked';
+    if (done) cls = 'room-preview done';
+    const check = done ? '<div class="room-check">✓ Geschafft</div>' : '';
+    return `<div class="${cls}">
+      <span class="room-emoji">${r.emoji}</span>
+      <span class="room-name">${r.name.replace(/Raum \d+: /,'')}</span>
+      ${check}
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// LEVEL SELECT
+// ═══════════════════════════════════════════════════
+function buildLevelSelect() {
+  const cards = document.getElementById('ls-cards');
+  cards.innerHTML = ROOMS.map((r, i) => {
+    const done = roomComplete(r.id);
+    const isExpert = r.stars === '★★★';
+    let cls = 'ls-card';
+    if (done) cls += ' done';
+    if (isExpert) cls += ' expert-card';
+    const statusIcon = done ? '✅' : (isExpert ? '🏆' : '▶');
+    return `<div class="${cls}" onclick="startRoom('${r.id}')">
+      <div class="ls-card-icon">${r.emoji}</div>
+      <div class="ls-card-info">
+        <div class="ls-card-title">${r.name}</div>
+        <div class="ls-card-desc">${r.desc} · ${r.questions.length} Aufgaben${done ? ' · '+roomScore(r.id)+' Punkte' : ''}</div>
+      </div>
+      <div class="ls-card-status">${statusIcon}</div>
+    </div>`;
+  }).join('');
+
+  const hint = document.getElementById('ls-expert-hint');
+  if (state.expertDone) {
+    hint.innerHTML = '🏆 Experten-Level abgeschlossen! <span class="expert-badge">✨ Skins freigeschaltet</span> — klicke deinen Avatar um zu wechseln.';
+  } else {
+    hint.innerHTML = 'Schließe das <span class="expert-badge">★★★ Experten-Level</span> ab, um alle geheimen Avatar-Skins freizuschalten.';
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// GAME
+// ═══════════════════════════════════════════════════
+function startRoom(rid) {
+  state.currentRoom = rid;
+  const room = ROOMS.find(r => r.id === rid);
+
+  document.getElementById('game-screen').style.display = 'block';
+  showScreen('game-screen');
+
+  const hdr = document.getElementById('room-header');
+  hdr.innerHTML = `<div class="room-icon-big">${room.emoji}</div>
+    <div><div class="room-title">${room.name}</div>
+    <div class="room-desc">${room.desc} · ${room.questions.length} Aufgaben</div></div>
+    <div class="room-stars">${room.stars}</div>`;
+
+  const container = document.getElementById('question-container');
+  container.innerHTML = room.questions.map((q,qi) => renderQuestion(q, qi)).join('');
+
+  room.questions.forEach(q => { if (state.answers[q.id]) restoreQuestion(q); });
+
+  document.getElementById('btn-finish').disabled = !roomComplete(rid);
+  updateProgress();
+
+  const msgKey = rid + 'start';
+  setTimeout(() => { showBubble(getMsg(msgKey)); avatarBounce(); }, 500);
+}
+
+function renderQuestion(q, idx) {
+  let inputsHtml = '';
+  if (q.type === 'choice') {
+    inputsHtml = `<div class="choices" id="choices-${q.id}">
+      ${q.choices.map((c,ci) => `<button class="choice-btn" onclick="checkChoice('${q.id}',${ci})" id="choice-${q.id}-${ci}">${c}</button>`).join('')}
+    </div>`;
+  } else {
+    inputsHtml = `<div class="input-row">
+      <input class="ans-input" type="text" id="input-${q.id}" placeholder="Antwort…" onkeydown="if(event.key==='Enter')checkInput('${q.id}')">
+      <button class="btn-check" id="btnchk-${q.id}" onclick="checkInput('${q.id}')">Prüfen</button>
+    </div>`;
+  }
+  const ans = state.answers[q.id];
+  const cardCls = ans ? (ans.correct ? 'answered-correct' : 'answered-wrong') : '';
+  return `<div class="question-card ${cardCls}" id="card-${q.id}">
+    <div class="q-meta"><span class="q-stars">${q.stars}</span><span class="q-num">Aufgabe ${idx+1}</span></div>
+    <div class="q-text">${q.text}</div>
+    ${q.hint ? `<div class="q-hint">💡 Tipp: ${q.hint}</div>` : ''}
+    ${inputsHtml}
+    <div class="feedback" id="fb-${q.id}"></div>
+  </div>`;
+}
+
+function checkChoice(qid, ci) {
+  if (state.answers[qid]) return;
+  const q = findQ(qid);
+  const correct = ci === q.correct;
+  state.answers[qid] = { correct, value: ci };
+  if (correct) showBubble(getMsg('correct'));
+  else showBubble(getMsg('wrong'));
+  avatarBounce();
+  const wrap = document.getElementById(`choices-${qid}`);
+  wrap.querySelectorAll('.choice-btn').forEach((btn,i) => {
+    btn.disabled = true;
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === ci && !correct) btn.classList.add('wrong');
+  });
+  showFeedback(qid, correct, q.feedback);
+  updateCard(qid, correct);
+  checkFinishBtn();
+}
+
+function checkInput(qid) {
+  if (state.answers[qid]) return;
+  const q = findQ(qid);
+  const inp = document.getElementById(`input-${qid}`);
+  const val = inp.value.trim().replace(',','.').replace('−','-');
+  let correct = val === q.correctAnswer;
+  if (!correct && q.altAnswers) correct = q.altAnswers.some(a => val === a.replace(',','.').replace('−','-'));
+  state.answers[qid] = { correct, value: val };
+  if (correct) showBubble(getMsg('correct'));
+  else showBubble(getMsg('wrong'));
+  avatarBounce();
+  inp.disabled = true;
+  inp.classList.add(correct ? 'correct' : 'wrong');
+  document.getElementById(`btnchk-${qid}`).disabled = true;
+  showFeedback(qid, correct, q.feedback);
+  updateCard(qid, correct);
+  checkFinishBtn();
+}
+
+function showFeedback(qid, correct, msg) {
+  const fb = document.getElementById(`fb-${qid}`);
+  fb.textContent = (correct ? '✅ ' : '❌ ') + msg;
+  fb.className = 'feedback show ' + (correct ? 'ok' : 'nok');
+}
+
+function updateCard(qid, correct) {
+  const card = document.getElementById(`card-${qid}`);
+  card.classList.remove('answered-correct','answered-wrong');
+  card.classList.add(correct ? 'answered-correct' : 'answered-wrong');
+  updateProgress();
+}
+
+function restoreQuestion(q) {
+  const ans = state.answers[q.id];
+  if (!ans) return;
+  if (q.type === 'choice') {
+    const wrap = document.getElementById(`choices-${q.id}`);
+    if (wrap) wrap.querySelectorAll('.choice-btn').forEach((btn,i) => {
+      btn.disabled = true;
+      if (i === q.correct) btn.classList.add('correct');
+      else if (i === ans.value && !ans.correct) btn.classList.add('wrong');
+    });
+  } else {
+    const inp = document.getElementById(`input-${q.id}`);
+    if (inp) { inp.value = ans.value; inp.disabled = true; inp.classList.add(ans.correct ? 'correct' : 'wrong'); }
+    const btn = document.getElementById(`btnchk-${q.id}`);
+    if (btn) btn.disabled = true;
+  }
+  showFeedback(q.id, ans.correct, q.feedback);
+  const card = document.getElementById(`card-${q.id}`);
+  if (card) { card.classList.remove('answered-correct','answered-wrong'); card.classList.add(ans.correct ? 'answered-correct' : 'answered-wrong'); }
+}
+
+function checkFinishBtn() {
+  document.getElementById('btn-finish').disabled = !roomComplete(state.currentRoom);
+}
+
+function updateProgress() {
+  const total = ROOMS.reduce((s,r) => s + r.questions.length, 0);
+  const done = Object.keys(state.answers).length;
+  document.getElementById('prog-fill').style.width = Math.round(done/total*100) + '%';
+  const pts = Object.values(state.answers).filter(a => a.correct).length * 10;
+  document.getElementById('prog-score').textContent = pts + ' Pkt';
+}
+
+function finishRoom() {
+  const room = ROOMS.find(r => r.id === state.currentRoom);
+  const qs = room.questions;
+  const pts = qs.filter(q => state.answers[q.id]?.correct).length * 10;
+  state.roomScores[room.id] = pts;
+
+  showScreen('roomdone-screen');
+
+  document.getElementById('rd-icon').textContent = pts >= qs.length * 10 ? '🌟' : '🎉';
+  document.getElementById('rd-title').textContent = pts >= qs.length * 10 ? 'Perfekt! Alle richtig!' : 'Raum abgeschlossen!';
+  document.getElementById('rd-subtitle').textContent = room.name;
+  document.getElementById('rd-score-num').textContent = pts;
+
+  const codeBox = document.getElementById('rd-code-box');
+  codeBox.style.display = 'block';
+  document.getElementById('rd-code-digit').textContent = room.codeDigit;
+
+  document.getElementById('rd-av').textContent = currentSkinEmoji();
+  const msgKey = room.id + 'done';
+  document.getElementById('rd-av-text').textContent = getMsg(msgKey);
+
+  // Buttons
+  const btnRow = document.getElementById('rd-btn-row');
+  btnRow.innerHTML = '';
+
+  const isLast = room.id === 'r4';
+  const isExpert = room.stars === '★★★';
+
+  if (isExpert) {
+    // Unlock screen
+    const btnUnlock = document.createElement('button');
+    btnUnlock.className = 'btn-rd expert';
+    btnUnlock.textContent = '✨ Skins freischalten!';
+    btnUnlock.onclick = showExpertUnlock;
+    btnRow.appendChild(btnUnlock);
+
+    const btnBack = document.createElement('button');
+    btnBack.className = 'btn-rd secondary';
+    btnBack.textContent = '← Zur Raumauswahl';
+    btnBack.onclick = goToLevelSelect;
+    btnRow.appendChild(btnBack);
+  } else if (room.returnable) {
+    const btnCont = document.createElement('button');
+    btnCont.className = 'btn-rd';
+    btnCont.textContent = 'Weiter zum nächsten Raum →';
+    btnCont.onclick = () => {
+      const idx = ROOMS.findIndex(r => r.id === room.id);
+      if (idx + 1 < ROOMS.length) startRoom(ROOMS[idx+1].id);
+      else goToLevelSelect();
+    };
+    btnRow.appendChild(btnCont);
+
+    const btnBack = document.createElement('button');
+    btnBack.className = 'btn-rd secondary';
+    btnBack.textContent = '← Zur Raumauswahl';
+    btnBack.onclick = goToLevelSelect;
+    btnRow.appendChild(btnBack);
+  }
+
+  setTimeout(() => avatarBounce(), 300);
+  setTimeout(() => showBubble(getMsg(msgKey)), 600);
+}
+
+// ═══════════════════════════════════════════════════
+// EXPERT UNLOCK
+// ═══════════════════════════════════════════════════
+function showExpertUnlock() {
+  state.expertDone = true;
+  state.unlockedSkins = SKINS.map(s => s.id); // unlock all
+
+  const choices = document.getElementById('eu-skin-choices');
+  const expertSkins = SKINS.filter(s => s.id !== 'default');
+  choices.innerHTML = expertSkins.map(s => `
+    <div class="eu-skin-pick ${state.currentSkin === s.id ? 'chosen' : ''}" onclick="pickExpertSkin('${s.id}', this)">
+      <span class="sk-em">${s.em}</span>
+      <span class="sk-nm">${s.name}</span>
+    </div>`).join('');
+
+  document.getElementById('eu-av').textContent = currentSkinEmoji();
+  document.getElementById('eu-av-text').textContent = getMsg('expert');
+
+  showScreen('expertunlock-screen');
+  setTimeout(() => showBubble('🏆 Du hast alle Skins verdient!', 4000), 400);
+}
+
+let pendingExpertSkin = null;
+function pickExpertSkin(id, el) {
+  pendingExpertSkin = id;
+  document.querySelectorAll('.eu-skin-pick').forEach(e => e.classList.remove('chosen'));
+  el.classList.add('chosen');
+  const skin = SKINS.find(s => s.id === id);
+  document.getElementById('eu-av').textContent = skin.em;
+  showBubble(`${skin.em} sieht gut aus! Klicke "Aktivieren" um ihn dauerhaft zu nutzen.`);
+}
+
+function applyExpertSkin() {
+  if (pendingExpertSkin) {
+    state.currentSkin = pendingExpertSkin;
+    updateAllAvatars();
+    avatarBounce();
+    const skin = SKINS.find(s => s.id === state.currentSkin);
+    showBubble(`${skin.em} ${skin.name} aktiviert! 🎉`, 4000);
+  }
+  goToLevelSelect();
+}
+
+// ═══════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════
+function findQ(qid) {
+  for (const r of ROOMS) { const q = r.questions.find(q => q.id === qid); if (q) return q; }
+}
+function roomComplete(rid) {
+  const room = ROOMS.find(r => r.id === rid);
+  return room && room.questions.every(q => state.answers[q.id]);
+}
+function roomScore(rid) { return state.roomScores[rid] || 0; }
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+buildIntroRoomPreviews();
+updateAllAvatars();
+setTimeout(() => showBubble(getMsg('intro')), 800);
+</script>
+
+
+</body></html>

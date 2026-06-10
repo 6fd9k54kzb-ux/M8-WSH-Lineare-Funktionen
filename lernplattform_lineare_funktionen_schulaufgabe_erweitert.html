@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lineare Funktionen – Üben & Verstehen</title>
+<style>
+:root {
+  --accent: #6B4FA0;
+  --accent-dark: #4d357d;
+  --accent-soft: #efe9f7;
+  --success: #2E7D32;
+  --success-soft: #eef8ef;
+  --error: #C62828;
+  --error-soft: #fff0f0;
+  --hint: #E65100;
+  --hint-soft: #fff5ec;
+  --bg: #f5f6f8;
+  --card: #ffffff;
+  --text: #1d1d1f;
+  --muted: #5d6470;
+  --border: #dde1e8;
+  --shadow: 0 10px 30px rgba(30, 25, 45, .08);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  background: linear-gradient(180deg, #ffffff 0%, var(--bg) 280px);
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.55;
+}
+button, input, textarea, select { font: inherit; }
+button { touch-action: manipulation; }
+.app {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 24px 0 44px;
+}
+.hero {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  padding: 24px;
+  margin-bottom: 22px;
+}
+.hero-top {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+h1 {
+  margin: 0;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  letter-spacing: -0.04em;
+  color: #17141f;
+}
+.subtitle {
+  color: var(--muted);
+  margin-top: 4px;
+  font-size: 1.05rem;
+}
+.progress-wrap {
+  min-width: min(100%, 360px);
+  background: #fafafa;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 14px;
+}
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: 700;
+  color: #25212f;
+  margin-bottom: 8px;
+}
+.progress-bar {
+  width: 100%;
+  height: 14px;
+  border-radius: 999px;
+  background: #e7e9ef;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--success);
+  border-radius: 999px;
+  transition: width .25s ease;
+}
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(245px, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.chapter-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 6px 20px rgba(20, 20, 20, .04);
+  cursor: pointer;
+  text-align: left;
+  transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+.chapter-card:hover, .chapter-card:focus-visible {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: var(--shadow);
+  outline: none;
+}
+.chapter-card.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.chapter-card h2 {
+  margin: 0 0 4px;
+  font-size: 1.03rem;
+  line-height: 1.3;
+}
+.chapter-card p {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: .95rem;
+}
+.chapter-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--muted);
+  font-size: .9rem;
+  margin-top: 7px;
+}
+.panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.panel-head {
+  padding: 22px 24px;
+  border-bottom: 1px solid var(--border);
+  background: #fff;
+}
+.panel-head h2 {
+  margin: 0;
+  font-size: clamp(1.45rem, 2vw, 2rem);
+}
+.panel-head p {
+  color: var(--muted);
+  margin: 5px 0 0;
+}
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+.tab {
+  border: 1px solid var(--accent);
+  background: #fff;
+  color: var(--accent);
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.tab.active {
+  background: var(--accent);
+  color: #fff;
+}
+.tasks {
+  padding: 20px;
+  display: grid;
+  gap: 16px;
+}
+.task-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(20, 20, 20, .04);
+}
+.task-card.solved {
+  border-color: rgba(46, 125, 50, .55);
+}
+.task-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+.task-kicker {
+  color: var(--accent);
+  font-weight: 800;
+  font-size: .92rem;
+}
+.task-title {
+  margin: 2px 0 8px;
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+.badge {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 999px;
+  padding: 5px 10px;
+  background: #f0f1f4;
+  color: var(--muted);
+  font-size: .9rem;
+  font-weight: 800;
+}
+.badge.done {
+  background: var(--success-soft);
+  color: var(--success);
+}
+.stem {
+  margin-bottom: 14px;
+}
+.diagram {
+  background: #fbfbfd;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+  margin: 14px 0;
+  overflow-x: auto;
+}
+.diagram svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+.inputs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+  margin: 14px 0;
+}
+.field label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.field input, textarea {
+  width: 100%;
+  border: 1px solid #cbd0da;
+  border-radius: 12px;
+  padding: 11px 12px;
+  background: #fff;
+  min-height: 44px;
+}
+.field input:focus, textarea:focus {
+  border-color: var(--accent);
+  outline: 3px solid rgba(107,79,160,.18);
+}
+textarea {
+  min-height: 118px;
+  resize: vertical;
+}
+.input-correct {
+  border-color: var(--success) !important;
+  background: var(--success-soft) !important;
+}
+.input-wrong {
+  border-color: var(--error) !important;
+  background: var(--error-soft) !important;
+}
+.options {
+  display: grid;
+  gap: 10px;
+  margin: 14px 0;
+}
+.option {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+  cursor: pointer;
+  background: #fff;
+}
+.option input {
+  margin-top: 3px;
+  min-width: 18px;
+  min-height: 18px;
+}
+.option-correct {
+  border-color: var(--success);
+  background: var(--success-soft);
+}
+.option-wrong {
+  border-color: var(--error);
+  background: var(--error-soft);
+}
+.matrix-wrap {
+  overflow-x: auto;
+  margin: 14px 0;
+}
+.matrix {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 620px;
+}
+.matrix th, .matrix td {
+  border: 1px solid var(--border);
+  padding: 10px;
+  text-align: center;
+}
+.matrix th:first-child, .matrix td:first-child {
+  text-align: left;
+  font-weight: 700;
+}
+.matrix tr.row-correct {
+  background: var(--success-soft);
+}
+.matrix tr.row-wrong {
+  background: var(--error-soft);
+}
+.pair-zone {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 14px 0;
+}
+.pair-col {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+.pair-col h4 {
+  margin: 0 0 2px;
+}
+.pair-item {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 14px;
+  padding: 12px;
+  text-align: left;
+  cursor: pointer;
+  min-height: 52px;
+}
+.pair-item.selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.pair-item.matched {
+  border-color: var(--success);
+}
+
+.pair-item.pair-correct {
+  border-color: var(--success);
+  background: var(--success-soft);
+}
+.pair-item.pair-wrong {
+  border-color: var(--error);
+  background: var(--error-soft);
+}
+.match-list {
+  background: #fafafa;
+  border: 1px dashed #cbd0da;
+  border-radius: 14px;
+  padding: 10px;
+  margin-top: 10px;
+  color: var(--muted);
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 12px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: #eef0f4;
+  color: #3a3f4a;
+  padding: 5px 10px;
+  font-weight: 700;
+  font-size: .92rem;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+.btn {
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.btn:hover, .btn:focus-visible {
+  background: var(--accent-dark);
+  outline: none;
+}
+.btn.secondary {
+  background: #fff;
+  color: var(--accent);
+}
+.btn.secondary:hover, .btn.secondary:focus-visible {
+  background: var(--accent-soft);
+}
+.btn.danger {
+  border-color: var(--error);
+  color: var(--error);
+  background: #fff;
+}
+.btn.danger:hover, .btn.danger:focus-visible {
+  background: var(--error-soft);
+}
+.feedback {
+  display: none;
+  border-left: 4px solid var(--hint);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-top: 14px;
+  background: var(--hint-soft);
+}
+.feedback.show { display: block; }
+.feedback.success {
+  border-left-color: var(--success);
+  background: var(--success-soft);
+}
+.feedback.error {
+  border-left-color: var(--error);
+  background: var(--error-soft);
+}
+.feedback.partial {
+  border-left-color: var(--hint);
+  background: var(--hint-soft);
+}
+details.solution {
+  margin-top: 10px;
+}
+details.solution summary {
+  color: var(--accent);
+  font-weight: 800;
+  cursor: pointer;
+}
+.empty {
+  color: var(--muted);
+  padding: 20px;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.footer-note {
+  color: var(--muted);
+  font-size: .9rem;
+  margin-top: 18px;
+  text-align: center;
+}
+@media (max-width: 760px) {
+  .app { width: min(100% - 20px, 1180px); padding-top: 10px; }
+  .hero, .panel { border-radius: 18px; }
+  .hero { padding: 18px; }
+  .tasks { padding: 12px; }
+  .task-card { padding: 16px; }
+  .pair-zone { grid-template-columns: 1fr; }
+  .hero-top { display: block; }
+  .progress-wrap { margin-top: 16px; }
+}
+@media print {
+  body { background: #fff; }
+  .toolbar, .grid, .tabs, .actions { display: none !important; }
+  .panel, .hero, .task-card { box-shadow: none; }
+  .task-card { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="hero">
+    <div class="hero-top">
+      <div>
+        <h1>Lineare Funktionen – Üben &amp; Verstehen</h1>
+        <div class="subtitle">Klasse 8 | Wirtschaftsschule</div>
+      </div>
+      <section class="progress-wrap" aria-label="Gesamtfortschritt">
+        <div class="progress-label"><span>Gesamtfortschritt</span><span id="totalText">0 von 0 Aufgaben gelöst ✓</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="totalFill"></div></div>
+      </section>
+    </div>
+    <div class="toolbar">
+      <button class="btn danger" onclick="resetAll()">Alles zurücksetzen</button>
+    </div>
+  </header>
+
+  <nav class="grid" id="chapterNav" aria-label="Kapitelnavigation"></nav>
+
+  <main class="panel" id="chapterPanel"></main>
+  <div class="footer-note">Die Lernplattform funktioniert offline in einer einzelnen HTML-Datei. Der Fortschritt wird lokal auf diesem Gerät gespeichert.</div>
+</div>
+
+<script>
+const CHAPTERS = [{"id": "K0", "title": "Kapitel 0: Vorwissen M7", "subtitle": "Koordinatensystem und Zuordnungen"}, {"id": "K1", "title": "Kapitel 1: Funktionsbegriff", "subtitle": "Funktion und Darstellungsformen"}, {"id": "K2", "title": "Kapitel 2: Proportionale Funktionen", "subtitle": "Ursprungsgerade und Proportionalitätsfaktor"}, {"id": "K3", "title": "Kapitel 3: Antiproportionale Funktionen", "subtitle": "Hyperbel, Produktgleichheit und Sachsituationen"}, {"id": "K4", "title": "Kapitel 4: Lineare Funktionen – Grundlagen", "subtitle": "Gleichung y = mx + t und Funktionsarten"}, {"id": "K5", "title": "Kapitel 5: Wertetabellen", "subtitle": "Aus Gleichung und Schaubild"}, {"id": "K6", "title": "Kapitel 6: Schaubilder lesen", "subtitle": "Informationen aus Graphen entnehmen"}, {"id": "K7", "title": "Kapitel 7: Steigung", "subtitle": "Bedeutung, Formel, Steigungsdreieck"}, {"id": "K8", "title": "Kapitel 8: y-Achsenabschnitt und Nullstelle", "subtitle": "Ablesen, berechnen und interpretieren"}, {"id": "K9", "title": "Kapitel 9: Lage von Geraden", "subtitle": "Parallel, identisch oder Schnittpunkt"}, {"id": "K10", "title": "Kapitel 10: Schnittpunkte", "subtitle": "Ablesen und Gleichsetzen"}, {"id": "K11", "title": "Kapitel 11: Anwendungsaufgaben / Modellierung", "subtitle": "Taxi, Alltag und Funktionen vergleichen"}];
+const TASKS = [{"id":"K0_1_M","chapter":"K0","level":"M","competence":"K0.1 – Koordinatensystem","title":"Punkt P ablesen","type":"numeric","stem":"Lies den Punkt <strong>P</strong> aus dem Koordinatensystem ab.","diagram":{"type":"coord","xMin":-4,"xMax":4,"yMin":-4,"yMax":4,"points":[{"x":2,"y":-1,"label":"P"}]},"fields":[{"name":"x","label":"x-Koordinate","answer":2,"tolerance":0.01,"inputType":"number"},{"name":"y","label":"y-Koordinate","answer":-1,"tolerance":0.01,"inputType":"number"}],"success":"P liegt 2 Schritte nach rechts und 1 Schritt nach unten: P(2 | −1).","hint":"Zuerst auf der x-Achse waagerecht lesen, dann auf der y-Achse senkrecht."},{"id":"K0_1_R","chapter":"K0","level":"R","competence":"K0.1 – Koordinatensystem","title":"Punkt mit Koordinaten finden","type":"mc","stem":"Welcher eingezeichnete Punkt hat die Koordinaten <strong>(−3 | −2)</strong>?","diagram":{"type":"coord","xMin":-4,"xMax":4,"yMin":-4,"yMax":4,"points":[{"x":1,"y":3,"label":"A"},{"x":-2,"y":3,"label":"B"},{"x":-3,"y":-2,"label":"C"},{"x":2,"y":-3,"label":"D"}]},"options":[{"text":"Punkt A","correct":false},{"text":"Punkt B","correct":false},{"text":"Punkt C","correct":true},{"text":"Punkt D","correct":false}],"success":"Richtig: C liegt 3 Schritte links und 2 Schritte nach unten.","hint":"Bei (−3 | −2) gehst du zuerst 3 nach links und dann 2 nach unten.","repeatable":true},{"id":"K0_2_M","chapter":"K0","level":"M","competence":"K0.2 – Zuordnungen verstehen","title":"Zuordnung erklären","type":"freetext","stem":"Was ist eine Zuordnung? Formuliere einen vollständigen Satz.","keywords":["Ausgangsgröße","Zielgröße","zuordnen"],"keywordGroups":[["ausgangsgröße","ausgangsgroesse"],["zielgröße","zielgroesse"],["zuordnen","zugeordnet","ordnung"]],"sample":"Eine Zuordnung ordnet einer Ausgangsgröße eine passende Zielgröße zu.","success":"Sehr gut: Dein Satz beschreibt die Beziehung zwischen Ausgangsgröße und Zielgröße.","hint":"Denke an Beispiele wie Menge → Preis oder Zeit → Strecke."},{"id":"K0_2_R","chapter":"K0","level":"R","competence":"K0.2 – Zuordnungen verstehen","title":"Eindeutige Zuordnung prüfen","type":"mc","multi":true,"stem":"Welche Darstellungen sind <strong>keine eindeutige Zuordnung</strong>? Es können mehrere Antworten richtig sein.","options":[{"text":"A: Jeder Person wird genau ein Geburtsmonat zugeordnet.","correct":false},{"text":"B: Ein x-Wert zeigt auf zwei verschiedene y-Werte.","correct":true},{"text":"C: Jeder Artikelnummer wird genau ein Artikel zugeordnet.","correct":false},{"text":"D: Ein senkrechter Kreisrand hätte zu einem x-Wert zwei y-Werte.","correct":true}],"success":"Richtig: Eine Zuordnung ist nicht eindeutig, wenn ein Ausgangswert mehrere Zielwerte hat.","hint":"Prüfe immer: Hat ein x-Wert genau einen y-Wert?","repeatable":true},{"id":"K1_1_M","chapter":"K1","level":"M","competence":"K1.1 – Was ist eine Funktion?","title":"Funktionsbegriff erklären","type":"freetext","stem":"Erkläre in einem Satz, was eine Funktion ist.","keywords":["eindeutig","x-Wert","y-Wert","zugeordnet"],"keywordGroups":[["eindeutig","genau"],["x-wert","xwert","x wert"],["y-wert","ywert","y wert"],["zugeordnet","zuordnen","ordnet"]],"sample":"Eine Funktion ordnet jedem x-Wert eindeutig genau einen y-Wert zu.","success":"Sehr gut: Dein Satz enthält die Eindeutigkeit und die Zuordnung von x zu y.","hint":"Der wichtigste Punkt ist: zu jedem x-Wert gehört genau ein y-Wert."},{"id":"K1_1_R","chapter":"K1","level":"R","competence":"K1.1 – Was ist eine Funktion?","title":"Funktion erkennen","type":"mc","stem":"Welche Zuordnung ist eine Funktion?","options":[{"text":"x = 1 wird y = 2 und y = 5 zugeordnet.","correct":false},{"text":"Jede Kilometerzahl wird genau einem Taxipreis zugeordnet.","correct":true},{"text":"Ein Punktkreis: Ein x-Wert hat oben und unten einen Punkt.","correct":false},{"text":"Ein Schüler hat gleichzeitig zwei verschiedene Klassennummern in derselben Liste.","correct":false}],"success":"Richtig: Für jede Kilometerzahl gibt es genau einen Taxipreis.","hint":"Eine Funktion darf zu einem x-Wert nicht zwei verschiedene y-Werte liefern.","repeatable":true},{"id":"K1_2_M","chapter":"K1","level":"M","competence":"K1.2 – Darstellungsformen","title":"Darstellungsformen zuordnen","type":"pairs","stem":"Ordne jede Darstellungsform dem passenden Beispiel zu.","left":[{"id":"wort","text":"Wort-Beschreibung"},{"id":"tabelle","text":"Wertetabelle"},{"id":"schaubild","text":"Schaubild"},{"id":"gleichung","text":"Gleichung"}],"right":[{"id":"r1","text":"Ein Taxi kostet 2 € Grundgebühr und 1,50 € pro km."},{"id":"r2","text":"x: 0 | 1 | 2<br>y: 2 | 3,5 | 5"},{"id":"r3","text":"Eine Gerade im Koordinatensystem"},{"id":"r4","text":"y = 1,5x + 2"}],"correct":{"wort":"r1","tabelle":"r2","schaubild":"r3","gleichung":"r4"},"success":"Richtig: Eine Funktion kann als Text, Tabelle, Graph oder Gleichung dargestellt werden.","hint":"Achte auf typische Kennzeichen: Zahlenreihe, Graph, Formel oder Alltagssatz."},{"id":"K1_2_R","chapter":"K1","level":"R","competence":"K1.2 – Darstellungsformen","title":"Wertetabelle zu y = 3x − 2","type":"numeric","stem":"Gegeben ist <strong>y = 3x − 2</strong>. Berechne die y-Werte.","fields":[{"name":"x-1","label":"y bei x = −1","answer":-5,"tolerance":0.01,"inputType":"number"},{"name":"x0","label":"y bei x = 0","answer":-2,"tolerance":0.01,"inputType":"number"},{"name":"x1","label":"y bei x = 1","answer":1,"tolerance":0.01,"inputType":"number"},{"name":"x2","label":"y bei x = 2","answer":4,"tolerance":0.01,"inputType":"number"}],"success":"Richtig: Du setzt jeden x-Wert in y = 3x − 2 ein.","hint":"Beispiel: Bei x = 1 gilt y = 3 · 1 − 2 = 1.","repeatable":true},{"id":"K2_1_M","chapter":"K2","level":"M","competence":"K2.1 – Proportionalität erkennen","title":"Proportionalität erklären","type":"freetext","stem":"Erkläre in einem Satz, was Proportionalität bedeutet.","keywords":["x größer","y größer","gleichmäßig"],"keywordGroups":[["x größer","x groesser","x wird größer","x wächst","x waechst"],["y größer","y groesser","y wird größer","y steigt","y wächst"],["gleichmäßig","gleichmaessig","immer gleich","proportional"]],"sample":"Bei einer proportionalen Funktion wird y gleichmäßig größer, wenn x größer wird.","success":"Sehr gut: Du beschreibst den gleichmäßigen Zusammenhang zwischen x und y.","hint":"Denke an: doppelte Menge → doppelter Preis."},{"id":"K2_1_R","chapter":"K2","level":"R","competence":"K2.1 – Proportionalität erkennen","title":"Proportionale Gleichung erkennen","type":"mc","stem":"Welche Funktionsgleichung beschreibt eine proportionale Funktion?","options":[{"text":"y = 2x","correct":true},{"text":"y = 2x + 1","correct":false},{"text":"y = 2 / x","correct":false},{"text":"y = x²","correct":false}],"success":"Richtig: y = 2x ist proportional, weil kein zusätzlicher y-Achsenabschnitt vorhanden ist.","hint":"Proportionale Funktionen haben die Form y = mx und gehen durch den Ursprung.","repeatable":true},{"id":"K2_2_M","chapter":"K2","level":"M","competence":"K2.2 – Ursprungsgerade","title":"Punkt einer proportionalen Funktion","type":"numeric","stem":"Eine proportionale Funktion hat die Gleichung <strong>y = 4x</strong>. Durch welchen Punkt geht ihr Graph immer? Gib die Koordinaten ein.","fields":[{"name":"x","label":"x-Koordinate","answer":0,"tolerance":0.01,"inputType":"number"},{"name":"y","label":"y-Koordinate","answer":0,"tolerance":0.01,"inputType":"number"}],"success":"Richtig: Jede proportionale Funktion geht durch den Ursprung (0 | 0).","hint":"Setze x = 0 ein. Dann ist y = 4 · 0 = 0."},{"id":"K2_3_M","chapter":"K2","level":"M","competence":"K2.3 – Wertetabelle proportional","title":"Wertetabelle zu y = 5x","type":"numeric","stem":"Ergänze die Wertetabelle zu <strong>y = 5x</strong>.","fields":[{"name":"x0","label":"y bei x = 0","answer":0,"tolerance":0.01,"inputType":"number"},{"name":"x1","label":"y bei x = 1","answer":5,"tolerance":0.01,"inputType":"number"},{"name":"x2","label":"y bei x = 2","answer":10,"tolerance":0.01,"inputType":"number"},{"name":"x3","label":"y bei x = 3","answer":15,"tolerance":0.01,"inputType":"number"}],"success":"Richtig: Jeder x-Wert wird mit 5 multipliziert.","hint":"Rechne jeweils 5 · x."},{"id":"K2_3_R","chapter":"K2","level":"R","competence":"K2.3 – Wertetabelle proportional","title":"Apfelpreise modellieren","type":"numeric","stem":"1 kg Äpfel kostet 2,50 €. Fülle die Wertetabelle für 0 bis 5 kg aus und gib die Funktionsgleichung an.","fields":[{"name":"kg0","label":"0 kg","answer":0,"tolerance":0.01,"inputType":"number"},{"name":"kg1","label":"1 kg","answer":2.5,"tolerance":0.01,"inputType":"number"},{"name":"kg2","label":"2 kg","answer":5,"tolerance":0.01,"inputType":"number"},{"name":"kg3","label":"3 kg","answer":7.5,"tolerance":0.01,"inputType":"number"},{"name":"kg4","label":"4 kg","answer":10,"tolerance":0.01,"inputType":"number"},{"name":"kg5","label":"5 kg","answer":12.5,"tolerance":0.01,"inputType":"number"},{"name":"eq","label":"Funktionsgleichung","accepted":["y=2,5x","y=2.5x","y=2,50x","y=2.50x","y=2,5*x","y=2.5*x","y=2,50*x","y=2.50*x","f(x)=2,5x","f(x)=2.5x","f(x)=2,50x","f(x)=2.50x","f(x)=2,5*x","f(x)=2.5*x","f(x)=2,50*x","f(x)=2.50*x","2,5x","2.5x","2,50x","2.50x","2,5*x","2.5*x","2,50*x","2.50*x"],"inputType":"text","placeholder":"z. B. y = 2,50x oder 2,50x"}],"success":"Richtig: Der Preis steigt pro kg um 2,50 €, also y = 2,5x.","hint":"Multipliziere die kg-Zahl mit 2,50 €.","repeatable":true},{"id":"K3_1_M","chapter":"K3","level":"M","competence":"K3.1 – Antiproportionalität erkennen","title":"Proportional und antiproportional unterscheiden","type":"freetext","stem":"Erkläre den Unterschied zwischen proportional und antiproportional.","keywords":["x wächst","y kleiner","Hyperbel"],"keywordGroups":[["x wächst","x waechst","x größer","x groesser"],["y kleiner","y wird kleiner","y sinkt","weniger"],["hyperbel"]],"sample":"Bei einer antiproportionalen Funktion wird y kleiner, wenn x wächst; der Graph ist eine Hyperbel.","success":"Sehr gut: Du beschreibst die Gegenbewegung und nennst die Hyperbel.","hint":"Antiproportional bedeutet: Mehr von x führt zu weniger von y."},{"id":"K3_1_R","chapter":"K3","level":"R","competence":"K3.1 – Antiproportionalität erkennen","title":"Antiproportionale Gleichung erkennen","type":"mc","stem":"Welche Gleichung ist antiproportional?","options":[{"text":"y = 10 / x","correct":true},{"text":"y = 10x","correct":false},{"text":"y = 10x + 2","correct":false},{"text":"y = x + 10","correct":false}],"success":"Richtig: y = 10 / x hat die Form y = k / x.","hint":"Antiproportionale Funktionen enthalten x im Nenner.","repeatable":true},{"id":"K3_2_M","chapter":"K3","level":"M","competence":"K3.2 – Wertetabelle antiproportional","title":"Wertetabelle zu y = 12 / x","type":"numeric","stem":"Ergänze die Wertetabelle zu <strong>y = 12 / x</strong>.","fields":[{"name":"x1","label":"y bei x = 1","answer":12,"tolerance":0.01,"inputType":"number"},{"name":"x2","label":"y bei x = 2","answer":6,"tolerance":0.01,"inputType":"number"},{"name":"x3","label":"y bei x = 3","answer":4,"tolerance":0.01,"inputType":"number"},{"name":"x4","label":"y bei x = 4","answer":3,"tolerance":0.01,"inputType":"number"},{"name":"x6","label":"y bei x = 6","answer":2,"tolerance":0.01,"inputType":"number"}],"success":"Richtig: Du teilst 12 jeweils durch den x-Wert.","hint":"Beispiel: Bei x = 3 ist y = 12 : 3 = 4."},{"id":"K3_2_R","chapter":"K3","level":"R","competence":"K3.2 – Wertetabelle und Graph","title":"Arbeiter und Tage","type":"numeric","stem":"6 Arbeiter brauchen 4 Tage. Wie lange brauchen 8 Arbeiter? Schreibe die Funktionsgleichung auf und berechne.","fields":[{"name":"k","label":"Produkt k = Arbeiter · Tage","answer":24,"tolerance":0.01,"inputType":"number"},{"name":"eq","label":"Funktionsgleichung","accepted":["y=24/x","f(x)=24/x","y = 24 / x","y=24:x"],"inputType":"text","placeholder":"z. B. y = 4x"},{"name":"days","label":"Tage bei 8 Arbeitern","answer":3,"tolerance":0.01,"inputType":"number"}],"success":"Richtig: 6 · 4 = 24, also y = 24 / x. Bei 8 Arbeitern sind es 3 Tage.","hint":"Bei antiproportionalen Aufgaben bleibt das Produkt gleich.","repeatable":true},{"id":"K4_1_M","chapter":"K4","level":"M","competence":"K4.1 – Gleichung y = mx + t","title":"m und t erkennen","type":"numeric","stem":"Benenne in <strong>y = 3x + 5</strong>: Was ist die Steigung m? Was ist der y-Achsenabschnitt t?","fields":[{"name":"m","label":"Steigung m","answer":3,"tolerance":0.01,"inputType":"number"},{"name":"t","label":"y-Achsenabschnitt t","answer":5,"tolerance":0.01,"inputType":"number"}],"success":"Richtig: In y = mx + t ist m = 3 und t = 5.","hint":"Die Zahl vor x ist m. Die Zahl ohne x ist t."},{"id":"K4_1_R","chapter":"K4","level":"R","competence":"K4.1 – Gleichung y = mx + t","title":"Lineare und proportionale Funktion vergleichen","type":"freetext","stem":"Welche Eigenschaften hat eine lineare Funktion im Unterschied zu einer proportionalen?","keywords":["y-Achsenabschnitt","t ungleich 0","Gerade","verschoben"],"keywordGroups":[["y-achsenabschnitt","achsenabschnitt"],["t ungleich 0","t ist nicht 0","t nicht 0","t≠0","t ≠ 0"],["gerade"],["verschoben","verschiebung"]],"sample":"Eine lineare Funktion ist eine Gerade, die bei t ungleich 0 durch den y-Achsenabschnitt verschoben ist.","success":"Sehr gut: Du nennst Gerade, y-Achsenabschnitt und die Verschiebung bei t ungleich 0.","hint":"Nutze den Wortlaut „t ungleich 0“ und erkläre, dass die Gerade dadurch verschoben ist.","repeatable":true},{"id":"K4_2_M","chapter":"K4","level":"M","competence":"K4.2 – Funktionsarten unterscheiden","title":"Funktionsarten ankreuzen","type":"matrix","stem":"Ordne jede Gleichung der passenden Funktionsart zu.","choices":["proportional","antiproportional","linear"],"rows":[{"id":"a","label":"y = 4x","correct":"proportional"},{"id":"b","label":"y = 6 / x","correct":"antiproportional"},{"id":"c","label":"y = 4x − 2","correct":"linear"},{"id":"d","label":"y = x + 1","correct":"linear"},{"id":"e","label":"y = 8x","correct":"proportional"}],"success":"Richtig: Proportional ist y = mx, antiproportional ist y = k/x, linear ist y = mx + t.","hint":"Achte auf x im Nenner und auf einen zusätzlichen y-Achsenabschnitt."},{"id":"K4_2_R","chapter":"K4","level":"R","competence":"K4.2 – Funktionsarten unterscheiden","title":"Graphen zuordnen","type":"pairs","stem":"Ordne die Graphbeschreibung der Funktionsart zu.","left":[{"id":"origin","text":"Ursprungsgerade: Gerade durch (0 | 0)"},{"id":"hyp","text":"Hyperbel: fällt gekrümmt und nähert sich den Achsen"},{"id":"shift","text":"Verschobene Gerade: Gerade mit t ≠ 0"},{"id":"para","text":"Parabel: U-förmiger Graph"}],"right":[{"id":"prop","text":"proportionale Funktion"},{"id":"anti","text":"antiproportionale Funktion"},{"id":"lin","text":"lineare Funktion"},{"id":"quad","text":"quadratische Funktion"}],"correct":{"origin":"prop","hyp":"anti","shift":"lin","para":"quad"},"success":"Richtig: Jede Funktionsart hat eine typische Graphform.","hint":"Ursprungsgerade = proportional, Hyperbel = antiproportional.","repeatable":true},{"id":"K5_1_M","chapter":"K5","level":"M","competence":"K5.1 – Wertetabelle aus Gleichung","title":"Wertetabelle zu y = 2x − 1","type":"numeric","stem":"Erstelle die Wertetabelle zu <strong>y = 2x − 1</strong>.","fields":[{"name":"m2","label":"y bei x = −2","answer":-5,"tolerance":0.01,"inputType":"number"},{"name":"m1","label":"y bei x = −1","answer":-3,"tolerance":0.01,"inputType":"number"},{"name":"z0","label":"y bei x = 0","answer":-1,"tolerance":0.01,"inputType":"number"},{"name":"p1","label":"y bei x = 1","answer":1,"tolerance":0.01,"inputType":"number"},{"name":"p2","label":"y bei x = 2","answer":3,"tolerance":0.01,"inputType":"number"}],"success":"Richtig: Du hast jeden x-Wert korrekt eingesetzt.","hint":"Beispiel: Bei x = −2 ist y = 2 · (−2) − 1 = −5."},{"id":"K5_1_R","chapter":"K5","level":"R","competence":"K5.1 – Wertetabelle aus Gleichung","title":"Wertetabelle zu y = −0,5x + 3","type":"numeric","stem":"Erstelle die Wertetabelle zu <strong>y = −0,5x + 3</strong>.","fields":[{"name":"m4","label":"y bei x = −4","answer":5,"tolerance":0.01,"inputType":"number"},{"name":"m2","label":"y bei x = −2","answer":4,"tolerance":0.01,"inputType":"number"},{"name":"z0","label":"y bei x = 0","answer":3,"tolerance":0.01,"inputType":"number"},{"name":"p2","label":"y bei x = 2","answer":2,"tolerance":0.01,"inputType":"number"},{"name":"p4","label":"y bei x = 4","answer":1,"tolerance":0.01,"inputType":"number"}],"success":"Richtig: Bei negativer Steigung werden die y-Werte kleiner, wenn x größer wird.","hint":"Rechne −0,5 · x + 3.","repeatable":true},{"id":"K5_2_M","chapter":"K5","level":"M","competence":"K5.2 – Wertetabelle aus Schaubild","title":"y-Werte aus Graph ablesen","type":"numeric","stem":"Lies aus dem Graphen die y-Werte für x = −2, 0, 2 ab.","diagram":{"type":"coord","xMin":-4,"xMax":4,"yMin":-4,"yMax":5,"lines":[{"m":1,"b":1,"label":"f"}]},"fields":[{"name":"xm2","label":"y bei x = −2","answer":-1,"tolerance":0.01,"inputType":"number"},{"name":"x0","label":"y bei x = 0","answer":1,"tolerance":0.01,"inputType":"number"},{"name":"x2","label":"y bei x = 2","answer":3,"tolerance":0.01,"inputType":"number"}],"success":"Richtig: Die Gerade hat die Gleichung y = x + 1.","hint":"Gehe vom x-Wert senkrecht zum Graphen und dann waagerecht zur y-Achse."},{"id":"K5_2_R","chapter":"K5","level":"R","competence":"K5.2 – Wertetabelle aus Schaubild","title":"Zwei Geraden ablesen","type":"numeric","stem":"Lies die Wertetabellen beider Funktionen f und g für x = −1, 0, 1, 2 ab.","diagram":{"type":"coord","xMin":-3,"xMax":4,"yMin":-3,"yMax":5,"lines":[{"m":2,"b":0,"label":"f"},{"m":-1,"b":2,"label":"g"}]},"fields":[{"name":"f-1","label":"f(−1)","answer":-2,"tolerance":0.01,"inputType":"number"},{"name":"f0","label":"f(0)","answer":0,"tolerance":0.01,"inputType":"number"},{"name":"f1","label":"f(1)","answer":2,"tolerance":0.01,"inputType":"number"},{"name":"f2","label":"f(2)","answer":4,"tolerance":0.01,"inputType":"number"},{"name":"g-1","label":"g(−1)","answer":3,"tolerance":0.01,"inputType":"number"},{"name":"g0","label":"g(0)","answer":2,"tolerance":0.01,"inputType":"number"},{"name":"g1","label":"g(1)","answer":1,"tolerance":0.01,"inputType":"number"},{"name":"g2","label":"g(2)","answer":0,"tolerance":0.01,"inputType":"number"}],"success":"Richtig: Du hast beide Geraden getrennt abgelesen.","hint":"f ist die steigende Gerade, g ist die fallende Gerade.","repeatable":true},{"id":"K6_1_M","chapter":"K6","level":"M","competence":"K6.1 – Informationen aus Schaubildern entnehmen","title":"Fitnessstudio-Kosten ablesen","type":"numeric","stem":"Das Schaubild zeigt die Kosten eines Fitnessstudios: Jeder Besuch kostet 8 €. Wie viel kostet der 5. Besuch?","diagram":{"type":"coord","xMin":0,"xMax":6,"yMin":0,"yMax":50,"yStep":10,"xStep":1,"lines":[{"m":8,"b":0,"label":"Kosten"}]},"fields":[{"name":"cost","label":"Kosten bei 5 Besuchen in €","answer":40,"tolerance":0.01,"inputType":"number"}],"success":"Richtig: 5 · 8 € = 40 €.","hint":"Lies bei x = 5 den y-Wert ab."},{"id":"K6_1_R","chapter":"K6","level":"R","competence":"K6.1 – Informationen aus Schaubildern entnehmen","title":"Drei Handytarife vergleichen","type":"freetext","stem":"Drei Tarife werden beschrieben: Telekom: 20 € Grundgebühr + 10 € monatlich, O2: 10 € Grundgebühr + 12 € monatlich, Vodafone: 35 € Grundgebühr + 5 € monatlich. Welcher Tarif ist nach 4 Monaten am günstigsten? Begründe.","keywords":["Schnittpunkt","Grundgebühr","monatlich","günstiger"],"keywordGroups":[["schnittpunkt","schnittpunkte"],["grundgebühr","grundgebuehr"],["monatlich","pro monat"],["günstiger","guenstiger","am günstigsten","billiger"]],"sample":"Nach 4 Monaten ist Vodafone günstiger, weil trotz höherer Grundgebühr die monatlichen Kosten niedriger sind; Schnittpunkte zeigen, ab wann sich Tarife ändern.","success":"Sehr gut: Du begründest mit Grundgebühr, monatlichen Kosten und dem Vergleich der Tarife.","hint":"Berechne die Kosten nach 4 Monaten: Telekom 60 €, O2 58 €, Vodafone 55 €.","repeatable":true},{"id":"K7_1_M","chapter":"K7","level":"M","competence":"K7.1 – Bedeutung der Steigung","title":"Steigung m = 3 erklären","type":"freetext","stem":"Erkläre in einem Satz, was die Steigung <strong>m = 3</strong> bedeutet.","keywords":["pro Kästchen","x-Richtung","y steigt um 3"],"keywordGroups":[["pro kästchen","je kästchen","für jedes kästchen","pro kaestchen","je kaestchen"],["x-richtung","x richtung","nach rechts"],["y steigt um 3","y wird um 3 größer","y wird um 3 groesser","y steigt 3"]],"sample":"m = 3 bedeutet: Pro Kästchen in x-Richtung steigt y um 3.","success":"Sehr gut: Du beschreibst die Steigung als Veränderung pro Kästchen in x-Richtung.","hint":"Beschreibe, was beim Weitergehen um ein Kästchen nach rechts mit dem y-Wert passiert."},{"id":"K7_1_R","chapter":"K7","level":"R","competence":"K7.1 – Bedeutung der Steigung","title":"Steigung aus Veränderung berechnen","type":"numeric","stem":"Welche Steigung hat eine Gerade, die von x = 1 zu x = 3 von y = 2 auf y = 8 steigt?","fields":[{"name":"m","label":"Steigung m","answer":3,"tolerance":0.01,"inputType":"number"}],"success":"Richtig: Δy = 6 und Δx = 2, also m = 6 : 2 = 3.","hint":"Rechne m = Veränderung von y / Veränderung von x.","repeatable":true},{"id":"K7_2_M","chapter":"K7","level":"M","competence":"K7.2 – Steigungsformel","title":"Steigung durch A und B","type":"numeric","stem":"Berechne die Steigung der Geraden durch A(0 | 2) und B(4 | 6).","fields":[{"name":"m","label":"m","answer":1,"tolerance":0.01,"inputType":"number"}],"success":"Richtig: m = (6 − 2) : (4 − 0) = 4 : 4 = 1.","hint":"Setze die Werte in die Steigungsformel ein."},{"id":"K7_2_R","chapter":"K7","level":"R","competence":"K7.2 – Steigungsformel","title":"Steigung mit negativen Koordinaten","type":"numeric","stem":"Berechne die Steigung durch P(−3 | 4) und Q(2 | −1).","fields":[{"name":"m","label":"m","answer":-1,"tolerance":0.01,"inputType":"number"}],"success":"Richtig: m = (−1 − 4) : (2 − (−3)) = −5 : 5 = −1.","hint":"Achte besonders auf das Minuszeichen bei −3.","repeatable":true},{"id":"K7_3_R","chapter":"K7","level":"R","competence":"K7.3 – Kollinearität prüfen","title":"Liegen drei Punkte auf einer Geraden?","type":"freetext","stem":"Liegen A(1 | 3), B(3 | 7) und C(5 | 11) auf einer Geraden? Begründe mithilfe der Steigungsformel.","keywords":["Steigung","gleich","gemeinsame Gerade"],"keywordGroups":[["steigung"],["gleich","identisch","selbe"],["gemeinsame gerade","einer geraden","auf einer geraden"]],"sample":"Ja, die Punkte liegen auf einer gemeinsamen Geraden, weil die Steigung von A zu B und von B zu C gleich ist.","success":"Sehr gut: Du argumentierst mit gleichen Steigungen.","hint":"Vergleiche m_AB und m_BC.","repeatable":true},{"id":"K7_4_M","chapter":"K7","level":"M","competence":"K7.4 – Steigungsdreieck","title":"Steigungsdreieck zu m = 2","type":"numeric","stem":"Eine Funktion hat m = 2 und t = −1. Starte bei (0 | −1). Wie groß ist der waagerechte Schritt? Wie groß ist der senkrechte Schritt?","fields":[{"name":"dx","label":"waagerechter Schritt","answer":1,"tolerance":0.01,"inputType":"number"},{"name":"dy","label":"senkrechter Schritt","answer":2,"tolerance":0.01,"inputType":"number"}],"success":"Richtig: m = 2 bedeutet 1 Schritt nach rechts und 2 Schritte nach oben.","hint":"m = 2 kann man als 2/1 schreiben."},{"id":"K7_4_R","chapter":"K7","level":"R","competence":"K7.4 – Steigungsdreieck und Zeichnen","title":"Steigung und y-Achsenabschnitt ablesen","type":"numeric","stem":"Lies aus dem Graphen mit Steigungsdreieck die Steigung m und den y-Achsenabschnitt t ab und gib die Funktionsgleichung an.","diagram":{"type":"coord","xMin":-3,"xMax":4,"yMin":-4,"yMax":6,"lines":[{"m":2,"b":-1,"label":"f"}],"triangle":{"x":0,"y":-1,"dx":1,"dy":2}},"fields":[{"name":"m","label":"m","answer":2,"tolerance":0.01,"inputType":"number"},{"name":"t","label":"t","answer":-1,"tolerance":0.01,"inputType":"number"},{"name":"eq","label":"Funktionsgleichung","accepted":["y=2x-1","f(x)=2x-1","y = 2x - 1"],"inputType":"text","placeholder":"z. B. y = 4x"}],"success":"Richtig: Die Gerade startet bei t = −1 und steigt pro Schritt um 2.","hint":"Lies t bei x = 0 ab. Das Steigungsdreieck zeigt 2/1.","repeatable":true},{"id":"K8_1_M","chapter":"K8","level":"M","competence":"K8.1 – y-Achsenabschnitt interpretieren","title":"Anfangswert erklären","type":"freetext","stem":"Gegeben ist <strong>y = −50x + 300</strong> für eine Fahrrad-Ratenzahlung. Was bedeutet der Wert 300?","keywords":["y-Achsenabschnitt","Anfangswert","Startpreis"],"keywordGroups":[["y-achsenabschnitt","achsenabschnitt"],["anfangswert","startwert"],["startpreis","preis am anfang","300 euro"]],"sample":"Der y-Achsenabschnitt 300 ist der Anfangswert bzw. Startpreis des Fahrrads.","success":"Sehr gut: Du interpretierst 300 als Anfangswert der Situation.","hint":"Setze x = 0. Dann ist y = 300."},{"id":"K8_1_R","chapter":"K8","level":"R","competence":"K8.1 – y-Achsenabschnitt ablesen","title":"y-Achsenabschnitt aus Graph ablesen","type":"numeric","stem":"Lies aus dem Graphen den y-Achsenabschnitt ab und notiere ihn als Punkt (0 | ___).","diagram":{"type":"coord","xMin":-3,"xMax":5,"yMin":-2,"yMax":7,"lines":[{"m":-1,"b":4,"label":"f"}]},"fields":[{"name":"y","label":"y-Koordinate des y-Achsenabschnitts","answer":4,"tolerance":0.01,"inputType":"number"}],"success":"Richtig: Die Gerade schneidet die y-Achse bei (0 | 4).","hint":"Der y-Achsenabschnitt liegt immer auf der y-Achse, also bei x = 0.","repeatable":true},{"id":"K8_2_M","chapter":"K8","level":"M","competence":"K8.2 – Nullstelle berechnen","title":"Nullstelle der Ratenzahlung","type":"numeric","stem":"Wo schneidet <strong>y = −50x + 300</strong> die x-Achse? Setze y = 0 und berechne x.","fields":[{"name":"x","label":"x der Nullstelle","answer":6,"tolerance":0.01,"inputType":"number"},{"name":"y","label":"y der Nullstelle","answer":0,"tolerance":0.01,"inputType":"number"}],"success":"Richtig: 0 = −50x + 300 führt zu x = 6, also N(6 | 0).","hint":"Ziehe 300 ab und teile anschließend durch −50."},{"id":"K8_2_R","chapter":"K8","level":"R","competence":"K8.2 – Nullstelle interpretieren","title":"Nullstelle im Sachkontext erklären","type":"freetext","stem":"Erkläre, was die Nullstelle N(6 | 0) bei der Fahrrad-Ratenzahlung bedeutet.","keywords":["Nullstelle","abbezahlt","x-Achse","6 Monate"],"keywordGroups":[["nullstelle"],["abbezahlt","bezahlt","schuldenfrei"],["x-achse","x achse"],["6 monate","sechs monate"]],"sample":"Die Nullstelle N(6 | 0) bedeutet, dass das Fahrrad nach 6 Monaten abbezahlt ist; der Graph schneidet dort die x-Achse.","success":"Sehr gut: Du verbindest die Nullstelle mit dem Sachzusammenhang.","hint":"Bei y = 0 ist kein Restbetrag mehr übrig.","repeatable":true},{"id":"K9_1_M","chapter":"K9","level":"M","competence":"K9.1 – Drei Fälle unterscheiden","title":"Lage von Geraden zuordnen","type":"pairs","stem":"Ordne die Beschreibung der passenden Lage von zwei Geraden zu.","left":[{"id":"parallel_case","text":"gleiche Steigung + verschiedener y-Achsenabschnitt"},{"id":"identical_case","text":"gleiche Steigung + gleicher y-Achsenabschnitt"},{"id":"intersect_case","text":"verschiedene Steigung"}],"right":[{"id":"parallel","text":"parallel"},{"id":"identical","text":"identisch"},{"id":"intersect","text":"Schnittpunkt"}],"correct":{"parallel_case":"parallel","identical_case":"identical","intersect_case":"intersect"},"success":"Richtig: Die Steigung entscheidet stark über die Lage der Geraden.","hint":"Gleiche Steigung bedeutet parallel oder identisch; verschiedene Steigung bedeutet Schnittpunkt."},{"id":"K9_1_R","chapter":"K9","level":"R","competence":"K9.1 – Drei Fälle unterscheiden","title":"Geradenpaare beurteilen","type":"matrix","stem":"Beurteile für jedes Geradenpaar: schneiden sich, parallel oder identisch?","choices":["schneiden sich","parallel","identisch"],"rows":[{"id":"p1","label":"y = 2x + 1 und y = 2x − 3","correct":"parallel"},{"id":"p2","label":"y = x + 4 und y = x + 4","correct":"identisch"},{"id":"p3","label":"y = 3x und y = −x + 2","correct":"schneiden sich"},{"id":"p4","label":"y = −2x + 1 und y = −2x + 5","correct":"parallel"},{"id":"p5","label":"y = 0,5x − 1 und y = 2x − 1","correct":"schneiden sich"},{"id":"p6","label":"y = 4x + 2 und y = 4x + 2","correct":"identisch"},{"id":"p7","label":"y = −x und y = −x − 7","correct":"parallel"},{"id":"p8","label":"y = 5 und y = 2x + 5","correct":"schneiden sich"}],"success":"Richtig: Du hast Steigung und y-Achsenabschnitt verglichen.","hint":"Vergleiche zuerst m, danach t.","repeatable":true},{"id":"K9_2_M","chapter":"K9","level":"M","competence":"K9.2 – Parallele Geraden erkennen","title":"Parallelität begründen","type":"freetext","stem":"f(x) = 2x − 3 und g(x) = 2x + 1: Sind diese Geraden parallel? Begründe.","keywords":["gleiche Steigung","verschiedener y-Achsenabschnitt","parallel"],"keywordGroups":[["gleiche steigung","selbe steigung"],["verschiedener y-achsenabschnitt","verschiedene y-achsenabschnitte","anderer y-achsenabschnitt"],["parallel"]],"sample":"Die Geraden sind parallel, weil sie die gleiche Steigung, aber einen verschiedenen y-Achsenabschnitt haben.","success":"Sehr gut: Du begründest korrekt mit m und t.","hint":"Beide Geraden haben m = 2."},{"id":"K9_2_R","chapter":"K9","level":"R","competence":"K9.2 – Parallele Geraden formulieren","title":"Parallele Funktionsgleichung angeben","type":"numeric","stem":"Gib eine Funktionsgleichung an, die parallel zu <strong>y = 3x + 5</strong> verläuft, aber die y-Achse bei −2 schneidet.","fields":[{"name":"m","label":"m","answer":3,"tolerance":0.01,"inputType":"number"},{"name":"t","label":"t","answer":-2,"tolerance":0.01,"inputType":"number"},{"name":"eq","label":"Funktionsgleichung","accepted":["y=3x-2","f(x)=3x-2","y = 3x - 2"],"inputType":"text","placeholder":"z. B. y = 4x"}],"success":"Richtig: Parallel bedeutet gleiche Steigung m = 3; der neue y-Achsenabschnitt ist t = −2.","hint":"Übernimm die Steigung 3 und setze t = −2.","repeatable":true},{"id":"K10_1_M","chapter":"K10","level":"M","competence":"K10.1 – Schnittpunkt zeichnerisch ablesen","title":"Schnittpunkt ablesen","type":"numeric","stem":"Das Koordinatensystem zeigt zwei Geraden. Lies den Schnittpunkt S ab.","diagram":{"type":"coord","xMin":-1,"xMax":5,"yMin":-1,"yMax":5,"lines":[{"m":1,"b":0,"label":"f"},{"m":-1,"b":4,"label":"g"}],"points":[{"x":2,"y":2,"label":"S"}]},"fields":[{"name":"x","label":"x-Koordinate von S","answer":2,"tolerance":0.01,"inputType":"number"},{"name":"y","label":"y-Koordinate von S","answer":2,"tolerance":0.01,"inputType":"number"}],"success":"Richtig: Die Geraden schneiden sich bei S(2 | 2).","hint":"Der Schnittpunkt ist die Stelle, an der beide Geraden denselben Punkt haben."},{"id":"K10_1_R","chapter":"K10","level":"R","competence":"K10.1 – Schnittpunkt interpretieren","title":"Schnittpunkt ablesen und erklären","type":"mixed","stem":"Lies den Schnittpunkt ab und erkläre in einem Satz, was dieser Punkt bedeutet.","diagram":{"type":"coord","xMin":-1,"xMax":4,"yMin":-1,"yMax":6,"lines":[{"m":2,"b":1,"label":"f"},{"m":-1,"b":4,"label":"g"}],"points":[{"x":1,"y":3,"label":"S"}]},"fields":[{"name":"x","label":"x-Koordinate von S","answer":1,"tolerance":0.01,"inputType":"number"},{"name":"y","label":"y-Koordinate von S","answer":3,"tolerance":0.01,"inputType":"number"}],"keywords":["Schnittpunkt","beide Funktionen","gleicher Wert"],"keywordGroups":[["schnittpunkt"],["beide funktionen","beide geraden"],["gleicher wert","denselben wert","gleich"]],"sample":"Der Schnittpunkt S(1 | 3) bedeutet, dass beide Funktionen bei x = 1 den gleichen Wert 3 haben.","success":"Richtig: Der Schnittpunkt ist S(1 | 3) und bedeutet gleiche Werte beider Funktionen.","hint":"Erkläre, dass beide Funktionen an dieser Stelle denselben y-Wert haben.","repeatable":true},{"id":"K10_2_M","chapter":"K10","level":"M","competence":"K10.2 – Gleichsetzungsverfahren","title":"Geführtes Gleichsetzen","type":"numeric","stem":"Berechne den Schnittpunkt von <strong>y = 2x</strong> und <strong>y = −x + 6</strong>. Gib zuerst die richtige Lösung für x und danach die richtige Lösung für y ein.","fields":[{"name":"x","label":"x-Lösung","answer":2,"tolerance":0.01,"inputType":"number"},{"name":"y","label":"y-Lösung","answer":4,"tolerance":0.01,"inputType":"number"}],"success":"Richtig: 2x = −x + 6 ergibt x = 2. Eingesetzt in y = 2x erhältst du y = 4, also S(2 | 4).","hint":"Setze die beiden Gleichungen gleich. Löse zuerst nach x und berechne danach y."},{"id":"K10_2_R","chapter":"K10","level":"R","competence":"K10.2 – Gleichsetzungsverfahren","title":"Schnittpunkt selbstständig berechnen","type":"numeric","stem":"Berechne den Schnittpunkt von <strong>y = 3x − 1</strong> und <strong>y = −2x + 9</strong>. Gib zuerst die richtige Lösung für x und danach die richtige Lösung für y ein.","fields":[{"name":"x","label":"x-Lösung","answer":2,"tolerance":0.01,"inputType":"number"},{"name":"y","label":"y-Lösung","answer":5,"tolerance":0.01,"inputType":"number"}],"success":"Richtig: 3x − 1 = −2x + 9 führt zu x = 2. Eingesetzt ergibt sich y = 5, also S(2 | 5).","hint":"Setze die beiden y-Terme gleich. Löse zuerst x und setze x anschließend in eine der beiden Funktionen ein.","repeatable":true},{"id":"K10_3_R","chapter":"K10","level":"R","competence":"K10.3 – Fehler im Rechenweg finden","title":"Fehler im Gleichsetzungsverfahren finden","type":"mixed","stem":"Ein Schüler rechnet: <br><em>2x + 1 = −x + 7 ⇒ 2x = −x + 8 ⇒ x = 8</em>. Finde den Fehler und gib den korrekten Schnittpunkt an.","fields":[{"name":"x","label":"korrektes x","answer":2,"tolerance":0.01,"inputType":"number"},{"name":"y","label":"korrektes y","answer":5,"tolerance":0.01,"inputType":"number"}],"keywords":["Fehler","1 subtrahieren","3x = 6"],"keywordGroups":[["fehler","falsch"],["1 subtrahieren","minus 1","1 abziehen"],["3x = 6","3 x = 6"]],"sample":"Der Fehler liegt beim Umformen: Man muss 1 subtrahieren, dann gilt 2x = −x + 6 und somit 3x = 6. Der Schnittpunkt ist S(2 | 5).","success":"Sehr gut: Du findest den Umformungsfehler und gibst den korrekten Schnittpunkt an.","hint":"Von 2x + 1 = −x + 7 muss auf beiden Seiten 1 abgezogen werden.","repeatable":true},{"id":"K11_1_M","chapter":"K11","level":"M","competence":"K11.1 – Funktionsgleichung aus Sachsituation","title":"Taxi-Gleichung aufstellen","type":"numeric","stem":"Ein Taxi kostet 2 € Grundgebühr + 1,50 € pro km. Schreibe die Funktionsgleichung auf, indem du m und t angibst.","fields":[{"name":"m","label":"m: Preis pro km","answer":1.5,"tolerance":0.01,"inputType":"number"},{"name":"t","label":"t: Grundgebühr","answer":2,"tolerance":0.01,"inputType":"number"},{"name":"eq","label":"Funktionsgleichung","accepted":["y=1,5x+2","y=1.5x+2","f(x)=1,5x+2","f(x)=1.5x+2"],"inputType":"text","placeholder":"z. B. y = 4x"}],"success":"Richtig: y = 1,5x + 2.","hint":"Der km-Preis ist die Steigung m, die Grundgebühr ist t."},{"id":"K11_1_R","chapter":"K11","level":"R","competence":"K11.1 – Funktionsgleichung aus Sachsituation","title":"Zwei Taxi-Tarife aufstellen","type":"numeric","stem":"„Wutach-Taxi“ kostet 2 € Grundgebühr + 2,40 € pro km. „Taxi-KING“ kostet 4 € Grundgebühr + 1,90 € pro km. Gib m und t für beide Tarife an.","fields":[{"name":"wm","label":"Wutach m","answer":2.4,"tolerance":0.01,"inputType":"number"},{"name":"wt","label":"Wutach t","answer":2,"tolerance":0.01,"inputType":"number"},{"name":"km","label":"Taxi-KING m","answer":1.9,"tolerance":0.01,"inputType":"number"},{"name":"kt","label":"Taxi-KING t","answer":4,"tolerance":0.01,"inputType":"number"}],"success":"Richtig: Wutach: y = 2,4x + 2; Taxi-KING: y = 1,9x + 4.","hint":"Grundgebühr = t, Preis pro km = m.","repeatable":true},{"id":"K11_2_M","chapter":"K11","level":"M","competence":"K11.2 – Funktionen vergleichen","title":"Gleicher Preis im Schaubild","type":"numeric","stem":"Bei welcher Kilometerzahl kosten beide Taxis gleich viel? Lies aus dem Schaubild ab.","diagram":{"type":"coord","xMin":0,"xMax":8,"yMin":0,"yMax":22,"yStep":2,"xStep":1,"lines":[{"m":2.4,"b":2,"label":"Wutach"},{"m":1.9,"b":4,"label":"KING"}],"points":[{"x":4,"y":11.6,"label":"S"}]},"fields":[{"name":"x","label":"Kilometerzahl","answer":4,"tolerance":0.01,"inputType":"number"},{"name":"price","label":"Preis in €","answer":11.6,"tolerance":0.01,"inputType":"number"}],"success":"Richtig: Bei 4 km kosten beide 11,60 €.","hint":"Der gleiche Preis liegt im Schnittpunkt der beiden Geraden."},{"id":"K11_2_R","chapter":"K11","level":"R","competence":"K11.2 – Schnittpunkt interpretieren","title":"Ab wann ist Taxi-KING günstiger?","type":"mixed","stem":"Berechne, ab welcher Kilometerzahl Taxi-KING günstiger ist, und schreibe einen Antwortsatz.","fields":[{"name":"x","label":"Schnittpunkt bei x =","answer":4,"tolerance":0.01,"inputType":"number"},{"name":"y","label":"Preis am Schnittpunkt","answer":11.6,"tolerance":0.01,"inputType":"number"}],"keywords":["Schnittpunkt","günstiger","ab 4 km"],"keywordGroups":[["schnittpunkt"],["günstiger","guenstiger","billiger"],["ab 4 km","mehr als 4 km","ab 5 km"]],"sample":"Der Schnittpunkt liegt bei 4 km. Taxi-KING ist günstiger, sobald man mehr als 4 km fährt; bei ganzen Kilometern also ab 5 km.","success":"Sehr gut: Du berechnest den Schnittpunkt und interpretierst die günstigere Strecke.","hint":"Vergleiche nach dem Schnittpunkt die Steigungen: Taxi-KING hat den kleineren km-Preis.","repeatable":true},{"id":"K11_3_M","chapter":"K11","level":"M","competence":"K11.3 – Alltagsbezug herstellen","title":"Proportionales Alltagsbeispiel","type":"freetext","stem":"Nenne ein Beispiel aus dem Alltag für eine proportionale Funktion.","keywords":["Preis","Menge","gleich viel pro Einheit"],"keywordGroups":[["preis","kosten"],["menge","kg","stück","anzahl"],["gleich viel pro einheit","pro einheit","je kg","pro kg","je stück"]],"sample":"Ein Beispiel ist der Preis von Äpfeln: Je größer die Menge, desto höher der Preis, wenn jedes kg gleich viel pro Einheit kostet.","success":"Sehr gut: Dein Beispiel zeigt einen konstanten Preis pro Einheit.","hint":"Denke an Einkauf: Menge und Preis."},{"id":"K11_3_R","chapter":"K11","level":"R","competence":"K11.3 – Alltagsbezug herstellen","title":"Drei Funktionsarten im Alltag","type":"freetext","stem":"Nenne je ein Beispiel für eine proportionale, antiproportionale und lineare Funktion aus dem Alltag und begründe die Zuordnung.","keywords":["proportional","antiproportional","linear","begründen"],"keywordGroups":[["proportional"],["antiproportional"],["linear"],["begründen","begründung","weil"]],"sample":"Proportional ist Menge und Preis bei gleichem Stückpreis. Antiproportional ist Arbeiterzahl und Arbeitszeit. Linear ist ein Taxi mit Grundgebühr und Preis pro Kilometer, weil ein Startwert dazukommt.","success":"Sehr gut: Du unterscheidest alle drei Funktionsarten mit passenden Beispielen.","hint":"Nutze Einkauf, Arbeiter-Aufgabe und Taxi als typische Beispiele.","repeatable":true},{"id":"K5_3_R","chapter":"K5","level":"R","competence":"K5.3 – Wertetabelle und Veränderung analysieren","title":"Wertetabelle mit sieben x-Werten trainieren","type":"mixed","stem":"Gegeben ist <strong>f(x) = 2x − 4</strong>. Erstelle die Wertetabelle für x = −2, −1, 0, 1, 2, 3, 4 und begründe anschließend, ob die Funktion steigt oder fällt.","fields":[{"name":"x-2","label":"y bei x = −2","answer":-8,"tolerance":0.01,"inputType":"number"},{"name":"x-1","label":"y bei x = −1","answer":-6,"tolerance":0.01,"inputType":"number"},{"name":"x0","label":"y bei x = 0","answer":-4,"tolerance":0.01,"inputType":"number"},{"name":"x1","label":"y bei x = 1","answer":-2,"tolerance":0.01,"inputType":"number"},{"name":"x2","label":"y bei x = 2","answer":0,"tolerance":0.01,"inputType":"number"},{"name":"x3","label":"y bei x = 3","answer":2,"tolerance":0.01,"inputType":"number"},{"name":"x4","label":"y bei x = 4","answer":4,"tolerance":0.01,"inputType":"number"}],"keywords":["steigt","Steigung","größer"],"keywordGroups":[["steigt","wachsend","wird größer","wird groesser"],["steigung","m"],["größer","groesser","zunimmt","nimmt zu"]],"sample":"Die Funktion steigt, weil die Steigung m = 2 positiv ist und die y-Werte bei größerem x ebenfalls größer werden.","success":"Du setzt alle sieben x-Werte korrekt ein und begründest die Veränderung über die positive Steigung.","hint":"Setze jeden x-Wert in f(x) = 2x − 4 ein und vergleiche dann die y-Werte.","repeatable":true},{"id":"K6_2_R","chapter":"K6","level":"R","competence":"K6.2 – Schaubild auswerten und überprüfen","title":"Zwei Geraden im Schaubild auswerten","type":"mixed","stem":"Lies aus dem Schaubild die Werte ab. Überprüfe danach den Schnittpunkt durch Einsetzen und erkläre seine Bedeutung in einem Tarifmodell.","diagram":{"type":"coord","xMin":-2,"xMax":8,"yMin":-4,"yMax":8,"lines":[{"m":2,"b":-2,"label":"p"},{"m":-1,"b":4,"label":"q"}],"points":[{"x":2,"y":2,"label":"S"}]},"fields":[{"name":"p1","label":"p(1)","answer":0,"tolerance":0.01,"inputType":"number"},{"name":"q1","label":"q(1)","answer":3,"tolerance":0.01,"inputType":"number"},{"name":"sx","label":"x-Koordinate von S","answer":2,"tolerance":0.01,"inputType":"number"},{"name":"sy","label":"y-Koordinate von S","answer":2,"tolerance":0.01,"inputType":"number"},{"name":"p2","label":"p(2)","answer":2,"tolerance":0.01,"inputType":"number"},{"name":"q2","label":"q(2)","answer":2,"tolerance":0.01,"inputType":"number"}],"keywords":["Schnittpunkt","gleiche Kosten","beide Tarife"],"keywordGroups":[["schnittpunkt"],["gleiche kosten","gleich teuer","gleichen wert"],["beide tarife","beide funktionen","beide geraden"]],"sample":"Der Schnittpunkt bedeutet, dass beide Tarife bei x = 2 den gleichen Wert 2 haben, also gleich teuer sind.","success":"Du liest Werte, Schnittpunkt und Kontrollwerte richtig ab und erklärst den Schnittpunkt passend.","hint":"Der Schnittpunkt ist die Stelle, an der beide Geraden denselben y-Wert besitzen.","repeatable":true},{"id":"K7_5_R","chapter":"K7","level":"R","competence":"K7.5 – Steigung und Funktionsgleichung aus zwei Punkten","title":"Aus zwei Punkten die Funktionsgleichung bestimmen","type":"numeric","stem":"Berechne die Steigung der Geraden durch <strong>P(−3 | 5)</strong> und <strong>Q(1 | −3)</strong>. Bestimme anschließend den y-Achsenabschnitt und die Funktionsgleichung.","fields":[{"name":"m","label":"Steigung m","answer":-2,"tolerance":0.01,"inputType":"number"},{"name":"t","label":"y-Achsenabschnitt t","answer":-1,"tolerance":0.01,"inputType":"number"},{"name":"eq","label":"Funktionsgleichung","accepted":["y=-2x-1","f(x)=-2x-1","y = -2x - 1","f(x) = -2x - 1"],"inputType":"text","placeholder":"z. B. y = 2x + 3"}],"success":"Richtig: m = −2. Mit Q(1 | −3) erhältst du −3 = −2 · 1 + t, also t = −1 und y = −2x − 1.","hint":"Berechne zuerst m = (y₂ − y₁) : (x₂ − x₁). Setze danach einen Punkt ein, um t zu berechnen.","repeatable":true},{"id":"K7_6_R","chapter":"K7","level":"R","competence":"K7.6 – Steigungsdreieck zum Zeichnen nutzen","title":"Gerade mit Steigungsdreieck vorbereiten","type":"numeric","stem":"Für <strong>h(x) = −0,5x + 3</strong> sollst du ohne Wertetabelle zeichnen. Gib den Startpunkt auf der y-Achse und ein passendes Steigungsdreieck an.","fields":[{"name":"t","label":"y-Achsenabschnitt t","answer":3,"tolerance":0.01,"inputType":"number"},{"name":"startx","label":"Startpunkt x","answer":0,"tolerance":0.01,"inputType":"number"},{"name":"starty","label":"Startpunkt y","answer":3,"tolerance":0.01,"inputType":"number"},{"name":"dx","label":"waagerechter Schritt","answer":2,"tolerance":0.01,"inputType":"number"},{"name":"dy","label":"senkrechter Schritt","answer":-1,"tolerance":0.01,"inputType":"number"}],"success":"Richtig: Du startest bei (0 | 3). Für m = −0,5 kannst du 2 Kästchen nach rechts und 1 Kästchen nach unten gehen.","hint":"Schreibe −0,5 als Bruch −1/2: waagerecht 2, senkrecht −1.","repeatable":true},{"id":"K8_3_R","chapter":"K8","level":"R","competence":"K8.3 – Nullstelle und y-Achsenabschnitt analysieren","title":"Nullstelle und y-Achsenabschnitt aus der Gleichung","type":"mixed","stem":"Gegeben ist <strong>f(x) = 2x − 4</strong>. Bestimme Nullstelle und y-Achsenabschnitt und erkläre die Bedeutung des y-Achsenabschnitts kurz.","fields":[{"name":"nullx","label":"x-Wert der Nullstelle","answer":2,"tolerance":0.01,"inputType":"number"},{"name":"nully","label":"y-Wert der Nullstelle","answer":0,"tolerance":0.01,"inputType":"number"},{"name":"t","label":"y-Achsenabschnitt t","answer":-4,"tolerance":0.01,"inputType":"number"}],"keywords":["y-Achsenabschnitt","Startwert","x = 0"],"keywordGroups":[["y-achsenabschnitt","y achsenabschnitt","achsenabschnitt"],["startwert","anfangswert"],["x = 0","x=0"]],"sample":"Der y-Achsenabschnitt −4 ist der Startwert der Funktion bei x = 0.","success":"Du berechnest die Nullstelle und erklärst den y-Achsenabschnitt als Startwert.","hint":"Für die Nullstelle setzt du y = 0. Den y-Achsenabschnitt liest du bei x = 0 ab.","repeatable":true},{"id":"K10_4_R","chapter":"K10","level":"R","competence":"K10.4 – Funktionsgleichung aus dem Graphen und Schnittpunkt","title":"Graphen ablesen und rechnerisch schneiden","type":"numeric","stem":"Lies für h und k den y-Achsenabschnitt und die Steigung ab. Gib beide Funktionsgleichungen an und berechne anschließend den Schnittpunkt.","diagram":{"type":"coord","xMin":-2,"xMax":6,"yMin":-3,"yMax":7,"lines":[{"m":1,"b":1,"label":"h"},{"m":-1,"b":5,"label":"k"}],"triangle":{"x":0,"y":1,"dx":2,"dy":2},"points":[{"x":2,"y":3,"label":"S"}]},"fields":[{"name":"hm","label":"Steigung h","answer":1,"tolerance":0.01,"inputType":"number"},{"name":"ht","label":"t von h","answer":1,"tolerance":0.01,"inputType":"number"},{"name":"heq","label":"h(x)","accepted":["y=x+1","h(x)=x+1","y=1x+1","h(x)=1x+1"],"inputType":"text","placeholder":"z. B. y = 2x + 3"},{"name":"km","label":"Steigung k","answer":-1,"tolerance":0.01,"inputType":"number"},{"name":"kt","label":"t von k","answer":5,"tolerance":0.01,"inputType":"number"},{"name":"keq","label":"k(x)","accepted":["y=-x+5","k(x)=-x+5","y=-1x+5","k(x)=-1x+5"],"inputType":"text","placeholder":"z. B. y = 2x + 3"},{"name":"sx","label":"Schnittpunkt x","answer":2,"tolerance":0.01,"inputType":"number"},{"name":"sy","label":"Schnittpunkt y","answer":3,"tolerance":0.01,"inputType":"number"}],"success":"Richtig: h(x) = x + 1 und k(x) = −x + 5 schneiden sich bei S(2 | 3).","hint":"Lies t an der y-Achse ab und berechne m über das Steigungsdreieck. Dann setzt du h(x) und k(x) gleich.","repeatable":true},{"id":"K10_5_R","chapter":"K10","level":"R","competence":"K10.5 – Schnittpunkt überprüfen","title":"Schnittpunkt berechnen und Kontrollwerte einsetzen","type":"numeric","stem":"Berechne den Schnittpunkt von <strong>f(x) = 4x − 2</strong> und <strong>g(x) = −2x + 16</strong>. Überprüfe dein Ergebnis, indem du den x-Wert in beide Funktionen einsetzt.","fields":[{"name":"sx","label":"x-Wert von S","answer":3,"tolerance":0.01,"inputType":"number"},{"name":"sy","label":"y-Wert von S","answer":10,"tolerance":0.01,"inputType":"number"},{"name":"fcheck","label":"f(3)","answer":10,"tolerance":0.01,"inputType":"number"},{"name":"gcheck","label":"g(3)","answer":10,"tolerance":0.01,"inputType":"number"}],"success":"Richtig: 4x − 2 = −2x + 16 ergibt x = 3. Beide Funktionen liefern y = 10.","hint":"Nach dem Gleichsetzen musst du den x-Wert in beide Ausgangsfunktionen einsetzen.","repeatable":true},{"id":"K11_4_R","chapter":"K11","level":"R","competence":"K11.4 – Tarife vollständig vergleichen","title":"Tarifvergleich mit Gleichung, Tabelle und Schnittpunkt","type":"mixed","stem":"Zwei Angebote werden verglichen: <strong>StreamA</strong> kostet 6 € pro Monat ohne Startgebühr. <strong>StreamB</strong> kostet 24 € Startgebühr und 3 € pro Monat. Stelle beide Funktionsgleichungen auf, berechne die Kosten nach 4 Monaten und den Schnittpunkt. Schreibe dann einen Antwortsatz.","fields":[{"name":"m1","label":"StreamA m","answer":6,"tolerance":0.01,"inputType":"number"},{"name":"t1","label":"StreamA t","answer":0,"tolerance":0.01,"inputType":"number"},{"name":"m2","label":"StreamB m","answer":3,"tolerance":0.01,"inputType":"number"},{"name":"t2","label":"StreamB t","answer":24,"tolerance":0.01,"inputType":"number"},{"name":"a4","label":"StreamA nach 4 Monaten","answer":24,"tolerance":0.01,"inputType":"number"},{"name":"b4","label":"StreamB nach 4 Monaten","answer":36,"tolerance":0.01,"inputType":"number"},{"name":"sx","label":"Schnittpunkt x","answer":8,"tolerance":0.01,"inputType":"number"},{"name":"sy","label":"Schnittpunkt y","answer":48,"tolerance":0.01,"inputType":"number"}],"keywords":["Schnittpunkt","gleich teuer","ab 8 Monaten"],"keywordGroups":[["schnittpunkt"],["gleich teuer","gleich viel","gleiche kosten"],["ab 8 monaten","nach 8 monaten","8 monate"]],"sample":"Der Schnittpunkt liegt bei 8 Monaten und 48 €. Dort sind beide Anbieter gleich teuer; ab 8 Monaten lohnt sich der Anbieter mit der kleineren Monatsgebühr.","success":"Du bearbeitest den vollständigen Tarifvergleich aus Gleichungen, Tabelle, Schnittpunkt und Interpretation.","hint":"Monatspreis = m, Startgebühr = t. Für den Schnittpunkt setzt du beide Terme gleich.","repeatable":true},{"id":"K11_5_R","chapter":"K11","level":"R","competence":"K11.5 – Vorbereitete Strecke vergleichen","title":"Kosten bei einem bestimmten x-Wert vergleichen","type":"numeric","stem":"Taxi A kostet <strong>2,50 € Grundgebühr + 1,80 € pro km</strong>. Taxi B kostet <strong>2,30 € pro km ohne Grundgebühr</strong>. Berechne beide Preise für <strong>8 km</strong> und entscheide, welches Taxi günstiger ist.","fields":[{"name":"a","label":"Preis Taxi A","answer":16.9,"tolerance":0.01,"inputType":"number"},{"name":"b","label":"Preis Taxi B","answer":18.4,"tolerance":0.01,"inputType":"number"},{"name":"cheap","label":"günstigeres Taxi","accepted":["taxia","taxi a","a"],"inputType":"text","placeholder":"z. B. y = 2x + 3"}],"success":"Richtig: Taxi A kostet 16,90 €, Taxi B kostet 18,40 €. Damit ist Taxi A günstiger.","hint":"Setze x = 8 in beide Kostenfunktionen ein und vergleiche die Ergebnisse.","repeatable":true},{"id":"K11_6_R","chapter":"K11","level":"R","competence":"K11.6 – Y-Achsenabschnitt im Sachkontext deuten","title":"Startgebühr und steigende Kostenfunktion erklären","type":"freetext","stem":"Erkläre an einem Taxi-Tarif <strong>y = 1,80x + 2,50</strong>: Steigt oder fällt die Kostenfunktion? Was bedeutet der y-Achsenabschnitt inhaltlich?","keywords":["steigt","y-Achsenabschnitt","Grundgebühr"],"keywordGroups":[["steigt","wachsend","wird teurer"],["y-achsenabschnitt","y achsenabschnitt","t"],["grundgebühr","startgebühr","anfangsgebühr"]],"sample":"Die Kostenfunktion steigt, weil pro Kilometer 1,80 € dazukommen. Der y-Achsenabschnitt 2,50 € ist die Grundgebühr, die schon bei 0 km bezahlt wird.","success":"Du beschreibst die positive Steigung und deutest den y-Achsenabschnitt sachlich richtig.","hint":"Bei Kostenfunktionen bedeutet t meist eine Start- oder Grundgebühr.","repeatable":true}];
+const STORAGE_KEY = "lineare_funktionen_progress_v1";
+const LEVEL_LABEL = { M: "★ M", R: "★★ R" };
+let solved = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]").filter(id => TASKS.some(t => t.id === id)));
+let currentChapter = localStorage.getItem("lineare_funktionen_current_chapter") || "K0";
+let currentLevel = localStorage.getItem("lineare_funktionen_current_level") || "M";
+let pairState = {};
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+
+function taskById(id) {
+  return TASKS.find(t => t.id === id);
+}
+
+function chapterCounts(chapterId) {
+  const all = TASKS.filter(t => t.chapter === chapterId);
+  const done = all.filter(t => solved.has(t.id)).length;
+  return { done, total: all.length };
+}
+
+function saveProgress() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify([...solved]));
+}
+
+function markSolved(id) {
+  if (!solved.has(id)) {
+    solved.add(id);
+    saveProgress();
+  }
+  updateProgressOnly();
+  const card = document.getElementById("card-" + id);
+  if (card) {
+    card.classList.add("solved");
+    const badge = card.querySelector(".badge");
+    if (badge) {
+      badge.classList.add("done");
+      badge.textContent = "✓ gelöst";
+    }
+  }
+}
+
+function updateProgressOnly() {
+  const total = TASKS.length;
+  const done = solved.size;
+  document.getElementById("totalText").textContent = `${done} von ${total} Aufgaben gelöst ✓`;
+  document.getElementById("totalFill").style.width = total ? `${Math.round(done / total * 100)}%` : "0%";
+  renderNav();
+}
+
+function renderNav() {
+  const nav = document.getElementById("chapterNav");
+  nav.innerHTML = CHAPTERS.map(ch => {
+    const c = chapterCounts(ch.id);
+    const percent = c.total ? Math.round(c.done / c.total * 100) : 0;
+    return `<button class="chapter-card ${ch.id === currentChapter ? "active" : ""}" onclick="openChapter('${ch.id}')" aria-label="${escapeHtml(ch.title)} öffnen">
+      <h2>${escapeHtml(ch.title)}</h2>
+      <p>${escapeHtml(ch.subtitle)}</p>
+      <div class="progress-bar" aria-hidden="true"><div class="progress-fill" style="width:${percent}%"></div></div>
+      <div class="chapter-meta"><span>${c.done} / ${c.total} Aufgaben gelöst</span><span>${percent}%</span></div>
+    </button>`;
+  }).join("");
+}
+
+function openChapter(chapterId) {
+  currentChapter = chapterId;
+  localStorage.setItem("lineare_funktionen_current_chapter", chapterId);
+  renderAll();
+  document.getElementById("chapterPanel").scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+function setLevel(level) {
+  currentLevel = level;
+  localStorage.setItem("lineare_funktionen_current_level", level);
+  renderChapter();
+}
+
+function renderAll() {
+  updateProgressOnly();
+  renderChapter();
+}
+
+function renderChapter() {
+  const panel = document.getElementById("chapterPanel");
+  const chapter = CHAPTERS.find(ch => ch.id === currentChapter) || CHAPTERS[0];
+  const levelTasks = TASKS.filter(t => t.chapter === chapter.id && t.level === currentLevel);
+  const mCount = TASKS.filter(t => t.chapter === chapter.id && t.level === "M").length;
+  const rCount = TASKS.filter(t => t.chapter === chapter.id && t.level === "R").length;
+  panel.innerHTML = `
+    <section class="panel-head">
+      <h2>${escapeHtml(chapter.title)}</h2>
+      <p>${escapeHtml(chapter.subtitle)}</p>
+      <div class="tabs" role="tablist" aria-label="Niveaustufen">
+        <button class="tab ${currentLevel === "M" ? "active" : ""}" onclick="setLevel('M')" role="tab" aria-selected="${currentLevel === "M"}">★ M <span aria-hidden="true">(${mCount})</span></button>
+        <button class="tab ${currentLevel === "R" ? "active" : ""}" onclick="setLevel('R')" role="tab" aria-selected="${currentLevel === "R"}">★★ R <span aria-hidden="true">(${rCount})</span></button>
+      </div>
+    </section>
+    <section class="tasks">
+      ${levelTasks.length ? levelTasks.map(renderTask).join("") : `<div class="empty">Für diese Niveaustufe sind in diesem Kapitel keine Aufgaben angelegt.</div>`}
+    </section>`;
+}
+
+function renderTask(task) {
+  const done = solved.has(task.id);
+  return `<article class="task-card ${done ? "solved" : ""}" id="card-${task.id}">
+    <div class="task-top">
+      <div>
+        <div class="task-kicker">${escapeHtml(task.competence)} · ${LEVEL_LABEL[task.level]}</div>
+        <h3 class="task-title">${escapeHtml(task.title)}</h3>
+      </div>
+      <span class="badge ${done ? "done" : ""}">${done ? "✓ gelöst" : "offen"}</span>
+    </div>
+    <div class="stem">${task.stem}</div>
+    ${task.diagram ? `<div class="diagram">${renderDiagram(task.diagram)}</div>` : ""}
+    ${renderTaskBody(task)}
+    <div class="actions">
+      <button class="btn" onclick="checkTask('${task.id}')">Überprüfen</button>
+      <button class="btn secondary" onclick="resetTask('${task.id}')">Nochmal</button>
+      ${task.level === "R" ? `<button class="btn secondary" onclick="generateNewTask('${task.id}')">Neue Aufgabe generieren</button>` : ""}
+    </div>
+    <div class="feedback" id="feedback-${task.id}" aria-live="polite"></div>
+  </article>`;
+}
+
+function renderTaskBody(task) {
+  if (task.type === "mc") return renderMC(task);
+  if (task.type === "numeric") return renderNumeric(task);
+  if (task.type === "matrix") return renderMatrix(task);
+  if (task.type === "pairs") return renderPairs(task);
+  if (task.type === "freetext") return renderFreeText(task);
+  if (task.type === "mixed") return renderMixed(task);
+  return "";
+}
+
+function renderMC(task) {
+  const inputType = task.multi ? "checkbox" : "radio";
+  return `<div class="options" role="${task.multi ? "group" : "radiogroup"}" aria-label="${escapeHtml(task.title)} Optionen">
+    ${task.options.map((opt, i) => `
+      <label class="option" id="opt-${task.id}-${i}">
+        <input type="${inputType}" name="${task.id}_mc" value="${i}" data-task="${task.id}">
+        <span>${opt.text}</span>
+      </label>`).join("")}
+  </div>`;
+}
+
+function renderNumeric(task) {
+  return `<div class="inputs">${task.fields.map(field => renderField(task, field)).join("")}</div>`;
+}
+
+function renderField(task, field) {
+  const type = field.inputType === "text" ? "text" : "number";
+  const step = type === "number" ? ' step="any"' : "";
+  const placeholder = field.placeholder ? ` placeholder="${escapeHtml(field.placeholder)}"` : "";
+  return `<div class="field">
+    <label for="${task.id}_${field.name}">${escapeHtml(field.label)}</label>
+    <input id="${task.id}_${field.name}" name="${field.name}" data-task="${task.id}" type="${type}"${step}${placeholder} inputmode="${type === "number" ? "decimal" : "text"}">
+  </div>`;
+}
+
+function renderFreeText(task) {
+  return `${renderKeywordChips(task)}
+    <div class="field">
+      <label for="${task.id}_text">Deine Antwort</label>
+      <textarea id="${task.id}_text" data-task="${task.id}" placeholder="Formuliere einen vollständigen Satz."></textarea>
+    </div>
+    <details class="solution"><summary>Musterlösung anzeigen</summary><p>${escapeHtml(task.sample || "")}</p></details>`;
+}
+
+function renderMixed(task) {
+  return `<div class="inputs">${task.fields.map(field => renderField(task, field)).join("")}</div>
+    ${renderKeywordChips(task)}
+    <div class="field">
+      <label for="${task.id}_text">Antwortsatz / Begründung</label>
+      <textarea id="${task.id}_text" data-task="${task.id}" placeholder="Formuliere deine Begründung als vollständigen Satz."></textarea>
+    </div>
+    <details class="solution"><summary>Musterlösung anzeigen</summary><p>${escapeHtml(task.sample || "")}</p></details>`;
+}
+
+function renderKeywordChips(task) {
+  return `<div><strong>Verwende in deinem Satz:</strong><div class="chips">${(task.keywords || []).map(k => `<span class="chip">${escapeHtml(k)}</span>`).join("")}</div></div>`;
+}
+
+function renderMatrix(task) {
+  return `<div class="matrix-wrap">
+    <table class="matrix" aria-label="${escapeHtml(task.title)}">
+      <thead><tr><th>Gleichung / Paar</th>${task.choices.map(c => `<th>${escapeHtml(c)}</th>`).join("")}</tr></thead>
+      <tbody>
+        ${task.rows.map(row => `<tr id="row-${task.id}-${row.id}">
+          <td>${row.label}</td>
+          ${task.choices.map(choice => `<td><label><input type="radio" name="${task.id}_${row.id}" value="${escapeHtml(choice)}" data-task="${task.id}"> <span class="sr-only">${escapeHtml(choice)}</span></label></td>`).join("")}
+        </tr>`).join("")}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function renderPairs(task) {
+  if (!pairState[task.id]) pairState[task.id] = { selectedLeft: null, matches: {} };
+  return `<div class="pair-zone">
+    <div class="pair-col">
+      <h4>1. Erst links wählen</h4>
+      ${task.left.map(item => `<button class="pair-item" id="pair-${task.id}-left-${item.id}" onclick="pairClick('${task.id}','left','${item.id}')">${item.text}</button>`).join("")}
+    </div>
+    <div class="pair-col">
+      <h4>2. Dann rechts zuordnen</h4>
+      ${task.right.map(item => `<button class="pair-item" id="pair-${task.id}-right-${item.id}" onclick="pairClick('${task.id}','right','${item.id}')">${item.text}</button>`).join("")}
+    </div>
+  </div>
+  <div class="match-list" id="matches-${task.id}">Noch keine Paare verbunden.</div>`;
+}
+
+function renderDiagram(d) {
+  if (d.type === "coord") return coordinateSvg(d);
+  return "";
+}
+
+function coordinateSvg(d) {
+  const xMin = d.xMin ?? -5, xMax = d.xMax ?? 5, yMin = d.yMin ?? -5, yMax = d.yMax ?? 5;
+  const xUnits = Math.max(1, xMax - xMin);
+  const yUnits = Math.max(1, yMax - yMin);
+  const cell = d.cell || Math.max(14, Math.min(34, Math.floor(520 / Math.max(xUnits, yUnits))));
+  const pad = 42;
+  const plotW = xUnits * cell;
+  const plotH = yUnits * cell;
+  const w = Math.round(plotW + 2 * pad);
+  const h = Math.round(plotH + 2 * pad);
+  const xLabelStep = d.xLabelStep || d.xStep || 1;
+  const yLabelStep = d.yLabelStep || d.yStep || 1;
+  const sx = x => pad + (x - xMin) * cell;
+  const sy = y => pad + (yMax - y) * cell;
+  const isTick = (value, step) => Math.abs(value / step - Math.round(value / step)) < 1e-8;
+  const clipId = "clip-" + Math.random().toString(36).slice(2);
+  let out = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Koordinatensystem">`;
+  out += `<defs><clipPath id="${clipId}"><rect x="${pad}" y="${pad}" width="${plotW}" height="${plotH}"></rect></clipPath></defs>`;
+  out += `<rect x="0" y="0" width="${w}" height="${h}" rx="14" fill="#ffffff"></rect>`;
+  for (let x = Math.ceil(xMin); x <= Math.floor(xMax) + 1e-9; x += 1) {
+    const xx = sx(x);
+    out += `<line x1="${xx}" y1="${pad}" x2="${xx}" y2="${h-pad}" stroke="#e5e7ec" stroke-width="1"></line>`;
+    if (Math.abs(x) > 1e-9 && isTick(x, xLabelStep)) out += `<text x="${xx}" y="${Math.min(h - 8, sy(0) + 18)}" text-anchor="middle" font-size="11" fill="#606875">${formatTick(x)}</text>`;
+  }
+  for (let y = Math.ceil(yMin); y <= Math.floor(yMax) + 1e-9; y += 1) {
+    const yy = sy(y);
+    out += `<line x1="${pad}" y1="${yy}" x2="${w-pad}" y2="${yy}" stroke="#e5e7ec" stroke-width="1"></line>`;
+    if (Math.abs(y) > 1e-9 && isTick(y, yLabelStep)) out += `<text x="${Math.max(12, sx(0) - 8)}" y="${yy + 4}" text-anchor="end" font-size="11" fill="#606875">${formatTick(y)}</text>`;
+  }
+  const axisX = (0 >= yMin && 0 <= yMax) ? sy(0) : sy(yMin);
+  const axisY = (0 >= xMin && 0 <= xMax) ? sx(0) : sx(xMin);
+  out += `<line x1="${pad}" y1="${axisX}" x2="${w-pad+8}" y2="${axisX}" stroke="#2f3440" stroke-width="2"></line>`;
+  out += `<line x1="${axisY}" y1="${h-pad}" x2="${axisY}" y2="${pad-8}" stroke="#2f3440" stroke-width="2"></line>`;
+  out += `<text x="${w-pad+13}" y="${axisX+5}" font-size="13" font-weight="700" fill="#2f3440">x</text>`;
+  out += `<text x="${axisY-5}" y="${pad-16}" font-size="13" font-weight="700" fill="#2f3440">y</text>`;
+  if (0 >= xMin && 0 <= xMax && 0 >= yMin && 0 <= yMax) {
+    out += `<text x="${axisY-8}" y="${axisX+16}" text-anchor="end" font-size="11" fill="#606875">0</text>`;
+  }
+  out += `<g clip-path="url(#${clipId})">`;
+  if (d.lines) {
+    d.lines.forEach((line, idx) => {
+      const color = idx === 0 ? "#6B4FA0" : idx === 1 ? "#E65100" : "#2E7D32";
+      if (line.kind === "anti") {
+        let path1 = "", path2 = "";
+        for (let x = Math.max(xMin, 0.25); x <= xMax; x += Math.max(0.05, (xMax-xMin)/120)) {
+          const y = line.k / x;
+          path1 += (path1 ? " L " : "M ") + sx(x).toFixed(2) + " " + sy(y).toFixed(2);
+        }
+        for (let x = xMin; x <= Math.min(xMax, -0.25); x += Math.max(0.05, (xMax-xMin)/120)) {
+          const y = line.k / x;
+          path2 += (path2 ? " L " : "M ") + sx(x).toFixed(2) + " " + sy(y).toFixed(2);
+        }
+        out += `<path d="${path1}" fill="none" stroke="${color}" stroke-width="3"></path><path d="${path2}" fill="none" stroke="${color}" stroke-width="3"></path>`;
+      } else {
+        const x1 = xMin, x2 = xMax;
+        const y1 = line.m * x1 + line.b;
+        const y2 = line.m * x2 + line.b;
+        out += `<line x1="${sx(x1)}" y1="${sy(y1)}" x2="${sx(x2)}" y2="${sy(y2)}" stroke="${color}" stroke-width="3"></line>`;
+      }
+    });
+  }
+  if (d.triangle) {
+    const t = d.triangle;
+    const x0 = sx(t.x), y0 = sy(t.y);
+    const x1 = sx(t.x + t.dx), y1 = sy(t.y);
+    const x2 = sx(t.x + t.dx), y2 = sy(t.y + t.dy);
+    out += `<polyline points="${x0},${y0} ${x1},${y1} ${x2},${y2}" fill="none" stroke="#2E7D32" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></polyline>`;
+  }
+  out += `</g>`;
+  if (d.lines) {
+    d.lines.forEach((line, idx) => {
+      if (line.kind === "anti" || !line.label) return;
+      const color = idx === 0 ? "#6B4FA0" : idx === 1 ? "#E65100" : "#2E7D32";
+      let lx = xMax - (xMax-xMin)*0.14;
+      let ly = line.m * lx + line.b;
+      if (ly > yMax) ly = yMax - (yMax-yMin)*0.08;
+      if (ly < yMin) ly = yMin + (yMax-yMin)*0.08;
+      out += `<text x="${sx(lx)}" y="${sy(ly)-6}" font-size="13" font-weight="800" fill="${color}">${escapeHtml(line.label)}</text>`;
+    });
+  }
+  if (d.triangle) {
+    const t = d.triangle;
+    const x0 = sx(t.x), y0 = sy(t.y);
+    const x1 = sx(t.x + t.dx), y1 = sy(t.y);
+    const x2 = sx(t.x + t.dx), y2 = sy(t.y + t.dy);
+    out += `<text x="${(x0+x1)/2}" y="${y1+18}" font-size="12" font-weight="800" fill="#2E7D32">${formatTick(t.dx)}</text>`;
+    out += `<text x="${x2+8}" y="${(y1+y2)/2}" font-size="12" font-weight="800" fill="#2E7D32">${formatTick(t.dy)}</text>`;
+  }
+  if (d.points) {
+    d.points.forEach(p => {
+      out += `<circle cx="${sx(p.x)}" cy="${sy(p.y)}" r="5.5" fill="#C62828"></circle>`;
+      out += `<text x="${sx(p.x)+8}" y="${sy(p.y)-8}" font-size="13" font-weight="800" fill="#C62828">${escapeHtml(p.label || "")}</text>`;
+    });
+  }
+  out += `</svg>`;
+  return out;
+}
+
+function formatTick(v) {
+  return Math.abs(v % 1) < 1e-9 ? String(v) : String(v).replace(".", ",");
+}
+
+function checkTask(id) {
+  const task = taskById(id);
+  if (!task) return;
+  if (task.type === "mc") return checkMC(task);
+  if (task.type === "numeric") return checkNumeric(task);
+  if (task.type === "matrix") return checkMatrix(task);
+  if (task.type === "pairs") return checkPairs(task);
+  if (task.type === "freetext") return checkFreeText(task);
+  if (task.type === "mixed") return checkMixed(task);
+}
+
+function parseNumberValue(value) {
+  if (typeof value !== "string") return NaN;
+  const cleaned = value.trim().replace(",", ".").replace(/€/g, "").replace(/km/g, "").replace(/monate/gi, "");
+  if (cleaned === "") return NaN;
+  return Number(cleaned);
+}
+
+function normalizeTextValue(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/,/g, ".")
+    .replace(/−/g, "-")
+    .replace(/·/g, "*")
+    .replace(/\*/g, "")
+    .replace(/:/g, "/")
+    .replace(/\s+/g, "")
+    .replace(/^f\(x\)=/, "y=");
+}
+
+function checkFields(task) {
+  let ok = true;
+  const messages = [];
+  task.fields.forEach(field => {
+    const input = document.getElementById(`${task.id}_${field.name}`);
+    if (!input) return;
+    input.classList.remove("input-correct", "input-wrong");
+    if (field.accepted) {
+      const norm = normalizeTextValue(input.value);
+      const accepted = field.accepted.map(normalizeTextValue);
+      const fieldOk = accepted.includes(norm);
+      if (fieldOk) {
+        input.classList.add("input-correct");
+      } else {
+        input.classList.add("input-wrong");
+        ok = false;
+        messages.push(`${field.label}: richtig wäre ${field.accepted[0]}.`);
+      }
+    } else {
+      const val = parseNumberValue(input.value);
+      const tol = field.tolerance ?? 0.01;
+      const fieldOk = !Number.isNaN(val) && Math.abs(val - Number(field.answer)) <= tol;
+      if (fieldOk) {
+        input.classList.add("input-correct");
+      } else {
+        input.classList.add("input-wrong");
+        ok = false;
+        messages.push(`${field.label}: richtig wäre ${String(field.answer).replace(".", ",")}.`);
+      }
+    }
+  });
+  return { ok, messages };
+}
+
+function checkNumeric(task) {
+  const result = checkFields(task);
+  if (result.ok) {
+    markSolved(task.id);
+    showFeedback(task.id, "success", `✓ Sehr gut! ${task.success || "Alle Eingaben sind richtig."}`);
+  } else {
+    showFeedback(task.id, "error", `✗ Nicht ganz. ${task.hint || "Prüfe deine Eingaben noch einmal."}<ul>${result.messages.map(m => `<li>${escapeHtml(m)}</li>`).join("")}</ul>`);
+  }
+}
+
+function checkMC(task) {
+  const chosen = [...document.querySelectorAll(`input[name="${task.id}_mc"]:checked`)].map(i => Number(i.value));
+  task.options.forEach((opt, i) => {
+    const label = document.getElementById(`opt-${task.id}-${i}`);
+    if (label) {
+      label.classList.remove("option-correct", "option-wrong");
+      if (opt.correct) label.classList.add("option-correct");
+      if (!opt.correct && chosen.includes(i)) label.classList.add("option-wrong");
+    }
+  });
+  const correct = task.options.map((o, i) => o.correct ? i : null).filter(v => v !== null);
+  const ok = chosen.length === correct.length && chosen.every(i => correct.includes(i));
+  if (ok) {
+    markSolved(task.id);
+    showFeedback(task.id, "success", `✓ Sehr gut! ${task.success || "Die Auswahl ist richtig."}`);
+  } else {
+    showFeedback(task.id, "error", `✗ Nicht ganz. ${task.hint || "Die grün markierten Antworten sind richtig, rot markierte sind falsch ausgewählt."}`);
+  }
+}
+
+function checkMatrix(task) {
+  let allOk = true;
+  const missing = [];
+  task.rows.forEach(row => {
+    const tr = document.getElementById(`row-${task.id}-${row.id}`);
+    if (tr) tr.classList.remove("row-correct", "row-wrong");
+    const selected = document.querySelector(`input[name="${task.id}_${row.id}"]:checked`);
+    const ok = selected && selected.value === row.correct;
+    if (tr) tr.classList.add(ok ? "row-correct" : "row-wrong");
+    if (!ok) {
+      allOk = false;
+      missing.push(`${row.label} → ${row.correct}`);
+    }
+  });
+  if (allOk) {
+    markSolved(task.id);
+    showFeedback(task.id, "success", `✓ Sehr gut! ${task.success || "Alle Zeilen sind richtig zugeordnet."}`);
+  } else {
+    showFeedback(task.id, "error", `✗ Nicht ganz. ${task.hint || "Prüfe die rot markierten Zeilen."}<ul>${missing.map(m => `<li>${escapeHtml(m)}</li>`).join("")}</ul>`);
+  }
+}
+
+function pairClick(taskId, side, itemId) {
+  const task = taskById(taskId);
+  if (!pairState[taskId]) pairState[taskId] = { selectedLeft: null, matches: {} };
+  const state = pairState[taskId];
+  if (side === "left") {
+    state.selectedLeft = itemId;
+  } else {
+    if (!state.selectedLeft) {
+      showFeedback(taskId, "partial", "! Wähle zuerst ein Element auf der linken Seite aus.");
+      return;
+    }
+    Object.keys(state.matches).forEach(leftId => {
+      if (state.matches[leftId] === itemId) delete state.matches[leftId];
+    });
+    state.matches[state.selectedLeft] = itemId;
+    state.selectedLeft = null;
+  }
+  updatePairDisplay(task);
+}
+
+function updatePairDisplay(task) {
+  const state = pairState[task.id] || { selectedLeft:null, matches:{} };
+  task.left.forEach(item => {
+    const el = document.getElementById(`pair-${task.id}-left-${item.id}`);
+    if (el) {
+      el.classList.toggle("selected", state.selectedLeft === item.id);
+      el.classList.toggle("matched", Boolean(state.matches[item.id]));
+    }
+  });
+  task.right.forEach(item => {
+    const el = document.getElementById(`pair-${task.id}-right-${item.id}`);
+    if (el) {
+      const isMatched = Object.values(state.matches).includes(item.id);
+      el.classList.toggle("matched", isMatched);
+      el.classList.remove("selected");
+    }
+  });
+  const box = document.getElementById(`matches-${task.id}`);
+  if (box) {
+    const lines = Object.entries(state.matches).map(([l, r]) => {
+      const leftText = task.left.find(x => x.id === l)?.text || l;
+      const rightText = task.right.find(x => x.id === r)?.text || r;
+      return `<div>✓ ${leftText} → <strong>${rightText}</strong></div>`;
+    });
+    box.innerHTML = lines.length ? lines.join("") : "Noch keine Paare verbunden.";
+  }
+}
+
+function checkPairs(task) {
+  const state = pairState[task.id] || { matches: {} };
+  const needed = Object.keys(task.correct);
+  document.querySelectorAll(`#card-${task.id} .pair-item`).forEach(el => el.classList.remove("pair-correct", "pair-wrong"));
+  const allMatched = needed.every(left => state.matches[left]);
+  const allCorrect = needed.every(left => state.matches[left] === task.correct[left]);
+  if (allMatched) {
+    needed.forEach(left => {
+      const selectedRight = state.matches[left];
+      const isCorrect = selectedRight === task.correct[left];
+      const leftEl = document.getElementById(`pair-${task.id}-left-${left}`);
+      const rightEl = document.getElementById(`pair-${task.id}-right-${selectedRight}`);
+      if (leftEl) leftEl.classList.add(isCorrect ? "pair-correct" : "pair-wrong");
+      if (rightEl) rightEl.classList.add(isCorrect ? "pair-correct" : "pair-wrong");
+    });
+  }
+  if (allMatched && allCorrect) {
+    markSolved(task.id);
+    showFeedback(task.id, "success", `✓ Sehr gut! ${task.success || "Alle Paare passen zusammen."}`);
+  } else if (!allMatched) {
+    showFeedback(task.id, "partial", `! Fast: Verbinde zuerst alle Paare. ${task.hint || ""}`);
+  } else {
+    const correctLines = needed.map(left => {
+      const l = task.left.find(x => x.id === left)?.text || left;
+      const r = task.right.find(x => x.id === task.correct[left])?.text || task.correct[left];
+      return `<li>${l} → ${r}</li>`;
+    }).join("");
+    showFeedback(task.id, "error", `✗ Nicht ganz. Rot markierte Paare sind falsch verbunden. ${task.hint || "Prüfe deine Zuordnungen."}<ul>${correctLines}</ul>`);
+  }
+}
+
+function checkFreeText(task) {
+  const result = checkFreeTextInput(task);
+  const type = result.ok ? "success" : result.partial ? "partial" : "error";
+  if (result.ok) markSolved(task.id);
+  showFeedback(task.id, type, result.html);
+}
+
+function checkMixed(task) {
+  const fields = checkFields(task);
+  const text = checkFreeTextInput(task, true);
+  const ok = fields.ok && text.ok;
+  if (ok) {
+    markSolved(task.id);
+    showFeedback(task.id, "success", `✓ Sehr gut! ${task.success || "Die Rechnung und die Begründung stimmen."}`);
+  } else {
+    const cls = fields.ok || text.partial ? "partial" : "error";
+    let html = `! Prüfe noch einmal. ${task.hint || ""}`;
+    if (!fields.ok) html += `<ul>${fields.messages.map(m => `<li>${escapeHtml(m)}</li>`).join("")}</ul>`;
+    html += text.html ? `<div>${text.html}</div>` : "";
+    showFeedback(task.id, cls, html);
+  }
+}
+
+function checkFreeTextInput(task, returnOnly=false) {
+  const textarea = document.getElementById(`${task.id}_text`);
+  const inputText = (textarea?.value || "").trim();
+  if (textarea) textarea.classList.remove("input-correct", "input-wrong");
+  const lower = normalizeForKeyword(inputText);
+  const groups = task.keywordGroups || (task.keywords || []).map(k => [k.toLowerCase()]);
+  const missing = [];
+  groups.forEach((group, idx) => {
+    const found = group.some(term => lower.includes(normalizeForKeyword(term)));
+    if (!found) missing.push((task.keywords || [])[idx] || group[0]);
+  });
+  const startsWithCapital = /^[A-ZÄÖÜ]/.test(inputText);
+  const hasDoubleSpace = /  /.test(inputText);
+  const tooShort = inputText.length < 18;
+  let messages = [];
+  if (tooShort) messages.push("Inhalt: Formuliere einen vollständigen Satz.");
+  if (missing.length > 0) messages.push(`Inhalt: Folgende Schlüsselwörter fehlen noch: ${missing.map(escapeHtml).join(", ")}.`);
+  if (!startsWithCapital) messages.push("Rechtschreibung: Beginne deinen Satz mit einem Großbuchstaben.");
+  if (hasDoubleSpace) messages.push("Rechtschreibung: Du hast ein doppeltes Leerzeichen.");
+  const commonHints = spellingHints(inputText);
+  messages = messages.concat(commonHints);
+  const ok = messages.length === 0;
+  if (textarea) textarea.classList.add(ok ? "input-correct" : "input-wrong");
+  if (ok) {
+    return {ok:true, partial:true, html:`✓ Sehr gut! ${task.success || "Dein Satz enthält alle wichtigen Begriffe und ist korrekt formuliert."}`};
+  }
+  const html = `✗ Noch nicht ganz. <ul>${messages.map(m => `<li>${m}</li>`).join("")}</ul>`;
+  return {ok:false, partial: missing.length < groups.length && inputText.length >= 18, html};
+}
+
+function normalizeForKeyword(str) {
+  return String(str || "")
+    .toLowerCase()
+    .replace(/ä/g, "ä")
+    .replace(/ö/g, "ö")
+    .replace(/ü/g, "ü")
+    .replace(/ß/g, "ss")
+    .replace(/−/g, "-")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function spellingHints(text) {
+  const lower = text.toLowerCase();
+  const hints = [];
+  const pairs = [
+    ["fuktion", "Meinst du „Funktion“?"],
+    ["steigugn", "Meinst du „Steigung“?"],
+    ["achsenschnitt", "Meinst du „Achsenabschnitt“?"],
+    ["gleichmäsig", "Meinst du „gleichmäßig“?"],
+    ["zugeordent", "Meinst du „zugeordnet“?"]
+  ];
+  pairs.forEach(([wrong, hint]) => {
+    if (lower.includes(wrong)) hints.push("Rechtschreibung: " + hint);
+  });
+  return hints;
+}
+
+function showFeedback(id, type, html) {
+  const box = document.getElementById("feedback-" + id);
+  if (!box) return;
+  box.className = "feedback show " + type;
+  box.innerHTML = html;
+}
+
+function resetTask(id) {
+  solved.delete(id);
+  saveProgress();
+  const task = taskById(id);
+  if (!task) return;
+  document.querySelectorAll(`[data-task="${id}"]`).forEach(el => {
+    if (el.type === "radio" || el.type === "checkbox") el.checked = false;
+    else el.value = "";
+    el.classList.remove("input-correct", "input-wrong");
+  });
+  document.querySelectorAll(`#card-${id} .option`).forEach(el => el.classList.remove("option-correct", "option-wrong"));
+  document.querySelectorAll(`#card-${id} .pair-item`).forEach(el => el.classList.remove("pair-correct", "pair-wrong"));
+  document.querySelectorAll(`#card-${id} tr`).forEach(el => el.classList.remove("row-correct", "row-wrong"));
+  pairState[id] = { selectedLeft: null, matches: {} };
+  const feedback = document.getElementById("feedback-" + id);
+  if (feedback) {
+    feedback.className = "feedback";
+    feedback.innerHTML = "";
+  }
+  const card = document.getElementById("card-" + id);
+  if (card) {
+    card.classList.remove("solved");
+    const badge = card.querySelector(".badge");
+    if (badge) {
+      badge.classList.remove("done");
+      badge.textContent = "offen";
+    }
+    if (task.type === "pairs") updatePairDisplay(task);
+  }
+  updateProgressOnly();
+}
+
+function resetAll() {
+  if (!confirm("Möchtest du wirklich den gesamten gespeicherten Fortschritt zurücksetzen?")) return;
+  solved = new Set();
+  pairState = {};
+  localStorage.removeItem(STORAGE_KEY);
+  renderAll();
+}
+
+
+function generateNewTask(id) {
+  const oldTask = taskById(id);
+  if (!oldTask) return;
+  const idx = TASKS.findIndex(t => t.id === id);
+  const next = buildGeneratedTask(oldTask);
+  next.id = oldTask.id;
+  next.chapter = oldTask.chapter;
+  next.level = oldTask.level;
+  next.competence = oldTask.competence;
+  next.repeatable = true;
+  TASKS[idx] = next;
+  solved.delete(id);
+  saveProgress();
+  pairState[id] = { selectedLeft: null, matches: {} };
+  renderChapter();
+  updateProgressOnly();
+  setTimeout(() => showFeedback(id, "partial", "! Neue Aufgabe generiert. Löse die Variante und klicke anschließend auf „Überprüfen“."), 0);
+}
+
+function buildGeneratedTask(task) {
+  switch (task.id) {
+    case "K1_2_R": return genValueTable(task, [-1,0,1,2], "Wertetabelle zu einer linearen Funktion");
+    case "K5_1_R": return genValueTable(task, [-4,-2,0,2,4], "Wertetabelle zu einer linearen Funktion");
+    case "K5_3_R": return genValueTableMixed(task, [-2,-1,0,1,2,3,4]);
+    case "K2_3_R": return genProportionalPrice(task);
+    case "K3_2_R": return genWorkerTask(task);
+    case "K7_1_R": return genSlopeChange(task);
+    case "K7_2_R": return genSlopePoints(task, false);
+    case "K7_5_R": return genSlopePoints(task, true);
+    case "K7_4_R": return genGraphLineRead(task);
+    case "K7_6_R": return genTriangleTask(task);
+    case "K8_1_R": return genYAxisGraph(task);
+    case "K8_3_R": return genNullAndIntercept(task);
+    case "K9_1_R": return genLinePositionMatrix(task);
+    case "K9_2_R": return genParallelTask(task);
+    case "K10_1_R": return genIntersectionRead(task, true);
+    case "K10_2_R": return genIntersectionNumeric(task);
+    case "K10_3_R": return genErrorIntersection(task);
+    case "K10_4_R": return genGraphEquationIntersection(task);
+    case "K10_5_R": return genIntersectionCheck(task);
+    case "K6_2_R": return genGraphEvaluation(task);
+    case "K11_1_R": return genTwoTariffs(task);
+    case "K11_2_R": return genTariffIntersection(task);
+    case "K11_4_R": return genFullTariffComparison(task);
+    case "K11_5_R": return genFixedValueComparison(task);
+    case "K11_6_R": return genStartFeeText(task);
+    default: return genDefaultVariant(task);
+  }
+}
+
+function rndInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function shuffleCopy(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+function round2(n) { return Math.round((Number(n) + Number.EPSILON) * 100) / 100; }
+function fmt(n) {
+  const v = round2(n);
+  return Number.isInteger(v) ? String(v).replace("-", "−") : String(v).replace(".", ",").replace("-", "−");
+}
+function fmtPlain(n) {
+  const v = round2(n);
+  return Number.isInteger(v) ? String(v) : String(v).replace(".", ",");
+}
+function eqReadable(m, b, name="y") {
+  const coef = m === 1 ? "x" : m === -1 ? "−x" : `${fmt(m)}x`;
+  if (b === 0) return `${name} = ${coef}`;
+  return `${name} = ${coef} ${b > 0 ? "+" : "−"} ${fmt(Math.abs(b))}`;
+}
+function eqAccepted(m, b, names=["y","f(x)"]) {
+  const ms = [String(m).replace(".",","), String(m)];
+  const bs = Math.abs(b);
+  const sign = b >= 0 ? "+" : "-";
+  const out = [];
+  names.forEach(name => ms.forEach(mm => {
+    if (b === 0) {
+      out.push(`${name}=${mm}x`, `${name}=${mm}*x`);
+    } else {
+      out.push(`${name}=${mm}x${sign}${String(bs).replace(".",",")}`, `${name}=${mm}*x${sign}${String(bs).replace(".",",")}`, `${name}=${mm}x${sign}${bs}`, `${name}=${mm}*x${sign}${bs}`);
+    }
+  }));
+  if (m === 1) names.forEach(name => out.push(b === 0 ? `${name}=x` : `${name}=x${sign}${bs}`));
+  if (m === -1) names.forEach(name => out.push(b === 0 ? `${name}=-x` : `${name}=-x${sign}${bs}`));
+  return [...new Set(out)];
+}
+function num(name,label,answer,tolerance=0.01) { return {name,label,answer:round2(answer),tolerance,inputType:"number"}; }
+function text(name,label,accepted,placeholder="z. B. y = 2x + 3") { return {name,label,accepted,inputType:"text",placeholder}; }
+function baseCopy(task, type, title, stem, fields, extra={}) {
+  return Object.assign({}, task, {type,title,stem,fields}, extra);
+}
+
+function genDefaultVariant(task) {
+  const copy = JSON.parse(JSON.stringify(task));
+  if (copy.options) copy.options = shuffleCopy(copy.options);
+  if (copy.right) copy.right = shuffleCopy(copy.right);
+  if (copy.rows) copy.rows = shuffleCopy(copy.rows);
+  copy.success = copy.success || "Richtig gelöst.";
+  copy.hint = copy.hint || "Die Aufgabe wurde für eine Wiederholung zurückgesetzt.";
+  return copy;
+}
+
+function genValueTable(task, xs, title) {
+  const m = pick([-2,-1.5,-1,-0.5,0.5,1,1.5,2,3]);
+  const b = rndInt(-5,5);
+  const fields = xs.map(x => num(`x${String(x).replace('-', 'm')}`, `y bei x = ${fmt(x)}`, m*x+b));
+  return baseCopy(task, "numeric", title, `Gegeben ist <strong>${eqReadable(m,b)}</strong>. Berechne die y-Werte für x = ${xs.map(fmt).join(", ")}.`, fields, {
+    success:`Richtig: Du hast jeden x-Wert in ${eqReadable(m,b)} eingesetzt.`,
+    hint:"Setze die x-Werte nacheinander in die Funktionsgleichung ein."
+  });
+}
+function genValueTableMixed(task, xs) {
+  const m = pick([-3,-2,-1,1,2,3]);
+  const b = rndInt(-5,5);
+  const fields = xs.map(x => num(`x${String(x).replace('-', 'm')}`, `y bei x = ${fmt(x)}`, m*x+b));
+  const trend = m > 0 ? "steigt" : "fällt";
+  const groups = m > 0 ? [["steigt","wachsend","wird größer","wird groesser"],["steigung","m"],["größer","groesser","zunimmt","nimmt zu"]] : [["fällt","faellt","fallend","wird kleiner"],["steigung","m"],["kleiner","nimmt ab","weniger"]];
+  return baseCopy(task, "mixed", "Wertetabelle mit Veränderung begründen", `Gegeben ist <strong>${eqReadable(m,b,"f(x)")}</strong>. Erstelle die Wertetabelle für x = ${xs.map(fmt).join(", ")} und begründe anschließend, ob die Funktion steigt oder fällt.`, fields, {
+    keywords:[trend,"Steigung",m > 0 ? "größer" : "kleiner"], keywordGroups:groups,
+    sample:`Die Funktion ${trend}, weil die Steigung m = ${fmt(m)} ${m > 0 ? "positiv" : "negativ"} ist.`,
+    success:`Richtig: Die Wertetabelle passt und die Funktion ${trend}.`,
+    hint:"Achte auf das Vorzeichen der Steigung und auf die Veränderung der y-Werte."
+  });
+}
+function genProportionalPrice(task) {
+  const price = pick([1.5,2,2.5,3,3.5,4.2]);
+  const fields = [0,1,2,3,4,5].map(x => num(`kg${x}`, `${x} kg`, price*x));
+  fields.push(text("eq","Funktionsgleichung",eqAccepted(price,0)));
+  return baseCopy(task, "numeric", "Proportionalen Preis modellieren", `1 kg kostet <strong>${fmt(price)} €</strong>. Fülle die Wertetabelle für 0 bis 5 kg aus und gib die Funktionsgleichung an.`, fields, {
+    success:`Richtig: Die Funktionsgleichung lautet ${eqReadable(price,0)}.`,
+    hint:"Bei proportionalen Preisen rechnest du Preis pro Einheit · Menge."
+  });
+}
+function genWorkerTask(task) {
+  const workers1 = pick([3,4,5,6,8]);
+  const days1 = pick([3,4,5,6]);
+  const k = workers1 * days1;
+  const divs = [2,3,4,5,6,8,10,12].filter(x => k % x === 0 && x !== workers1);
+  const workers2 = pick(divs.length ? divs : [workers1*2]);
+  const days2 = round2(k / workers2);
+  return baseCopy(task, "numeric", "Antiproportional: Arbeiter und Tage", `${workers1} Arbeiter brauchen ${days1} Tage. Wie lange brauchen <strong>${workers2} Arbeiter</strong>? Gib auch die Produktzahl k an.`, [num("k","Produkt k",k),num("days","Tage",days2)], {
+    success:`Richtig: k = ${k}. Bei ${workers2} Arbeitern braucht man ${fmt(days2)} Tage.`,
+    hint:"Bei antiproportionalen Aufgaben bleibt Arbeiterzahl · Tage gleich."
+  });
+}
+function genSlopeChange(task) {
+  const x1 = rndInt(-2,2), dx = pick([2,3,4,5]);
+  const m = pick([-3,-2,-1,1,2,3]);
+  const y1 = rndInt(-4,4), x2 = x1 + dx, y2 = y1 + m*dx;
+  return baseCopy(task,"numeric","Steigung aus Veränderung berechnen",`Welche Steigung hat eine Gerade, die beim Schritt von x = ${fmt(x1)} zu x = ${fmt(x2)} von y = ${fmt(y1)} auf y = ${fmt(y2)} geht?`,[num("m","Steigung m",m)],{
+    success:`Richtig: m = (${fmt(y2)} − ${fmt(y1)}) : (${fmt(x2)} − ${fmt(x1)}) = ${fmt(m)}.`,
+    hint:"Berechne Änderung in y-Richtung geteilt durch Änderung in x-Richtung."
+  });
+}
+function genSlopePoints(task, withEquation) {
+  const m = pick([-3,-2,-1,1,2,3]);
+  const b = rndInt(-4,4);
+  let x1 = rndInt(-4,0), x2 = rndInt(1,5);
+  const y1 = m*x1+b, y2 = m*x2+b;
+  const fields = [num("m","Steigung m",m)];
+  if (withEquation) fields.push(num("t","y-Achsenabschnitt t",b), text("eq","Funktionsgleichung",eqAccepted(m,b)));
+  const title = withEquation ? "Aus zwei Punkten die Funktionsgleichung bestimmen" : "Steigung mit der Steigungsformel berechnen";
+  const stem = withEquation ? `Berechne die Steigung der Geraden durch P(${fmt(x1)} | ${fmt(y1)}) und Q(${fmt(x2)} | ${fmt(y2)}). Bestimme dann t und die Funktionsgleichung.` : `Berechne die Steigung der Geraden durch P(${fmt(x1)} | ${fmt(y1)}) und Q(${fmt(x2)} | ${fmt(y2)}).`;
+  return baseCopy(task,"numeric",title,stem,fields,{success: withEquation ? `Richtig: Die Funktionsgleichung lautet ${eqReadable(m,b)}.` : `Richtig: Die Steigung ist m = ${fmt(m)}.`, hint:"Nutze m = (y₂ − y₁) : (x₂ − x₁)."});
+}
+function genGraphLineRead(task) {
+  const m = pick([-2,-1,1,2]);
+  const b = rndInt(-3,3);
+  return baseCopy(task,"numeric","Steigung und y-Achsenabschnitt ablesen",`Lies aus dem Graphen mit Steigungsdreieck die Steigung m und den y-Achsenabschnitt t ab. Gib außerdem die Funktionsgleichung an.`,[num("m","Steigung m",m),num("t","y-Achsenabschnitt t",b),text("eq","Funktionsgleichung",eqAccepted(m,b))],{
+    diagram:{type:"coord",xMin:-3,xMax:5,yMin:-5,yMax:7,lines:[{m,b,label:"f"}],triangle:{x:0,y:b,dx:1,dy:m}},
+    success:`Richtig: ${eqReadable(m,b)}.`,
+    hint:"t liest du an der y-Achse ab. m liest du mit dem Steigungsdreieck ab."
+  });
+}
+function genTriangleTask(task) {
+  const m = pick([-2,-1.5,-1,-0.5,0.5,1,1.5,2]);
+  const b = rndInt(-3,4);
+  let dx = Number.isInteger(m) ? 1 : 2;
+  let dy = m*dx;
+  return baseCopy(task,"numeric","Gerade mit Steigungsdreieck vorbereiten",`Für <strong>${eqReadable(m,b,"h(x)")}</strong> sollst du ohne Wertetabelle zeichnen. Gib den Startpunkt auf der y-Achse und ein passendes Steigungsdreieck an.`,[num("t","y-Achsenabschnitt t",b),num("startx","Startpunkt x",0),num("starty","Startpunkt y",b),num("dx","waagerechter Schritt",dx),num("dy","senkrechter Schritt",dy)],{
+    success:`Richtig: Starte bei (0 | ${fmt(b)}). Das Steigungsdreieck kann waagerecht ${fmt(dx)} und senkrecht ${fmt(dy)} sein.`,
+    hint:"Schreibe die Steigung als Bruch: senkrechte Änderung / waagerechte Änderung."
+  });
+}
+function genYAxisGraph(task) {
+  const m = pick([-2,-1,1,2]);
+  const b = rndInt(-4,4);
+  return baseCopy(task,"numeric","y-Achsenabschnitt aus Graph ablesen",`Lies aus dem Graphen den y-Achsenabschnitt ab und notiere ihn als Punkt (0 | t).`,[num("x","x-Koordinate",0),num("t","t",b)],{
+    diagram:{type:"coord",xMin:-4,xMax:4,yMin:-5,yMax:5,lines:[{m,b,label:"f"}],points:[{x:0,y:b,label:"P"}]},
+    success:`Richtig: Der y-Achsenabschnitt ist P(0 | ${fmt(b)}).`,
+    hint:"Der y-Achsenabschnitt liegt dort, wo die Gerade die y-Achse schneidet."
+  });
+}
+function genNullAndIntercept(task) {
+  const m = pick([-3,-2,-1,1,2,3]);
+  const nullx = rndInt(1,5);
+  const b = -m*nullx;
+  return baseCopy(task,"mixed","Nullstelle und y-Achsenabschnitt aus der Gleichung",`Gegeben ist <strong>${eqReadable(m,b,"f(x)")}</strong>. Bestimme Nullstelle und y-Achsenabschnitt und erkläre die Bedeutung des y-Achsenabschnitts kurz.`,[num("nullx","x-Wert der Nullstelle",nullx),num("nully","y-Wert der Nullstelle",0),num("t","y-Achsenabschnitt t",b)],{
+    keywords:["y-Achsenabschnitt","Startwert","x = 0"], keywordGroups:[["y-achsenabschnitt","y achsenabschnitt","achsenabschnitt"],["startwert","anfangswert"],["x = 0","x=0"]],
+    sample:`Der y-Achsenabschnitt ${fmt(b)} ist der Startwert der Funktion bei x = 0.`,
+    success:"Richtig: Du berechnest Nullstelle und y-Achsenabschnitt passend.",
+    hint:"Für die Nullstelle setzt du y = 0. Den y-Achsenabschnitt erhältst du bei x = 0."
+  });
+}
+function genLinePositionMatrix(task) {
+  const m1 = pick([-2,-1,1,2,3]);
+  const b1 = rndInt(-4,4), b2 = b1 + pick([-3,-2,2,3]);
+  const rows = [
+    {id:"p1", label:`${eqReadable(m1,b1,"f")}; ${eqReadable(m1,b2,"g")}`, correct:"parallel"},
+    {id:"p2", label:`${eqReadable(m1,b1,"f")}; ${eqReadable(m1,b1,"g")}`, correct:"identisch"},
+    {id:"p3", label:`${eqReadable(m1,b1,"f")}; ${eqReadable(m1+1,b2,"g")}`, correct:"schneiden sich"},
+    {id:"p4", label:`${eqReadable(-m1,b2,"f")}; ${eqReadable(m1,b1,"g")}`, correct:"schneiden sich"}
+  ];
+  return Object.assign({}, task, {type:"matrix", title:"Lage von Geraden beurteilen", stem:"Beurteile die Lage der Geradenpaare. Wähle jeweils: schneiden sich, parallel oder identisch.", choices:["schneiden sich","parallel","identisch"], rows:shuffleCopy(rows), success:"Richtig: Du vergleichst jeweils Steigung und y-Achsenabschnitt.", hint:"Gleiche Steigung + anderer y-Achsenabschnitt = parallel. Beide gleich = identisch. Unterschiedliche Steigung = Schnittpunkt."});
+}
+function genParallelTask(task) {
+  const m = pick([-3,-2,-1,1,2,3]);
+  const oldB = rndInt(-4,4);
+  let b = rndInt(-4,4); if (b === oldB) b += 2;
+  return baseCopy(task,"numeric","Parallele Funktionsgleichung angeben",`Gib eine Funktionsgleichung an, die parallel zu <strong>${eqReadable(m,oldB)}</strong> verläuft, aber die y-Achse bei ${fmt(b)} schneidet.`,[num("m","m",m),num("t","t",b),text("eq","Funktionsgleichung",eqAccepted(m,b))],{
+    success:`Richtig: Parallel bedeutet gleiche Steigung m = ${fmt(m)}. Die Gleichung lautet ${eqReadable(m,b)}.`,
+    hint:"Übernimm die Steigung und verwende den neuen y-Achsenabschnitt."
+  });
+}
+function intersectionData() {
+  const sx = rndInt(1,4), sy = rndInt(1,6);
+  let m1 = pick([1,2,3,-1]);
+  let m2 = pick([-2,-1,1,2]);
+  if (m1 === m2) m2 = -m1 || 2;
+  const b1 = sy - m1*sx, b2 = sy - m2*sx;
+  return {sx,sy,m1,m2,b1,b2};
+}
+function genIntersectionRead(task) {
+  const d = intersectionData();
+  return baseCopy(task,"mixed","Schnittpunkt ablesen und erklären",`Lies den Schnittpunkt ab und erkläre in einem Satz, was dieser Punkt bedeutet.`,[num("x","x-Koordinate von S",d.sx),num("y","y-Koordinate von S",d.sy)],{
+    diagram:{type:"coord",xMin:-1,xMax:6,yMin:-2,yMax:8,lines:[{m:d.m1,b:d.b1,label:"f"},{m:d.m2,b:d.b2,label:"g"}],points:[{x:d.sx,y:d.sy,label:"S"}]},
+    keywords:["Schnittpunkt","beide Funktionen","gleicher Wert"], keywordGroups:[["schnittpunkt"],["beide funktionen","beide geraden"],["gleicher wert","denselben wert","gleich"]],
+    sample:`Der Schnittpunkt S(${fmt(d.sx)} | ${fmt(d.sy)}) bedeutet, dass beide Funktionen bei x = ${fmt(d.sx)} den gleichen Wert ${fmt(d.sy)} haben.`,
+    success:"Richtig: Du liest den Schnittpunkt ab und deutest ihn als gleichen Wert beider Funktionen.",
+    hint:"Der Schnittpunkt liegt dort, wo beide Geraden aufeinandertreffen."
+  });
+}
+function genIntersectionNumeric(task) {
+  const d = intersectionData();
+  return baseCopy(task,"numeric","Schnittpunkt selbstständig berechnen",`Berechne den Schnittpunkt von <strong>${eqReadable(d.m1,d.b1)}</strong> und <strong>${eqReadable(d.m2,d.b2)}</strong>. Gib zuerst die richtige Lösung für x und danach die richtige Lösung für y ein.`,[num("x","x-Lösung",d.sx),num("y","y-Lösung",d.sy)],{
+    success:`Richtig: Der Schnittpunkt ist S(${fmt(d.sx)} | ${fmt(d.sy)}).`,
+    hint:"Setze die beiden y-Terme gleich. Löse zuerst x und setze x anschließend ein."
+  });
+}
+function genErrorIntersection(task) {
+  return Object.assign({}, task, {stem:"Ein Schüler rechnet: <br><em>3x + 2 = x + 10 ⇒ 3x = x + 12 ⇒ x = 6</em>. Finde den Fehler und gib den korrekten Schnittpunkt an.", fields:[num("x","korrektes x",4),num("y","korrektes y",14)], keywords:["Fehler","2 subtrahieren","2x = 8"], keywordGroups:[["fehler","falsch"],["2 subtrahieren","minus 2","2 abziehen"],["2x = 8","2 x = 8"]], sample:"Der Fehler liegt beim Umformen: Man muss 2 subtrahieren. Dann gilt 3x = x + 8 und somit 2x = 8. Der Schnittpunkt ist S(4 | 14).", success:"Sehr gut: Du findest den Umformungsfehler und berechnest den Schnittpunkt korrekt.", hint:"Beim Gleichsetzungsverfahren musst du auf beiden Seiten denselben Term abziehen."});
+}
+function genGraphEquationIntersection(task) {
+  const d = intersectionData();
+  return baseCopy(task,"numeric","Graphen ablesen und Schnittpunkt berechnen",`Lies für h und k jeweils m und t ab. Gib beide Funktionsgleichungen an und berechne anschließend den Schnittpunkt.`,[num("hm","Steigung h",d.m1),num("ht","t von h",d.b1),text("heq","h(x)",eqAccepted(d.m1,d.b1,["y","h(x)"])),num("km","Steigung k",d.m2),num("kt","t von k",d.b2),text("keq","k(x)",eqAccepted(d.m2,d.b2,["y","k(x)"])),num("sx","Schnittpunkt x",d.sx),num("sy","Schnittpunkt y",d.sy)],{
+    diagram:{type:"coord",xMin:-2,xMax:6,yMin:-4,yMax:8,lines:[{m:d.m1,b:d.b1,label:"h"},{m:d.m2,b:d.b2,label:"k"}],points:[{x:d.sx,y:d.sy,label:"S"}]},
+    success:`Richtig: Der Schnittpunkt ist S(${fmt(d.sx)} | ${fmt(d.sy)}).`,
+    hint:"Lies zuerst m und t ab. Danach setzt du beide Gleichungen gleich."
+  });
+}
+function genIntersectionCheck(task) {
+  const d = intersectionData();
+  return baseCopy(task,"numeric","Schnittpunkt berechnen und überprüfen",`Berechne den Schnittpunkt von <strong>${eqReadable(d.m1,d.b1,"f(x)")}</strong> und <strong>${eqReadable(d.m2,d.b2,"g(x)")}</strong>. Überprüfe dein Ergebnis, indem du den x-Wert in beide Funktionen einsetzt.`,[num("sx","x-Wert von S",d.sx),num("sy","y-Wert von S",d.sy),num("fcheck",`f(${fmt(d.sx)})`,d.sy),num("gcheck",`g(${fmt(d.sx)})`,d.sy)],{
+    success:`Richtig: Beide Funktionen liefern bei x = ${fmt(d.sx)} den y-Wert ${fmt(d.sy)}.`,
+    hint:"Nach dem Gleichsetzen setzt du den x-Wert in beide Funktionen ein."
+  });
+}
+function genGraphEvaluation(task) {
+  const d = intersectionData();
+  const xRead = 1, xCheck = d.sx;
+  return baseCopy(task,"mixed","Zwei Geraden im Schaubild auswerten",`Lies aus dem Schaubild die Werte ab. Überprüfe danach den Schnittpunkt durch Einsetzen und erkläre seine Bedeutung in einem Tarifmodell.`,[num("p1",`p(${xRead})`,d.m1*xRead+d.b1),num("q1",`q(${xRead})`,d.m2*xRead+d.b2),num("sx","x-Koordinate von S",d.sx),num("sy","y-Koordinate von S",d.sy),num("p2",`p(${xCheck})`,d.sy),num("q2",`q(${xCheck})`,d.sy)],{
+    diagram:{type:"coord",xMin:-2,xMax:7,yMin:-4,yMax:8,lines:[{m:d.m1,b:d.b1,label:"p"},{m:d.m2,b:d.b2,label:"q"}],points:[{x:d.sx,y:d.sy,label:"S"}]},
+    keywords:["Schnittpunkt","gleiche Kosten","beide Tarife"], keywordGroups:[["schnittpunkt"],["gleiche kosten","gleich teuer","gleichen wert"],["beide tarife","beide funktionen","beide geraden"]],
+    sample:`Der Schnittpunkt bedeutet, dass beide Tarife bei x = ${fmt(d.sx)} den gleichen Wert ${fmt(d.sy)} haben, also gleich teuer sind.`,
+    success:"Richtig: Du wertest das Schaubild aus und erklärst den Schnittpunkt passend.",
+    hint:"Setze den x-Wert des Schnittpunkts in beide Funktionen ein."
+  });
+}
+function tariffData() {
+  const x = rndInt(3,8);
+  const mA = pick([1.5,1.8,2,2.2,2.5]);
+  const mB = round2(mA - pick([0.3,0.4,0.5,0.6]));
+  const tA = pick([0,1,2,2.5]);
+  const tB = round2(tA + (mA - mB)*x);
+  const y = round2(mA*x+tA);
+  return {x,mA,mB,tA,tB,y};
+}
+function genTwoTariffs(task) {
+  const d = tariffData();
+  return baseCopy(task,"numeric","Zwei Tarife aufstellen",`Tarif A kostet ${fmt(d.tA)} € Grundgebühr + ${fmt(d.mA)} € pro Einheit. Tarif B kostet ${fmt(d.tB)} € Grundgebühr + ${fmt(d.mB)} € pro Einheit. Gib m und t für beide Tarife an.`,[num("am","Tarif A m",d.mA),num("at","Tarif A t",d.tA),num("bm","Tarif B m",d.mB),num("bt","Tarif B t",d.tB)],{
+    success:`Richtig: A: ${eqReadable(d.mA,d.tA)}; B: ${eqReadable(d.mB,d.tB)}.`,
+    hint:"Preis pro Einheit ist m, Grundgebühr ist t."
+  });
+}
+function genTariffIntersection(task) {
+  const d = tariffData();
+  const nextKm = Number.isInteger(d.x) ? d.x + 1 : Math.ceil(d.x);
+  return baseCopy(task,"mixed","Ab wann ist der zweite Tarif günstiger?",`Tarif A kostet ${fmt(d.tA)} € Grundgebühr + ${fmt(d.mA)} € pro km. Tarif B kostet ${fmt(d.tB)} € Grundgebühr + ${fmt(d.mB)} € pro km. Berechne den Schnittpunkt und schreibe, ab wann Tarif B günstiger ist.`,[num("x","Schnittpunkt bei x =",d.x),num("y","Preis am Schnittpunkt",d.y)],{
+    keywords:["Schnittpunkt","günstiger",`ab ${nextKm} km`], keywordGroups:[["schnittpunkt"],["günstiger","guenstiger","billiger"],[`ab ${nextKm} km`,`mehr als ${fmt(d.x)} km`,`ab ${fmt(nextKm)} kilometern`]],
+    sample:`Der Schnittpunkt liegt bei ${fmt(d.x)} km. Tarif B ist wegen der kleineren Steigung danach günstiger, bei ganzen Kilometern also ab ${fmt(nextKm)} km.`,
+    success:"Sehr gut: Du berechnest und interpretierst den Tarifvergleich richtig.",
+    hint:"Nach dem Schnittpunkt ist der Tarif mit der kleineren Steigung günstiger."
+  });
+}
+function genFullTariffComparison(task) {
+  const d = tariffData();
+  const month = pick([3,4,6,8]);
+  const aMonth = round2(d.mA*month+d.tA), bMonth = round2(d.mB*month+d.tB);
+  return baseCopy(task,"mixed","Tarifvergleich mit Gleichung, Tabelle und Schnittpunkt",`Zwei Angebote werden verglichen: <strong>Anbieter A</strong> kostet ${fmt(d.tA)} € Startgebühr und ${fmt(d.mA)} € pro Monat. <strong>Anbieter B</strong> kostet ${fmt(d.tB)} € Startgebühr und ${fmt(d.mB)} € pro Monat. Stelle beide Funktionsgleichungen auf, berechne die Kosten nach ${month} Monaten und den Schnittpunkt. Schreibe dann einen Antwortsatz.`,[num("m1","Anbieter A m",d.mA),num("t1","Anbieter A t",d.tA),num("m2","Anbieter B m",d.mB),num("t2","Anbieter B t",d.tB),num("a4",`Anbieter A nach ${month} Monaten`,aMonth),num("b4",`Anbieter B nach ${month} Monaten`,bMonth),num("sx","Schnittpunkt x",d.x),num("sy","Schnittpunkt y",d.y)],{
+    keywords:["Schnittpunkt","gleich teuer",`ab ${fmt(d.x)} Monaten`], keywordGroups:[["schnittpunkt"],["gleich teuer","gleich viel","gleiche kosten"],[`ab ${fmt(d.x)} monaten`,`nach ${fmt(d.x)} monaten`,`${fmt(d.x)} monate`]],
+    sample:`Der Schnittpunkt liegt bei ${fmt(d.x)} Monaten und ${fmt(d.y)} €. Dort sind beide Anbieter gleich teuer.`,
+    success:"Du bearbeitest den vollständigen Tarifvergleich korrekt.",
+    hint:"Startgebühr ist t, Monatspreis ist m. Für den Schnittpunkt setzt du beide Terme gleich."
+  });
+}
+function genFixedValueComparison(task) {
+  const d = tariffData();
+  const x = rndInt(5,10);
+  const a = round2(d.mA*x+d.tA), b = round2(d.mB*x+d.tB);
+  const cheap = a < b ? "Anbieter A" : b < a ? "Anbieter B" : "beide gleich teuer";
+  const accepted = cheap === "Anbieter A" ? ["anbietera","anbieter a","a"] : cheap === "Anbieter B" ? ["anbieterb","anbieter b","b"] : ["beide","gleich","beide gleich teuer"];
+  return baseCopy(task,"numeric","Kosten bei einem bestimmten x-Wert vergleichen",`Anbieter A kostet ${fmt(d.tA)} € Grundgebühr + ${fmt(d.mA)} € pro Einheit. Anbieter B kostet ${fmt(d.tB)} € Grundgebühr + ${fmt(d.mB)} € pro Einheit. Berechne beide Preise für <strong>x = ${x}</strong> und entscheide, welcher Anbieter günstiger ist.`,[num("a","Preis Anbieter A",a),num("b","Preis Anbieter B",b),text("cheap","günstigerer Anbieter",accepted)],{
+    success:`Richtig: Anbieter A kostet ${fmt(a)} €, Anbieter B kostet ${fmt(b)} €. Ergebnis: ${cheap}.`,
+    hint:"Setze x in beide Kostenfunktionen ein und vergleiche."
+  });
+}
+function genStartFeeText(task) {
+  const d = tariffData();
+  return Object.assign({}, task, {stem:`Erkläre an einem Tarif <strong>${eqReadable(d.mA,d.tA)}</strong>: Steigt oder fällt die Kostenfunktion? Was bedeutet der y-Achsenabschnitt inhaltlich?`, sample:`Die Kostenfunktion steigt, weil pro Einheit ${fmt(d.mA)} € dazukommen. Der y-Achsenabschnitt ${fmt(d.tA)} € ist die Grundgebühr, die schon bei x = 0 bezahlt wird.`});
+}
+
+renderAll();
+</script>
+</body>
+</html>

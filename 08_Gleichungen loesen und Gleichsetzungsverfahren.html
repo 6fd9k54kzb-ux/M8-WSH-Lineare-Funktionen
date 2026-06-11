@@ -610,6 +610,9 @@
 // ═══════════════════════════════════════════════════════
 //  STATE
 // ═══════════════════════════════════════════════════════
+const TASKS_PER_PHASE = 4;
+const TASKS_PER_LEVEL = TASKS_PER_PHASE;
+
 let state = {
   currentPhase: 1,
   currentTask: 0,
@@ -617,334 +620,294 @@ let state = {
   tasks: [],
   unlockedPhases: [1],
   levelPerPhase: { 1: 'M', 2: 'M', 3: 'R' },
-  totalPerPhase: 4  // 4 fehlerfrei gelöste Aufgaben → nächste Phase freischalten
+  totalPerPhase: TASKS_PER_PHASE
 };
 
-const TASKS_PER_PHASE = 4;
-const TASKS_PER_LEVEL = TASKS_PER_PHASE; // Kompatibilität mit bestehenden Funktionsaufrufen
-
 function getLevelForPhase(phase) {
-  // Phase 1 und 2 sind M-Niveau, Phase 3 ist R-Niveau.
   return phase === 3 ? 'R' : 'M';
 }
 
 // ═══════════════════════════════════════════════════════
-//  TASK GENERATORS  (deterministic, no AI needed for basics)
+//  TASK GENERATORS
 // ═══════════════════════════════════════════════════════
-
 function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
 function randNonZero(min, max) {
   let v;
   do { v = randInt(min, max); } while (v === 0);
   return v;
 }
-function gcd(a, b) { return b === 0 ? Math.abs(a) : gcd(b, a % b); }
-function frac(n, d) {
-  const g = gcd(Math.abs(n), Math.abs(d));
-  return { n: n/g, d: d/g };
-}
+
 function formatNum(n) {
+  if (Math.abs(n) < 0.005) n = 0;
   if (Number.isInteger(n)) return n.toString();
-  // Dezimalzahlen sauber ausgeben: 0,5 bleibt 0,5; 0,25 bleibt 0,25
   const rounded = Math.round(n * 100) / 100;
   return rounded.toString().replace('.', ',');
 }
-function formatTerm(coeff, varname, constant, forceSign=false) {
+
+function formatCoeffX(coeff) {
+  if (closeEnough(coeff, 1)) return 'x';
+  if (closeEnough(coeff, -1)) return '-x';
+  return formatNum(coeff) + 'x';
+}
+
+function formatLinearExpression(coeff, constant) {
   let s = '';
-  if (coeff === 1) s = varname;
-  else if (coeff === -1) s = '-' + varname;
-  else s = coeff + varname;
-  if (forceSign && coeff > 0) s = '+' + s;
-  if (constant > 0) s += ' + ' + constant;
-  else if (constant < 0) s += ' − ' + Math.abs(constant);
+  if (!closeEnough(coeff, 0)) s += formatCoeffX(coeff);
+  if (!closeEnough(constant, 0)) {
+    const absConst = formatNum(Math.abs(constant));
+    if (s === '') s += constant < 0 ? `-${absConst}` : absConst;
+    else s += constant < 0 ? ` − ${absConst}` : ` + ${absConst}`;
+  }
+  return s || '0';
+}
+
+function formatEquationDisplay(coeff, constant, right) {
+  return `${formatLinearExpression(coeff, constant)} = ${formatNum(right)}`;
+}
+
+function formatTerm(coeff, varname, constant) {
+  let s = '';
+  if (closeEnough(coeff, 1)) s = varname;
+  else if (closeEnough(coeff, -1)) s = '-' + varname;
+  else s = formatNum(coeff) + varname;
+  if (constant > 0) s += ' + ' + formatNum(constant);
+  else if (constant < 0) s += ' − ' + formatNum(Math.abs(constant));
   return s;
 }
 
-// ── Phase 1: simple equations (x one side) ──
+// ── Phase 1: einfache Gleichungen ──
 function genPhase1Task(level) {
-  if (level === 'M') {
-    // ax + b = c, Lösung ganzzahlig
-    const a = randInt(1, 3);
-    const x = randInt(-8, 8);
-    const b = randInt(-6, 6);
-    const c = a * x + b;
-    const operationText = b >= 0 ? `Subtrahiere ${b}` : `Addiere ${Math.abs(b)}`;
-    const intermediateRight = c - b;
+  const a = level === 'M' ? randInt(1, 3) : randInt(2, 4);
+  const x = level === 'M' ? randInt(-8, 8) : randInt(-10, 10);
+  let b = level === 'M' ? randInt(-6, 6) : randInt(-10, 10);
+  if (b === 0) b = randNonZero(-6, 6);
+  const c = a * x + b;
+  const intermediateRight = c - b;
+  const operationText = b >= 0 ? `Subtrahiere ${formatNum(b)}` : `Addiere ${formatNum(Math.abs(b))}`;
 
-    const steps = (a === 1)
-      ? [
-          { label: 'Zahl auf die andere Seite bringen', checkType: 'x' }
-        ]
-      : [
-          {
-            label: 'x isolieren (Zahl auf die andere Seite bringen)',
-            checkType: 'linear_equation',
-            expectedLeft: { x: a, c: 0 },
-            expectedRight: { x: 0, c: intermediateRight }
-          },
-          { label: `x berechnen (durch ${a} teilen)`, checkType: 'x' }
-        ];
-
-    return {
-      display: `${a === 1 ? '' : a}x ${b >= 0 ? '+ ' + b : '− ' + Math.abs(b)} = ${c}`,
-      type: 'simple',
-      coeff: a,
-      constant: b,
-      right: c,
-      intermediateCoeff: a,
-      intermediateRight,
-      answer_x: x,
-      hint: a === 1
-        ? `${operationText} auf beiden Seiten. Dann steht x direkt alleine.`
-        : `${operationText} auf beiden Seiten: ${formatCoeffX(a)} = ${formatNum(intermediateRight)}. Dann teile durch ${a}.`,
-      steps
-    };
+  const steps = [];
+  if (a === 1) {
+    steps.push({
+      label: 'Zahl auf die andere Seite bringen',
+      checkType: 'x'
+    });
   } else {
-    // Erweiterung: ax + b = c mit größeren Zahlen, Lösung ganzzahlig
-    const a = randInt(2, 4);
-    const x = randInt(-10, 10);
-    const b = randInt(-10, 10);
-    const c = a * x + b;
-    const operationText = b >= 0 ? `Subtrahiere ${b}` : `Addiere ${Math.abs(b)}`;
-    const intermediateRight = c - b;
-
-    return {
-      display: `${a}x ${b >= 0 ? '+ ' + b : '− ' + Math.abs(b)} = ${c}`,
-      type: 'simple',
-      coeff: a,
-      constant: b,
-      right: c,
-      intermediateCoeff: a,
-      intermediateRight,
-      answer_x: x,
-      hint: `${operationText} auf beiden Seiten: ${formatCoeffX(a)} = ${formatNum(intermediateRight)}. Dann teile durch ${a}.`,
-      steps: [
-        {
-          label: 'Zahl auf die andere Seite bringen',
-          checkType: 'linear_equation',
-          expectedLeft: { x: a, c: 0 },
-          expectedRight: { x: 0, c: intermediateRight }
-        },
-        { label: `x berechnen (durch ${a} teilen)`, checkType: 'x' }
-      ]
-    };
+    steps.push({
+      label: 'x isolieren (Zahl auf die andere Seite bringen)',
+      checkType: 'linear_equation',
+      expectedLeft: { x: a, c: 0 },
+      expectedRight: { x: 0, c: intermediateRight }
+    });
+    steps.push({
+      label: `x berechnen (durch ${formatNum(a)} teilen)`,
+      checkType: 'x'
+    });
   }
+
+  return {
+    display: formatEquationDisplay(a, b, c),
+    type: 'simple',
+    coeff: a,
+    constant: b,
+    right: c,
+    intermediateCoeff: a,
+    intermediateRight,
+    answer_x: x,
+    hint: a === 1
+      ? `${operationText} auf beiden Seiten. Dann steht x direkt alleine.`
+      : `${operationText} auf beiden Seiten: ${formatCoeffX(a)} = ${formatNum(intermediateRight)}. Dann teile durch ${formatNum(a)}.`,
+    steps
+  };
 }
 
-// ── Phase 2: x on both sides ──// ── Phase 2: x on both sides ──
+// ── Phase 2: x auf beiden Seiten ──
 function genPhase2Task(level) {
   if (level === 'M') {
     const x = randInt(1, 8);
     const a = randInt(2, 5);
     const diff = randInt(1, 4);
-    const cc = a + diff;
-    const bb = diff * x;
-    const eq_left = `${cc}x`;
-    const eq_right = `${a}x + ${bb}`;
-
-    const steps = (diff === 1)
-      ? [
-          { label: 'x-Terme auf eine Seite bringen', checkType: 'x' }
-        ]
-      : [
-          {
-            label: 'x-Terme auf eine Seite bringen (− ' + a + 'x auf beiden Seiten)',
-            checkType: 'linear_equation',
-            expectedLeft: { x: diff, c: 0 },
-            expectedRight: { x: 0, c: bb }
-          },
-          { label: 'x berechnen', checkType: 'x' }
-        ];
-
-    return {
-      display: `${eq_left} = ${eq_right}`,
-      type: 'both_sides',
-      leftCoeff: cc,
-      rightCoeffOriginal: a,
-      rightConstant: bb,
-      intermediateCoeff: diff,
-      intermediateRight: bb,
-      answer_x: x,
-      hint: diff === 1
-        ? `Ziehe ${a}x von beiden Seiten ab. Dann steht direkt x = ${bb}.`
-        : `Ziehe ${a}x von beiden Seiten ab: ${formatCoeffX(diff)} = ${formatNum(bb)}. Dann teile durch ${diff}.`,
-      steps
-    };
-  } else {
-    // Mit Zahlen auf beiden Seiten: ax + b = cx + d
-    const x = randInt(-5, 8);
-    const a = randNonZero(1, 4);
-    const b = randInt(-8, 8);
-    let cc = randNonZero(-4, 4);
-    while (cc === a) cc = randNonZero(-4, 4);
-    const d = (a - cc) * x + b;  // ax + b = ccx + d soll bei x stimmen
-
-    const lhs_x = a;
-    const lhs_c = b;
-    const rhs_x = cc;
-    const rhs_c = d;
-    const check = lhs_x * x + lhs_c;
-    const check2 = rhs_x * x + rhs_c;
-    if (!closeEnough(check, check2) || !Number.isInteger(x)) return genPhase2Task(level);
-
-    const lhsStr = `${lhs_x === 1 ? '' : lhs_x === -1 ? '-' : lhs_x}x ${lhs_c >= 0 ? '+ ' + lhs_c : '− ' + Math.abs(lhs_c)}`;
-    const rhsStr = `${rhs_x === 1 ? '' : rhs_x === -1 ? '-' : rhs_x}x ${rhs_c >= 0 ? '+ ' + rhs_c : '− ' + Math.abs(rhs_c)}`;
-    const diff = lhs_x - rhs_x;
-    const diff2 = rhs_c - lhs_c;
+    const leftCoeff = a + diff;
+    const rightConstant = diff * x;
 
     const steps = [];
-    if (lhs_c === 0 && diff === 1) {
-      steps.push({ label: `x-Terme zusammenfassen (−${rhs_x}x auf beiden Seiten)`, checkType: 'x' });
+    if (diff === 1) {
+      steps.push({
+        label: `x-Terme auf eine Seite bringen (− ${formatNum(a)}x auf beiden Seiten)`,
+        checkType: 'x'
+      });
     } else {
       steps.push({
-        label: `x-Terme zusammenfassen (−${rhs_x}x auf beiden Seiten)`,
+        label: `x-Terme auf eine Seite bringen (− ${formatNum(a)}x auf beiden Seiten)`,
         checkType: 'linear_equation',
-        expectedLeft: { x: diff, c: lhs_c },
-        expectedRight: { x: 0, c: rhs_c }
+        expectedLeft: { x: diff, c: 0 },
+        expectedRight: { x: 0, c: rightConstant }
       });
-
-      if (lhs_c !== 0) {
-        if (diff === 1) {
-          steps.push({ label: 'Zahl auf andere Seite bringen', checkType: 'x' });
-        } else {
-          steps.push({
-            label: 'Zahl auf andere Seite bringen',
-            checkType: 'linear_equation',
-            expectedLeft: { x: diff, c: 0 },
-            expectedRight: { x: 0, c: diff2 }
-          });
-        }
-      }
-
-      if (diff !== 1) {
-        steps.push({ label: 'x berechnen', checkType: 'x' });
-      }
+      steps.push({
+        label: `x berechnen (durch ${formatNum(diff)} teilen)`,
+        checkType: 'x'
+      });
     }
 
     return {
-      display: `${lhsStr} = ${rhsStr}`,
+      display: `${formatCoeffX(leftCoeff)} = ${formatCoeffX(a)} + ${formatNum(rightConstant)}`,
       type: 'both_sides',
-      leftCoeff: lhs_x,
-      leftConstant: lhs_c,
-      rightCoeffOriginal: rhs_x,
-      rightConstant: rhs_c,
+      leftCoeff,
+      rightCoeffOriginal: a,
+      rightConstant,
       intermediateCoeff: diff,
-      intermediateConst: lhs_c,
-      intermediateRight: rhs_c,
-      secondIntermediateRight: diff2,
+      intermediateRight: rightConstant,
       answer_x: x,
-      hint: lhs_c === 0 && diff === 1
-        ? `Ziehe ${rhs_x}x von beiden Seiten ab. Dann steht direkt x = ${formatNum(x)}.`
-        : lhs_c === 0
-          ? `Ziehe ${rhs_x}x von beiden Seiten ab: ${formatCoeffX(diff)} = ${formatNum(rhs_c)}. Danach teilst du durch ${formatNum(diff)}.`
-          : diff === 1
-            ? `Ziehe ${rhs_x}x von beiden Seiten ab und bringe dann die Zahl auf die andere Seite. Danach steht direkt x = ${formatNum(x)}.`
-            : `Ziehe ${rhs_x}x von beiden Seiten ab: ${formatLinearExpression(diff, lhs_c)} = ${formatNum(rhs_c)}. Dann bringe die Zahl auf die andere Seite.`,
+      hint: diff === 1
+        ? `Ziehe ${formatNum(a)}x von beiden Seiten ab. Dann steht direkt x = ${formatNum(x)}.`
+        : `Ziehe ${formatNum(a)}x von beiden Seiten ab: ${formatCoeffX(diff)} = ${formatNum(rightConstant)}. Dann teile durch ${formatNum(diff)}.`,
       steps
     };
   }
-}
 
-// ── Phase 3: Gleichsetzungsverfahren ──// ── Phase 3: Gleichsetzungsverfahren ──
-function formatCoeffX(coeff) {
-  if (coeff === 1) return 'x';
-  if (coeff === -1) return '-x';
-  return formatNum(coeff) + 'x';
-}
+  // Erweiterung, falls später wieder ein R-Niveau in Phase 2 genutzt wird.
+  const x = randInt(-5, 8);
+  const lhs_x = randNonZero(1, 4);
+  const lhs_c = randInt(-8, 8);
+  let rhs_x = randNonZero(-4, 4);
+  while (rhs_x === lhs_x) rhs_x = randNonZero(-4, 4);
+  const rhs_c = (lhs_x - rhs_x) * x + lhs_c;
+  const diff = lhs_x - rhs_x;
+  const secondRight = rhs_c - lhs_c;
 
-function genPhase3Task(level) {
-  if (level === 'M') {
-    // M-Niveau: ganzzahlige, einfache Schnittpunkte.
-    // Wichtig: |m1 - m2| darf nicht 1 sein, damit nach dem Sortieren ein echter Zwischenschritt wie 3x = 6 entsteht.
-    let x, m1, t1, m2, t2;
-    let attempts = 0;
-    do {
-      m1 = randNonZero(-3, 4);
-      t1 = randInt(-5, 5);
-      m2 = randNonZero(-3, 4);
-      t2 = randInt(-5, 5);
-      attempts++;
-      if (attempts > 200) break;
-      if (m1 === m2) continue;
-      const num = t2 - t1;
-      const den = m1 - m2;
-      x = num / den;
-    } while (m1 === m2 || Math.abs(m1 - m2) === 1 || !Number.isInteger(x) || Math.abs(x) > 8);
+  const steps = [{
+    label: `x-Terme zusammenfassen (−${formatNum(rhs_x)}x auf beiden Seiten)`,
+    checkType: 'linear_equation',
+    expectedLeft: { x: diff, c: lhs_c },
+    expectedRight: { x: 0, c: rhs_c }
+  }];
 
-    const y = m1 * x + t1;
-    const intermediateCoeff = m1 - m2;
-    const intermediateRight = t2 - t1;
-
-    return {
-      type: 'gleichsetzung',
-      level,
-      line1: { m: m1, t: t1 },
-      line2: { m: m2, t: t2 },
-      intermediateCoeff,
-      intermediateRight,
-      answer_x: x,
-      answer_y: y,
-      hint: `Setze I = II: ${formatTerm(m1, 'x', t1)} = ${formatTerm(m2, 'x', t2)}. Sortiere dann zuerst zu ${formatCoeffX(intermediateCoeff)} = ${formatNum(intermediateRight)} und teile erst danach.`,
-      steps: [
-        { label: 'Gleichung aufstellen (I = II)', checkType: 'equation' },
-        { label: 'Zwischenschritt: x-Terme und Zahlen sortieren', checkType: 'intermediate_x_equation' },
-        { label: 'Nach x auflösen', checkType: 'x' },
-        { label: 'y berechnen (x in Gl. I einsetzen)', checkType: 'y' },
-        { label: 'Schnittpunkt S(x|y) angeben', checkType: 'point' }
-      ]
-    };
-  } else {
-    // R level: decimals, 0.5 steps
-    let x, m1, t1, m2, t2;
-    let attempts = 0;
-    const halves = [-3, -2.5, -2, -1.5, -1, -0.5, 0.5, 1, 1.5, 2, 2.5, 3];
-    do {
-      m1 = halves[randInt(0, halves.length - 1)];
-      m2 = halves[randInt(0, halves.length - 1)];
-      t1 = randInt(-6, 6);
-      t2 = randInt(-6, 6);
-      attempts++;
-      if (attempts > 200) { return genPhase3Task('M'); } // fallback
-      if (m1 === m2) continue;
-      const num = t2 - t1;
-      const den = m1 - m2;
-      x = num / den;
-    } while (m1 === m2 || Math.abs(x) > 12 || (x * 2) !== Math.round(x * 2));
-    const y = m1 * x + t1;
-    const m1str = Number.isInteger(m1) ? m1 : m1.toString().replace('.', ',');
-    const m2str = Number.isInteger(m2) ? m2 : m2.toString().replace('.', ',');
-    return {
-      type: 'gleichsetzung',
-      level,
-      line1: { m: m1, t: t1, ms: m1str },
-      line2: { m: m2, t: t2, ms: m2str },
-      answer_x: x,
-      answer_y: y,
-      hint: `Tipp: Setze die Terme gleich und rechne auf einem Blatt Papier direkt bis x = … . Trage hier nur dein x-Ergebnis ein.`,
-      note: 'Tipp: Rechne die Umformung auf einem Blatt Papier direkt bis x = … und trage im nächsten Schritt nur das Ergebnis ein.',
-      steps: [
-        { label: 'Gleichung aufstellen (I = II)', checkType: 'equation' },
-        { label: 'Nach x auflösen', checkType: 'x' },
-        { label: 'y berechnen (x in Gl. I einsetzen)', checkType: 'y' },
-        { label: 'Schnittpunkt S(x|y) angeben', checkType: 'point' }
-      ]
-    };
+  if (lhs_c !== 0) {
+    if (diff === 1) {
+      steps.push({ label: 'Zahl auf die andere Seite bringen', checkType: 'x' });
+    } else {
+      steps.push({
+        label: 'Zahl auf die andere Seite bringen',
+        checkType: 'linear_equation',
+        expectedLeft: { x: diff, c: 0 },
+        expectedRight: { x: 0, c: secondRight }
+      });
+    }
   }
+  if (diff !== 1) steps.push({ label: `x berechnen (durch ${formatNum(diff)} teilen)`, checkType: 'x' });
+
+  return {
+    display: `${formatLinearExpression(lhs_x, lhs_c)} = ${formatLinearExpression(rhs_x, rhs_c)}`,
+    type: 'both_sides',
+    leftCoeff: lhs_x,
+    leftConstant: lhs_c,
+    rightCoeffOriginal: rhs_x,
+    rightConstant: rhs_c,
+    intermediateCoeff: diff,
+    intermediateConst: lhs_c,
+    intermediateRight: rhs_c,
+    secondIntermediateRight: secondRight,
+    answer_x: x,
+    hint: lhs_c === 0
+      ? `Fasse die x-Terme zusammen und teile anschließend durch ${formatNum(diff)}.`
+      : `Fasse zuerst die x-Terme zusammen. Bringe danach die Zahl auf die andere Seite und teile zum Schluss.`,
+    steps
+  };
 }
 
-function generateTasks(phase, level, count = TASKS_PER_LEVEL) {
+// ── Phase 3: Gleichsetzungsverfahren ──
+function genPhase3Task(level) {
+  let x, m1, t1, m2, t2, attempts = 0;
+  const slopes = level === 'R'
+    ? [-3, -2.5, -2, -1.5, -1, -0.5, 0.5, 1, 1.5, 2, 2.5, 3]
+    : [-4, -3, -2, -1, 1, 2, 3, 4];
+
+  do {
+    m1 = slopes[randInt(0, slopes.length - 1)];
+    m2 = slopes[randInt(0, slopes.length - 1)];
+    t1 = randInt(-6, 6);
+    t2 = randInt(-6, 6);
+    attempts++;
+    if (attempts > 500) return genPhase3Fallback();
+    if (m1 === m2) continue;
+    x = (t2 - t1) / (m1 - m2);
+  } while (m1 === m2 || Math.abs(x) > 12 || Math.round(x * 2) !== x * 2);
+
+  const y = m1 * x + t1;
+  const intermediateCoeff = m1 - m2;
+  const intermediateRight = t2 - t1;
+
+  const steps = [
+    { label: 'Gleichung aufstellen (I = II)', checkType: 'equation' }
+  ];
+
+  // Im R-Niveau wird der Zwischenschritt nicht als eigene Eingabe erzwungen.
+  if (level !== 'R') {
+    steps.push({ label: 'Zwischenschritt: x-Terme und Zahlen sortieren', checkType: 'intermediate_x_equation' });
+  }
+
+  steps.push(
+    { label: 'Nach x auflösen', checkType: 'x' },
+    { label: 'y berechnen (x in Gl. I einsetzen)', checkType: 'y' },
+    { label: 'Schnittpunkt S(x|y) angeben', checkType: 'point' }
+  );
+
+  return {
+    type: 'gleichsetzung',
+    level,
+    line1: { m: m1, t: t1 },
+    line2: { m: m2, t: t2 },
+    intermediateCoeff,
+    intermediateRight,
+    answer_x: x,
+    answer_y: y,
+    hint: level === 'R'
+      ? `Setze I = II und rechne auf deinem Blatt bis x = ${formatNum(x)}. Danach setzt du x in eine der beiden Gleichungen ein.`
+      : `Setze I = II: ${formatTerm(m1, 'x', t1)} = ${formatTerm(m2, 'x', t2)}. Sortiere dann zu ${formatCoeffX(intermediateCoeff)} = ${formatNum(intermediateRight)}.`,
+    note: level === 'R'
+      ? 'Tipp: Rechne die Umformung auf einem Blatt Papier direkt bis x = … und trage im nächsten Schritt nur das Ergebnis ein.'
+      : '',
+    steps
+  };
+}
+
+function genPhase3Fallback() {
+  const m1 = 2, t1 = 1, m2 = -1, t2 = 7;
+  const x = 2;
+  const y = 5;
+  return {
+    type: 'gleichsetzung',
+    level: 'R',
+    line1: { m: m1, t: t1 },
+    line2: { m: m2, t: t2 },
+    intermediateCoeff: m1 - m2,
+    intermediateRight: t2 - t1,
+    answer_x: x,
+    answer_y: y,
+    hint: 'Setze I = II, löse nach x auf und berechne dann y.',
+    note: 'Tipp: Rechne die Umformung auf einem Blatt Papier direkt bis x = … und trage im nächsten Schritt nur das Ergebnis ein.',
+    steps: [
+      { label: 'Gleichung aufstellen (I = II)', checkType: 'equation' },
+      { label: 'Nach x auflösen', checkType: 'x' },
+      { label: 'y berechnen (x in Gl. I einsetzen)', checkType: 'y' },
+      { label: 'Schnittpunkt S(x|y) angeben', checkType: 'point' }
+    ]
+  };
+}
+
+function generateTasks(phase, level, count = TASKS_PER_PHASE) {
   const tasks = [];
   for (let i = 0; i < count; i++) {
-    let t;
-    if (phase === 1) t = genPhase1Task(level);
-    else if (phase === 2) t = genPhase2Task(level);
-    else t = genPhase3Task(level);
-    t.phase = phase;
-    t.level = level;
-    t.index = i;
-    tasks.push(t);
+    let task;
+    if (phase === 1) task = genPhase1Task(level);
+    else if (phase === 2) task = genPhase2Task(level);
+    else task = genPhase3Task(level);
+    task.phase = phase;
+    task.level = level;
+    task.index = i;
+    tasks.push(task);
   }
   return tasks;
 }
@@ -952,16 +915,8 @@ function generateTasks(phase, level, count = TASKS_PER_LEVEL) {
 // ═══════════════════════════════════════════════════════
 //  RENDERING
 // ═══════════════════════════════════════════════════════
-
-function formatLineEq(m, t, ms) {
-  const mStr = ms !== undefined ? ms : (Number.isInteger(m) ? m : m.toString().replace('.', ','));
-  let s = '';
-  if (m === 1) s = 'x';
-  else if (m === -1) s = '−x';
-  else s = mStr + 'x';
-  if (t > 0) s += ' + ' + t;
-  else if (t < 0) s += ' − ' + Math.abs(t);
-  return 'y = ' + s;
+function formatLineEq(m, t) {
+  return `y = ${formatLinearExpression(m, t)}`;
 }
 
 function renderTask(task, taskNum, totalTasks) {
@@ -971,7 +926,6 @@ function renderTask(task, taskNum, totalTasks) {
   const card = document.createElement('div');
   card.className = 'exercise-card';
 
-  const levelColor = task.level === 'M' ? 'var(--accent-m)' : 'var(--accent-r)';
   const levelText = task.level === 'M' ? '★ M-Niveau' : '★★ R-Niveau';
 
   let eqHtml = '';
@@ -985,21 +939,21 @@ function renderTask(task, taskNum, totalTasks) {
     eqHtml = `
       <div class="eq-display">
         <div class="eq-label" style="margin-bottom:8px">Berechne den Schnittpunkt S</div>
-        <div style="margin-bottom:4px"><span style="color:var(--muted);font-family:var(--mono);font-size:0.75rem">I:</span>&nbsp; ${formatLineEq(task.line1.m, task.line1.t, task.line1.ms)}</div>
-        <div><span style="color:var(--muted);font-family:var(--mono);font-size:0.75rem">II:</span> ${formatLineEq(task.line2.m, task.line2.t, task.line2.ms)}</div>
+        <div style="margin-bottom:4px"><span style="color:var(--muted);font-family:var(--mono);font-size:0.75rem">I:</span>&nbsp; ${formatLineEq(task.line1.m, task.line1.t)}</div>
+        <div><span style="color:var(--muted);font-family:var(--mono);font-size:0.75rem">II:</span> ${formatLineEq(task.line2.m, task.line2.t)}</div>
       </div>`;
   }
 
-  const stepsHtml = task.steps.map((s, i) => `
+  const stepsHtml = task.steps.map((step, i) => `
     <div class="step-row" id="steprow-${i}">
       <div class="step-num-badge ${i === 0 ? 'active' : ''}" id="stepbadge-${i}">${i + 1}</div>
       <div>
-        <div class="step-label">${s.label}</div>
+        <div class="step-label">${step.label}</div>
         <input
           type="text"
           class="answer-input"
           id="input-${i}"
-          placeholder="${s.neutralPlaceholder || 'Hier eingeben'}"
+          placeholder="Hier eingeben"
           ${i > 0 ? 'disabled' : ''}
           onkeydown="handleKey(event, ${i})"
           autocomplete="off" autocorrect="off" spellcheck="false"
@@ -1036,9 +990,9 @@ function renderTask(task, taskNum, totalTasks) {
   `;
 
   area.appendChild(card);
-  document.getElementById('input-0').focus();
+  const firstInput = document.getElementById('input-0');
+  if (firstInput) firstInput.focus();
 
-  // store task globally for checking
   window.currentTask = task;
   window.currentStepIndex = 0;
   window.currentTaskHadError = false;
@@ -1048,9 +1002,9 @@ function renderTask(task, taskNum, totalTasks) {
 // ═══════════════════════════════════════════════════════
 //  STEP CHECKING LOGIC
 // ═══════════════════════════════════════════════════════
-
 function normalizeInput(s) {
-  return String(s ?? '').trim()
+  return String(s ?? '')
+    .trim()
     .replace(/[−–—]/g, '-')
     .replace(/,/g, '.')
     .replace(/·/g, '*')
@@ -1069,26 +1023,17 @@ function stripOuterParentheses(s) {
 function parseStrictNumber(raw) {
   let s = stripOuterParentheses(normalizeInput(raw));
   if (!s) return NaN;
-
-  // Vorangestelltes + erlauben.
   if (s.startsWith('+')) s = s.slice(1);
 
-  // Brüche wie -1/2 oder 3/4
   const fracMatch = s.match(/^(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)$/);
   if (fracMatch) {
     const numerator = Number(fracMatch[1]);
     const denominator = Number(fracMatch[2]);
-    if (denominator !== 0) return numerator / denominator;
-    return NaN;
+    return denominator !== 0 ? numerator / denominator : NaN;
   }
 
-  // Ganze Zahlen und Dezimalzahlen. Wichtig: "3x" ist KEINE Zahl.
   if (/^-?\d+(?:\.\d+)?$/.test(s)) return Number(s);
   return NaN;
-}
-
-function parseSingleNumber(s) {
-  return parseStrictNumber(s);
 }
 
 function parseNumbers(raw) {
@@ -1096,21 +1041,6 @@ function parseNumbers(raw) {
   const matches = s.match(/-?\d+(?:\.\d+)?\/-?\d+(?:\.\d+)?|-?\d+(?:\.\d+)?/g);
   if (!matches) return [];
   return matches.map(parseStrictNumber).filter(n => !isNaN(n));
-}
-
-function parseNum(raw) {
-  const n = parseStrictNumber(raw);
-  if (!isNaN(n)) return n;
-
-  const clean = normalizeInput(raw);
-  if (clean.includes('=')) {
-    const parts = clean.split('=');
-    if (parts.length === 2) {
-      const right = parseStrictNumber(parts[1]);
-      if (!isNaN(right)) return right;
-    }
-  }
-  return NaN;
 }
 
 function closeEnough(a, b) {
@@ -1128,22 +1058,20 @@ function parseLinearExpression(expr) {
   let s = normalizeInput(expr).replace(/\*/g, '');
   if (!s) return null;
   if (s.startsWith('y=')) s = s.slice(2);
+  if (s === 'y') return null;
 
-  // Klammern außen entfernen, aber nicht innerhalb von Termen herumraten.
   s = stripOuterParentheses(s);
-
-  // Terme in Summanden zerlegen: 2x-3 wird zu 2x + -3.
   s = s.replace(/-/g, '+-');
   if (s.startsWith('+')) s = s.slice(1);
 
-  let coeffX = 0;
-  let constant = 0;
   const parts = s.split('+').filter(Boolean);
   if (parts.length === 0) return null;
 
+  let coeffX = 0;
+  let constant = 0;
+
   for (const part of parts) {
     if (part.includes('x')) {
-      // Ein einzelner Summand darf höchstens ein x enthalten.
       if ((part.match(/x/g) || []).length !== 1) return null;
       const coeffText = part.replace('x', '');
       const coeff = parseCoefficientText(coeffText);
@@ -1169,10 +1097,9 @@ function splitEquationInput(rawInput) {
   const clean = normalizeInput(rawInput).replace(/\*/g, '');
   if (!clean.includes('=')) return null;
 
-  // Akzeptiert: "2x+3=-x+5", "y=2x+3=y=-x+5", "y=2x+3=-x+5".
+  // Akzeptiert z. B. "3x=-3", "y=2x+1=y=-x+7" oder "y=2x+1=-x+7".
   const parts = clean.split('=').filter(part => part !== '' && part !== 'y');
-  if (parts.length !== 2) return null;
-  return parts;
+  return parts.length === 2 ? parts : null;
 }
 
 function checkLinearEquation(rawInput, expectedLeft, expectedRight) {
@@ -1188,30 +1115,22 @@ function checkLinearEquation(rawInput, expectedLeft, expectedRight) {
 }
 
 function checkIntermediateXEquation(rawInput, expectedCoeff, expectedRight) {
-  return checkLinearEquation(
-    rawInput,
-    { x: expectedCoeff, c: 0 },
-    { x: 0, c: expectedRight }
-  );
+  return checkLinearEquation(rawInput, { x: expectedCoeff, c: 0 }, { x: 0, c: expectedRight });
 }
 
 function checkGleichsetzungEquation(rawInput, task) {
-  return checkLinearEquation(
-    rawInput,
-    { x: task.line1.m, c: task.line1.t },
-    { x: task.line2.m, c: task.line2.t }
-  );
+  return checkLinearEquation(rawInput, { x: task.line1.m, c: task.line1.t }, { x: task.line2.m, c: task.line2.t });
 }
 
 function checkVariableSolution(rawInput, variableName, expectedValue) {
   const clean = normalizeInput(rawInput).replace(/\*/g, '');
   if (!clean) return false;
 
-  // Erlaubt: "3" oder "-1,5" als reine Ergebnis-Eingabe.
+  // Reine Ergebnis-Eingabe: "-1", "0,5" oder "3/4".
   const directNumber = parseStrictNumber(clean);
   if (!isNaN(directNumber)) return closeEnough(directNumber, expectedValue);
 
-  // Erlaubt: "x=3" bzw. "3=x". Nicht erlaubt: "3x=9".
+  // Ergebnis-Gleichung: "x=-1" oder "-1=x". Nicht erlaubt: "3x=-3".
   if (!clean.includes('=')) return false;
   const parts = clean.split('=').filter(Boolean);
   if (parts.length !== 2) return false;
@@ -1226,24 +1145,8 @@ function checkVariableSolution(rawInput, variableName, expectedValue) {
   return normalOrder || reversedOrder;
 }
 
-function formatLinearExpression(coeff, constant) {
-  let s = '';
-  if (!closeEnough(coeff, 0)) s += formatCoeffX(coeff);
-  if (!closeEnough(constant, 0)) {
-    const absConst = formatNum(Math.abs(constant));
-    if (s === '') s += constant < 0 ? `-${absConst}` : absConst;
-    else s += constant < 0 ? ` − ${absConst}` : ` + ${absConst}`;
-  }
-  if (s === '') s = '0';
-  return s;
-}
-
 function correctLinearEquation(expectedLeft, expectedRight) {
   return `${formatLinearExpression(expectedLeft.x, expectedLeft.c)} = ${formatLinearExpression(expectedRight.x, expectedRight.c)}`;
-}
-
-function correctLinearEquationWithConstant(expectedCoeff, expectedConst, expectedRight) {
-  return correctLinearEquation({ x: expectedCoeff, c: expectedConst }, { x: 0, c: expectedRight });
 }
 
 function checkAnswerForStep(task, stepIndex, rawInput) {
@@ -1253,73 +1156,94 @@ function checkAnswerForStep(task, stepIndex, rawInput) {
     if (step.checkType === 'linear_equation') {
       return checkLinearEquation(rawInput, step.expectedLeft, step.expectedRight);
     }
-
     if (step.checkType === 'x') {
       return checkVariableSolution(rawInput, 'x', task.answer_x);
     }
-
     return false;
   }
 
   if (task.type === 'gleichsetzung') {
-    const checkType = step.checkType;
-
-    if (checkType === 'equation') {
+    if (step.checkType === 'equation') {
       return checkGleichsetzungEquation(rawInput, task);
     }
-
-    if (checkType === 'intermediate_x_equation') {
+    if (step.checkType === 'intermediate_x_equation') {
       return checkIntermediateXEquation(rawInput, task.intermediateCoeff, task.intermediateRight);
     }
-
-    if (checkType === 'x') {
+    if (step.checkType === 'x') {
       return checkVariableSolution(rawInput, 'x', task.answer_x);
     }
-
-    if (checkType === 'y') {
+    if (step.checkType === 'y') {
       return checkVariableSolution(rawInput, 'y', task.answer_y);
     }
-
-    if (checkType === 'point') {
+    if (step.checkType === 'point') {
       const nums = parseNumbers(rawInput);
       if (!nums || nums.length < 2) return false;
-      const cx = nums[0];
-      const cy = nums[1];
-      return closeEnough(cx, task.answer_x) && closeEnough(cy, task.answer_y);
+      return closeEnough(nums[0], task.answer_x) && closeEnough(nums[1], task.answer_y);
     }
   }
+
   return false;
+}
+
+function getCorrectAnswerForStep(task, stepIndex) {
+  const step = task.steps[stepIndex] || {};
+
+  if (task.type === 'simple' || task.type === 'both_sides') {
+    if (step.checkType === 'linear_equation') {
+      return correctLinearEquation(step.expectedLeft, step.expectedRight);
+    }
+    if (step.checkType === 'x') {
+      return `x = ${formatNum(task.answer_x)}`;
+    }
+  }
+
+  if (task.type === 'gleichsetzung') {
+    if (step.checkType === 'equation') {
+      return `${formatLinearExpression(task.line1.m, task.line1.t)} = ${formatLinearExpression(task.line2.m, task.line2.t)}`;
+    }
+    if (step.checkType === 'intermediate_x_equation') {
+      return `${formatCoeffX(task.intermediateCoeff)} = ${formatNum(task.intermediateRight)}`;
+    }
+    if (step.checkType === 'x') return `x = ${formatNum(task.answer_x)}`;
+    if (step.checkType === 'y') return `y = ${formatNum(task.answer_y)}`;
+    if (step.checkType === 'point') return `S(${formatNum(task.answer_x)} | ${formatNum(task.answer_y)})`;
+  }
+
+  return '?';
 }
 
 function handleKey(e, stepIndex) {
   if (e.key === 'Enter') checkStep();
 }
 
-let currentHintShown = false;
-
 function showHint() {
   const task = window.currentTask;
   const si = window.currentStepIndex;
   const hintEl = document.getElementById(`hint-${si}`);
-  hintEl.textContent = task.hint;
+  if (!task || !hintEl) return;
+  hintEl.textContent = task.hint || 'Prüfe deine Umformung Schritt für Schritt.';
   hintEl.classList.add('visible');
-  currentHintShown = true;
 }
 
 function checkStep() {
   const task = window.currentTask;
   const si = window.currentStepIndex;
+  if (!task || si === undefined) return;
+
   const input = document.getElementById(`input-${si}`);
   const feedbackEl = document.getElementById(`feedback-${si}`);
+  const badgeEl = document.getElementById(`stepbadge-${si}`);
+  if (!input || !feedbackEl || !badgeEl) return;
+
   const isCorrect = checkAnswerForStep(task, si, input.value);
 
   input.classList.remove('correct', 'incorrect');
   input.classList.add(isCorrect ? 'correct' : 'incorrect');
   feedbackEl.style.display = 'flex';
-  document.getElementById(`stepbadge-${si}`).classList.remove('active');
+  badgeEl.classList.remove('active');
 
   if (isCorrect) {
-    document.getElementById(`stepbadge-${si}`).classList.add('done');
+    badgeEl.classList.add('done');
     feedbackEl.className = 'feedback-row correct';
     feedbackEl.innerHTML = '<span class="feedback-icon">✅</span> Richtig!';
     input.disabled = true;
@@ -1328,18 +1252,25 @@ function checkStep() {
     if (nextStep < task.steps.length) {
       window.currentStepIndex = nextStep;
       const nextInput = document.getElementById(`input-${nextStep}`);
-      nextInput.disabled = false;
-      document.getElementById(`stepbadge-${nextStep}`).classList.add('active');
-      nextInput.focus();
-      document.getElementById('checkBtn').textContent = 'Prüfen';
-    } else {
-      // Aufgabe vollständig beendet. Sie zählt nur, wenn in keinem Schritt ein Fehler gemacht wurde.
-      window.currentTaskSolvedCorrect = !window.currentTaskHadError;
-      if (window.currentTaskSolvedCorrect) {
-        state.correctCount++;
+      const nextBadge = document.getElementById(`stepbadge-${nextStep}`);
+      if (nextInput) {
+        nextInput.disabled = false;
+        nextInput.focus();
       }
-      document.getElementById('checkBtn').textContent = 'Weiter →';
-      document.getElementById('checkBtn').onclick = advanceTask;
+      if (nextBadge) nextBadge.classList.add('active');
+      const checkBtn = document.getElementById('checkBtn');
+      if (checkBtn) {
+        checkBtn.textContent = 'Prüfen';
+        checkBtn.onclick = checkStep;
+      }
+    } else {
+      window.currentTaskSolvedCorrect = !window.currentTaskHadError;
+      if (window.currentTaskSolvedCorrect) state.correctCount++;
+      const checkBtn = document.getElementById('checkBtn');
+      if (checkBtn) {
+        checkBtn.textContent = 'Weiter →';
+        checkBtn.onclick = () => advanceTask(false);
+      }
       updateScore();
     }
   } else {
@@ -1354,45 +1285,24 @@ function checkStep() {
     if (nextStep < task.steps.length) {
       window.currentStepIndex = nextStep;
       const nextInput = document.getElementById(`input-${nextStep}`);
-      nextInput.disabled = false;
-      document.getElementById(`stepbadge-${nextStep}`).classList.add('active');
-      setTimeout(() => nextInput.focus(), 100);
+      const nextBadge = document.getElementById(`stepbadge-${nextStep}`);
+      if (nextInput) {
+        nextInput.disabled = false;
+        setTimeout(() => nextInput.focus(), 100);
+      }
+      if (nextBadge) nextBadge.classList.add('active');
     } else {
       window.currentTaskSolvedCorrect = false;
-      document.getElementById('checkBtn').textContent = 'Weiter →';
-      document.getElementById('checkBtn').onclick = advanceTask;
+      const checkBtn = document.getElementById('checkBtn');
+      if (checkBtn) {
+        checkBtn.textContent = 'Weiter →';
+        checkBtn.onclick = () => advanceTask(false);
+      }
     }
   }
 }
 
-function getCorrectAnswerForStep(task, si) {
-  const step = task.steps[si] || {};
-
-  if (task.type === 'simple' || task.type === 'both_sides') {
-    if (step.checkType === 'linear_equation') {
-      return correctLinearEquation(step.expectedLeft, step.expectedRight);
-    }
-    if (step.checkType === 'x') {
-      return `x = ${formatNum(task.answer_x)}`;
-    }
-  }
-
-  if (task.type === 'gleichsetzung') {
-    const checkType = step.checkType;
-    if (checkType === 'equation') {
-      return `${formatTerm(task.line1.m, 'x', task.line1.t)} = ${formatTerm(task.line2.m, 'x', task.line2.t)}`;
-    }
-    if (checkType === 'intermediate_x_equation') {
-      return `${formatCoeffX(task.intermediateCoeff)} = ${formatNum(task.intermediateRight)}`;
-    }
-    if (checkType === 'x') return `x = ${formatNum(task.answer_x)}`;
-    if (checkType === 'y') return `y = ${formatNum(task.answer_y)}`;
-    if (checkType === 'point') return `S(${formatNum(task.answer_x)} | ${formatNum(task.answer_y)})`;
-  }
-  return '?';
-}
-
-function skipTaskfunction skipTask() {
+function skipTask() {
   advanceTask(true);
 }
 
@@ -1400,16 +1310,12 @@ function advanceTask(skipped = false) {
   const level = state.levelPerPhase[state.currentPhase] || getLevelForPhase(state.currentPhase);
   const solvedCorrectly = !skipped && window.currentTaskSolvedCorrect === true;
 
-  // Es zählen nur vollständig fehlerfrei gelöste Aufgaben.
-  // Bei Fehler oder Überspringen bleibt die Aufgabennummer gleich und es wird eine neue Ersatzaufgabe erzeugt.
   if (solvedCorrectly) {
     state.currentTask++;
   } else {
     state.tasks[state.currentTask] = generateTasks(state.currentPhase, level, 1)[0];
   }
 
-  // Nach genau 4 fehlerfrei gelösten Aufgaben ist die Phase abgeschlossen.
-  // Jetzt wird NICHT mehr intern auf ein anderes Niveau gewechselt, sondern die nächste Phase freigeschaltet.
   if (state.currentTask >= TASKS_PER_PHASE) {
     showPhaseComplete();
     return;
@@ -1422,76 +1328,67 @@ function advanceTask(skipped = false) {
 // ═══════════════════════════════════════════════════════
 //  PHASE MANAGEMENT
 // ═══════════════════════════════════════════════════════
-
 function showPhaseComplete() {
   document.getElementById('exerciseArea').innerHTML = '';
   const el = document.getElementById('phaseComplete');
-  const btn = document.getElementById('completeBtn');
   el.classList.add('visible');
+
+  const completeBtn = document.getElementById('completeBtn');
+  completeBtn.onclick = nextPhase;
+  completeBtn.textContent = 'Weiter zur nächsten Phase →';
 
   if (state.currentPhase < 3) {
     document.getElementById('completeIcon').textContent = '🎯';
     document.getElementById('completeTitle').textContent = `Phase ${state.currentPhase} geschafft!`;
     document.getElementById('completeText').textContent = state.currentPhase === 1
-      ? 'Sehr gut! Du beherrschst jetzt Gleichungen mit x. Weiter zu x auf beiden Seiten!'
-      : 'Hervorragend! Jetzt kommt das Gleichsetzungsverfahren!';
+      ? 'Sehr gut! Weiter zu Gleichungen mit x auf beiden Seiten.'
+      : 'Hervorragend! Jetzt kommt das Gleichsetzungsverfahren.';
+    completeBtn.style.display = '';
 
-    btn.textContent = 'Weiter zur nächsten Phase →';
-    btn.onclick = nextPhase;
-    btn.style.display = '';
-
-    // Nächste Phase nur einmal freischalten.
     const next = state.currentPhase + 1;
-    if (!state.unlockedPhases.includes(next)) {
-      state.unlockedPhases.push(next);
-    }
+    if (!state.unlockedPhases.includes(next)) state.unlockedPhases.push(next);
     document.getElementById(`tab-phase${next}`).classList.remove('locked');
   } else {
     document.getElementById('completeIcon').textContent = '🏆';
     document.getElementById('completeTitle').textContent = 'Alle Phasen abgeschlossen!';
     document.getElementById('completeText').textContent = 'Super gemacht! Du kannst das Gleichsetzungsverfahren. Klicke unten, um neu zu starten.';
-    btn.textContent = '🔄 Nochmal von vorne';
-    btn.onclick = resetAll;
-    btn.style.display = '';
+    completeBtn.textContent = '🔄 Nochmal von vorne';
+    completeBtn.onclick = resetAll;
+    completeBtn.style.display = '';
   }
+
   updateProgress();
 }
 
 function nextPhase() {
   const next = state.currentPhase + 1;
-  if (next <= 3) {
-    state.currentPhase = next;
-    switchPhase(next);
-  }
+  if (next <= 3) switchPhase(next);
 }
 
-function switchPhase(p) {
-  if (!state.unlockedPhases.includes(p)) return;
-  state.currentPhase = p;
+function switchPhase(phase) {
+  if (!state.unlockedPhases.includes(phase)) return;
+
+  state.currentPhase = phase;
   state.currentTask = 0;
-
-  const phaseLevel = getLevelForPhase(p);
-  state.levelPerPhase[p] = phaseLevel;
-
-  // Update tabs
-  [1, 2, 3].forEach(i => {
-    document.getElementById(`tab-phase${i}`).classList.toggle('active', i === p);
-  });
-
-  // Show/hide theory
-  [1, 2, 3].forEach(i => {
-    const t = document.getElementById(`theory-phase${i}`);
-    if (t) t.style.display = i === p ? '' : 'none';
-  });
-
-  // Reset state
-  document.getElementById('phaseComplete').classList.remove('visible');
-  updateHeaderBadge(phaseLevel);
-  document.getElementById('scoreLevel').textContent = phaseLevel === 'M' ? '★ M' : '★★ R';
   state.correctCount = 0;
+  const level = getLevelForPhase(phase);
+  state.levelPerPhase[phase] = level;
+
+  [1, 2, 3].forEach(i => {
+    document.getElementById(`tab-phase${i}`).classList.toggle('active', i === phase);
+  });
+
+  [1, 2, 3].forEach(i => {
+    const theory = document.getElementById(`theory-phase${i}`);
+    if (theory) theory.style.display = i === phase ? '' : 'none';
+  });
+
+  document.getElementById('phaseComplete').classList.remove('visible');
+  updateHeaderBadge(level);
+  document.getElementById('scoreLevel').textContent = level === 'M' ? '★ M' : '★★ R';
   document.getElementById('scoreCorrect').textContent = '0';
 
-  state.tasks = generateTasks(p, phaseLevel);
+  state.tasks = generateTasks(phase, level, TASKS_PER_PHASE);
   renderTask(state.tasks[0], 1, TASKS_PER_PHASE);
   updateScore();
 }
@@ -1508,18 +1405,18 @@ function updateHeaderBadge(level) {
 }
 
 function updateScore() {
-  const total = TASKS_PER_PHASE;
-  document.getElementById('scoreTask').textContent = `${Math.min(state.currentTask + 1, total)} / ${total}`;
+  const shownTask = Math.min(state.currentTask + 1, TASKS_PER_PHASE);
+  document.getElementById('scoreTask').textContent = `${shownTask} / ${TASKS_PER_PHASE}`;
   document.getElementById('scoreCorrect').textContent = state.correctCount;
   updateProgress();
 }
 
 function updateProgress() {
-  const phaseWeight = 33.3;
-  const taskWeight = phaseWeight / TASKS_PER_PHASE;
-  const base = (state.currentPhase - 1) * phaseWeight;
-  const task = state.currentTask * taskWeight;
-  const pct = Math.min(base + task, 100);
+  const completedBeforePhase = (state.currentPhase - 1) * TASKS_PER_PHASE;
+  const completedInPhase = Math.min(state.currentTask, TASKS_PER_PHASE);
+  const completedTotal = completedBeforePhase + completedInPhase;
+  const total = 3 * TASKS_PER_PHASE;
+  const pct = Math.min((completedTotal / total) * 100, 100);
   document.getElementById('progressBar').style.width = pct + '%';
 }
 
@@ -1531,8 +1428,9 @@ function resetAll() {
     tasks: [],
     unlockedPhases: [1],
     levelPerPhase: { 1: 'M', 2: 'M', 3: 'R' },
-    totalPerPhase: 4
+    totalPerPhase: TASKS_PER_PHASE
   };
+
   [2, 3].forEach(i => document.getElementById(`tab-phase${i}`).classList.add('locked'));
   document.getElementById('phaseComplete').classList.remove('visible');
   switchPhase(1);
@@ -1541,9 +1439,7 @@ function resetAll() {
 // ═══════════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════════
-state.tasks = generateTasks(1, getLevelForPhase(1));
-renderTask(state.tasks[0], 1, TASKS_PER_PHASE);
-updateScore();
+switchPhase(1);
 </script>
 
 

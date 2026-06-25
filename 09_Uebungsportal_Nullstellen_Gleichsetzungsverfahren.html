@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nullstellen &amp; Gleichsetzungsverfahren – Üben &amp; Vertiefen</title>
+<style>
+:root {
+  --accent: #6B4FA0;
+  --accent-dark: #4d357d;
+  --accent-soft: #efe9f7;
+  --success: #2E7D32;
+  --success-soft: #eef8ef;
+  --error: #C62828;
+  --error-soft: #fff0f0;
+  --hint: #E65100;
+  --hint-soft: #fff5ec;
+  --bg: #f5f6f8;
+  --card: #ffffff;
+  --text: #1d1d1f;
+  --muted: #5d6470;
+  --border: #dde1e8;
+  --shadow: 0 10px 30px rgba(30, 25, 45, .08);
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+button, input, textarea, select { font-family: inherit; }
+.app { max-width: 980px; margin: 0 auto; padding: 28px 20px 60px; }
+.hero {
+  background: var(--card);
+  border-radius: 20px;
+  padding: 24px 26px;
+  box-shadow: var(--shadow);
+  margin-bottom: 22px;
+}
+.hero-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; flex-wrap: wrap; }
+h1 { margin: 0 0 6px; font-size: 1.7rem; color: var(--accent-dark); }
+.subtitle { color: var(--muted); font-size: .95rem; }
+.progress-wrap { flex: 1 1 280px; min-width: 240px; }
+.progress-label { display: flex; justify-content: space-between; font-size: .85rem; color: var(--muted); margin-bottom: 6px; }
+.progress-bar { background: var(--accent-soft); border-radius: 999px; height: 10px; overflow: hidden; }
+.progress-fill { background: linear-gradient(90deg, var(--accent), var(--accent-dark)); height: 100%; border-radius: 999px; transition: width .4s ease; width: 0%; }
+.toolbar { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 22px; }
+.chapter-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px 18px 16px;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: transform .15s ease, border-color .15s ease;
+}
+.chapter-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+.chapter-card.active { border-color: var(--accent); background: var(--accent-soft); }
+.chapter-card h2 { margin: 0 0 4px; font-size: 1.05rem; color: var(--accent-dark); }
+.chapter-card p { margin: 0; font-size: .85rem; color: var(--muted); }
+.chapter-meta { margin-top: 10px; font-size: .8rem; color: var(--muted); }
+.panel { background: var(--card); border-radius: 20px; padding: 24px 26px; box-shadow: var(--shadow); }
+.panel-head h2 { margin: 0 0 4px; color: var(--accent-dark); }
+.panel-head p { margin: 0; color: var(--muted); font-size: .92rem; }
+.tabs { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+.tab {
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: .88rem;
+  cursor: pointer;
+  color: var(--text);
+}
+.tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.tasks { margin-top: 20px; display: flex; flex-direction: column; gap: 18px; }
+.task-card { border: 1px solid var(--border); border-radius: 16px; padding: 18px 20px; }
+.task-card.solved { border-color: var(--success); background: var(--success-soft); }
+.task-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; }
+.task-kicker { font-size: .78rem; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; margin-bottom: 4px; }
+.task-title { margin: 0; font-size: 1.05rem; }
+.badge { font-size: .78rem; padding: 4px 10px; border-radius: 999px; background: var(--bg); color: var(--muted); white-space: nowrap; }
+.badge.done { background: var(--success); color: #fff; }
+.stem { margin: 12px 0 0; font-size: .96rem; }
+.diagram { margin: 14px 0; overflow-x: auto; }
+.diagram svg { display: block; }
+.inputs { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 14px; }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 160px; }
+.field label { font-size: .82rem; color: var(--muted); }
+.field input, textarea { border: 1px solid var(--border); border-radius: 10px; padding: 9px 12px; font-size: .95rem; }
+.field input:focus, textarea:focus { outline: 2px solid var(--accent); border-color: var(--accent); }
+textarea { width: 100%; min-height: 70px; resize: vertical; }
+.input-correct { border-color: var(--success) !important; background: var(--success-soft); }
+.input-wrong { border-color: var(--error) !important; background: var(--error-soft); }
+.options { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.option { display: flex; align-items: center; gap: 10px; border: 1px solid var(--border); border-radius: 10px; padding: 9px 12px; font-size: .92rem; }
+.option input { margin: 0; }
+.option.correct { border-color: var(--success); background: var(--success-soft); }
+.option.wrong { border-color: var(--error); background: var(--error-soft); }
+.matrix-wrap { overflow-x: auto; margin-top: 14px; }
+.matrix { border-collapse: collapse; width: 100%; font-size: .88rem; }
+.matrix th, .matrix td { border: 1px solid var(--border); padding: 7px 10px; text-align: center; }
+.matrix th { background: var(--bg); }
+.matrix tr.row-correct td { background: var(--success-soft); }
+.matrix tr.row-wrong td { background: var(--error-soft); }
+.pair-zone { display: flex; gap: 18px; margin-top: 14px; flex-wrap: wrap; }
+.pair-col { flex: 1 1 200px; }
+.pair-col h4 { margin: 0 0 8px; font-size: .85rem; color: var(--muted); }
+.pair-item { border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; margin-bottom: 8px; cursor: pointer; font-size: .9rem; }
+.pair-item.selected { border-color: var(--accent); background: var(--accent-soft); }
+.pair-item.matched { opacity: .55; cursor: default; }
+.pair-item.pair-correct { border-color: var(--success); background: var(--success-soft); }
+.pair-item.pair-wrong { border-color: var(--error); background: var(--error-soft); }
+.match-list { margin-top: 10px; font-size: .85rem; color: var(--muted); }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.chip { background: var(--bg); border: 1px solid var(--border); border-radius: 999px; padding: 5px 12px; font-size: .8rem; color: var(--muted); }
+.actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+.btn { border: 1px solid var(--accent); background: var(--accent); color: #fff; border-radius: 10px; padding: 9px 16px; font-size: .9rem; cursor: pointer; }
+.btn:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+.btn.secondary { background: #fff; color: var(--accent-dark); }
+.btn.secondary:hover { background: var(--accent-soft); }
+.btn.danger { background: #fff; color: var(--error); border-color: var(--error); }
+.btn.danger:hover { background: var(--error-soft); }
+.feedback { margin-top: 14px; padding: 10px 14px; border-radius: 10px; font-size: .9rem; display: none; }
+.feedback.show { display: block; }
+.feedback.success { background: var(--success-soft); color: var(--success); }
+.feedback.error { background: var(--error-soft); color: var(--error); }
+.feedback.partial { background: var(--hint-soft); color: var(--hint); }
+details.solution { margin-top: 14px; font-size: .9rem; }
+details.solution summary { cursor: pointer; color: var(--accent-dark); font-weight: 600; }
+.empty { color: var(--muted); font-size: .92rem; padding: 20px 0; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.footer-note { text-align: center; color: var(--muted); font-size: .82rem; margin-top: 26px; }
+
+.calc-table { border-collapse: collapse; margin: 10px 0 6px; font-size: .98rem; }
+.calc-table td { padding: 4px 0; vertical-align: baseline; }
+.calc-table td:first-child { padding-right: 26px; }
+.calc-table td.op { color: var(--accent-dark); font-weight: 700; white-space: nowrap; }
+.calc-result { margin: 8px 0 2px; font-size: 1.02rem; }
+.calc-check { font-size: .9rem; color: var(--muted); margin-bottom: 4px; }
+.calc-interpret { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--border); }
+.solution-lock { margin-top: 14px; }
+.solution-btn.locked, .solution-btn:disabled { opacity: .55; cursor: not-allowed; background: #fff; color: var(--muted); border-color: var(--border); }
+.solution-content { margin-top: 10px; padding: 14px 16px; background: var(--accent-soft); border: 1px solid var(--border); border-radius: 14px; }
+
+@media (max-width: 760px) {
+  .app { padding: 18px 12px 40px; }
+  .hero, .panel { padding: 18px; border-radius: 16px; }
+  .task-top { flex-direction: column; }
+}
+@media print {
+  .toolbar, .actions, .tabs { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="hero">
+    <div class="hero-top">
+      <div>
+        <h1>Nullstellen &amp; Gleichsetzungsverfahren</h1>
+        <div class="subtitle">Klasse 8 | Wirtschaftsschule · Vertiefung</div>
+      </div>
+      <section class="progress-wrap" aria-label="Gesamtfortschritt">
+        <div class="progress-label"><span>Gesamtfortschritt</span><span id="totalText">0 von 0 Aufgaben gelöst ✓</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="totalFill" style="width:0%"></div></div>
+      </section>
+    </div>
+    <div class="toolbar">
+      <button class="btn danger" onclick="resetAll()">Alles zurücksetzen</button>
+    </div>
+  </header>
+
+  <nav class="grid" id="chapterNav" aria-label="Kapitelnavigation"></nav>
+
+  <main class="panel" id="chapterPanel"></main>
+
+  <p class="footer-note">Tipp: Dein Fortschritt wird automatisch in diesem Browser gespeichert. Die Musterlösung schaltet sich erst frei, sobald du eigene Zahlen eingetragen hast.</p>
+</div>
+
+<script>
+const CHAPTERS = [
+  { id: "N", title: "Nullstellen berechnen", subtitle: "Gegebene Funktionsgleichung – Nullstelle berechnen und im Graphen prüfen" },
+  { id: "G", title: "Wiederholung: Gleichsetzungsverfahren", subtitle: "Schnittpunkt zweier Geraden berechnen und im Graphen prüfen" }
+];
+
+const TASKS = [
+  {
+    id: "N_M1", chapter: "N", level: "M", competence: "N.1 – Nullstelle berechnen",
+    type: "numeric", title: "Nullstelle einer linearen Funktion",
+    stem: "Gegeben ist die Funktion <strong>f(x) = 2x − 8</strong>. Berechne die Nullstelle.",
+    diagram: { xMin: -1, xMax: 6, yMin: -9, yMax: 3, lines: [{ m: 2, b: -8, label: "f" }] },
+    fields: [
+      { name: "x", label: "x der Nullstelle", answer: 4, inputType: "number" },
+      { name: "y", label: "y der Nullstelle", answer: 0, inputType: "number" }
+    ],
+    eqParams: { m: 2, b: -8 }, solutionKind: "nullstelle",
+    success: "Richtig: Die Nullstelle liegt bei N(4 | 0).",
+    hint: "Setze f(x) = 0 und löse die Gleichung mit Kommandostrichen nach x auf."
+  },
+  {
+    id: "N_M2", chapter: "N", level: "M", competence: "N.1 – Nullstelle berechnen",
+    type: "numeric", title: "Nullstelle einer fallenden Funktion",
+    stem: "Gegeben ist die Funktion <strong>f(x) = −2x + 6</strong>. Berechne die Nullstelle.",
+    diagram: { xMin: -1, xMax: 5, yMin: -2, yMax: 8, lines: [{ m: -2, b: 6, label: "f" }] },
+    fields: [
+      { name: "x", label: "x der Nullstelle", answer: 3, inputType: "number" },
+      { name: "y", label: "y der Nullstelle", answer: 0, inputType: "number" }
+    ],
+    eqParams: { m: -2, b: 6 }, solutionKind: "nullstelle",
+    success: "Richtig: Die Nullstelle liegt bei N(3 | 0).",
+    hint: "Ziehe zuerst 6 ab und teile danach durch −2."
+  },
+  {
+    id: "N_R1", chapter: "N", level: "R", competence: "N.2 – Nullstelle mit Dezimalkoeffizient",
+    type: "numeric", title: "Nullstelle mit Dezimalkoeffizient", repeatable: true,
+    stem: "Gegeben ist die Funktion <strong>f(x) = 1,5x − 9</strong>. Berechne die Nullstelle.",
+    diagram: { xMin: -1, xMax: 8, yMin: -10, yMax: 4, lines: [{ m: 1.5, b: -9, label: "f" }] },
+    fields: [
+      { name: "x", label: "x der Nullstelle", answer: 6, inputType: "number" },
+      { name: "y", label: "y der Nullstelle", answer: 0, inputType: "number" }
+    ],
+    eqParams: { m: 1.5, b: -9 }, solutionKind: "nullstelle",
+    success: "Richtig: Die Nullstelle liegt bei N(6 | 0).",
+    hint: "Ziehe zuerst 9 ab und teile danach durch 1,5."
+  },
+  {
+    id: "N_E1", chapter: "N", level: "E", competence: "N.3 – Nullstelle im Sachzusammenhang",
+    type: "mixed", title: "Sinkender Heißluftballon",
+    stem: "Die Höhe eines Heißluftballons beim Landeanflug wird beschrieben durch <strong>f(x) = −4x + 28</strong> (x in Minuten, f(x) in Metern). Berechne, nach wie vielen Minuten der Ballon landet, und erkläre die Bedeutung der Nullstelle im Sachzusammenhang.",
+    diagram: { xMin: -1, xMax: 8, yMin: -4, yMax: 30, lines: [{ m: -4, b: 28, label: "f" }] },
+    fields: [
+      { name: "x", label: "x der Nullstelle", answer: 7, inputType: "number" },
+      { name: "y", label: "y der Nullstelle", answer: 0, inputType: "number" }
+    ],
+    eqParams: { m: -4, b: 28 }, solutionKind: "nullstelle",
+    keywords: ["Nullstelle", "landet", "7 Minuten"],
+    keywordGroups: [["nullstelle"], ["landet", "gelandet", "auf dem boden", "höhe 0", "hoehe 0"], ["7 minuten", "sieben minuten"]],
+    sample: "Die Nullstelle liegt bei N(7 | 0). Das bedeutet, dass der Ballon nach 7 Minuten landet, weil seine Höhe dann 0 Meter beträgt.",
+    success: "Richtig: Die Nullstelle liegt bei N(7 | 0) – nach 7 Minuten landet der Ballon.",
+    hint: "Setze f(x) = 0. Erkläre anschließend, was eine Höhe von 0 Metern im Sachzusammenhang bedeutet."
+  },
+  {
+    id: "N_E2", chapter: "N", level: "E", competence: "N.3 – Nullstelle im Sachzusammenhang",
+    type: "mixed", title: "Auftauchender Taucher",
+    stem: "Ein Taucher steigt gleichmäßig auf. Seine Tiefe wird beschrieben durch <strong>f(x) = 3x − 18</strong> (x in Minuten, f(x) in Metern; negative Werte liegen unter der Wasseroberfläche). Berechne, nach wie vielen Minuten der Taucher die Wasseroberfläche erreicht, und erkläre die Bedeutung der Nullstelle im Sachzusammenhang.",
+    diagram: { xMin: -1, xMax: 7, yMin: -20, yMax: 4, lines: [{ m: 3, b: -18, label: "f" }] },
+    fields: [
+      { name: "x", label: "x der Nullstelle", answer: 6, inputType: "number" },
+      { name: "y", label: "y der Nullstelle", answer: 0, inputType: "number" }
+    ],
+    eqParams: { m: 3, b: -18 }, solutionKind: "nullstelle",
+    keywords: ["Nullstelle", "Wasseroberfläche", "6 Minuten"],
+    keywordGroups: [["nullstelle"], ["wasseroberfläche", "wasseroberflaeche", "oberfläche", "oberflaeche"], ["6 minuten", "sechs minuten"]],
+    sample: "Die Nullstelle liegt bei N(6 | 0). Das bedeutet, dass der Taucher nach 6 Minuten die Wasseroberfläche erreicht, weil seine Tiefe dann 0 Meter beträgt.",
+    success: "Richtig: Die Nullstelle liegt bei N(6 | 0) – nach 6 Minuten erreicht der Taucher die Oberfläche.",
+    hint: "Setze f(x) = 0. Erkläre anschließend, was eine Tiefe von 0 Metern im Sachzusammenhang bedeutet."
+  },
+
+  {
+    id: "G_M1", chapter: "G", level: "M", competence: "G.1 – Gleichsetzungsverfahren",
+    type: "numeric", title: "Schnittpunkt mit einer Ursprungsgeraden",
+    stem: "Berechne den Schnittpunkt von <strong>f(x) = 3x</strong> und <strong>g(x) = −x + 8</strong>.",
+    diagram: { xMin: -1, xMax: 6, yMin: -2, yMax: 10, lines: [{ m: 3, b: 0, label: "f" }, { m: -1, b: 8, label: "g" }] },
+    fields: [
+      { name: "x", label: "x-Lösung", answer: 2, inputType: "number" },
+      { name: "y", label: "y-Lösung", answer: 6, inputType: "number" }
+    ],
+    eqParams: { m1: 3, b1: 0, m2: -1, b2: 8 }, solutionKind: "gleichsetzen",
+    success: "Richtig: Der Schnittpunkt ist S(2 | 6).",
+    hint: "Setze beide Funktionen gleich und löse mit Kommandostrichen zuerst nach x, dann nach y auf."
+  },
+  {
+    id: "G_M2", chapter: "G", level: "M", competence: "G.1 – Gleichsetzungsverfahren",
+    type: "numeric", title: "Schnittpunkt zweier Geraden",
+    stem: "Berechne den Schnittpunkt von <strong>f(x) = x + 1</strong> und <strong>g(x) = −2x + 7</strong>.",
+    diagram: { xMin: -1, xMax: 5, yMin: -1, yMax: 8, lines: [{ m: 1, b: 1, label: "f" }, { m: -2, b: 7, label: "g" }] },
+    fields: [
+      { name: "x", label: "x-Lösung", answer: 2, inputType: "number" },
+      { name: "y", label: "y-Lösung", answer: 3, inputType: "number" }
+    ],
+    eqParams: { m1: 1, b1: 1, m2: -2, b2: 7 }, solutionKind: "gleichsetzen",
+    success: "Richtig: Der Schnittpunkt ist S(2 | 3).",
+    hint: "Setze beide Funktionen gleich und löse mit Kommandostrichen zuerst nach x, dann nach y auf."
+  },
+  {
+    id: "G_R1", chapter: "G", level: "R", competence: "G.2 – Gleichsetzungsverfahren mit Probe",
+    type: "numeric", title: "Schnittpunkt berechnen und überprüfen", repeatable: true,
+    stem: "Berechne den Schnittpunkt von <strong>f(x) = 2x − 3</strong> und <strong>g(x) = −3x + 12</strong>. Mache anschließend die Probe.",
+    diagram: { xMin: -1, xMax: 6, yMin: -5, yMax: 14, lines: [{ m: 2, b: -3, label: "f" }, { m: -3, b: 12, label: "g" }] },
+    fields: [
+      { name: "x", label: "x-Wert von S", answer: 3, inputType: "number" },
+      { name: "y", label: "y-Wert von S", answer: 3, inputType: "number" },
+      { name: "check", label: "Probe: g(3)", answer: 3, inputType: "number" }
+    ],
+    eqParams: { m1: 2, b1: -3, m2: -3, b2: 12 }, solutionKind: "gleichsetzen",
+    success: "Richtig: Der Schnittpunkt ist S(3 | 3).",
+    hint: "Setze beide Funktionen gleich. Löse zuerst nach x auf und setze x anschließend in beide Funktionen ein."
+  },
+  {
+    id: "G_E1", chapter: "G", level: "E", competence: "G.3 – Gleichsetzungsverfahren im Sachzusammenhang",
+    type: "mixed", title: "Zwei Anbieter vergleichen",
+    stem: "Anbieter A verlangt 3 € Grundgebühr und 2 € pro Einheit: <strong>f(x) = 2x + 3</strong>. Anbieter B verlangt 15 € Grundgebühr und 0,50 € pro Einheit: <strong>g(x) = 0,5x + 15</strong>. Berechne den Schnittpunkt und schreibe einen Antwortsatz, ab welcher Anzahl Einheiten Anbieter B günstiger ist.",
+    diagram: { xMin: 0, xMax: 12, yMin: 0, yMax: 22, lines: [{ m: 2, b: 3, label: "A" }, { m: 0.5, b: 15, label: "B" }] },
+    fields: [
+      { name: "x", label: "x-Wert von S", answer: 8, inputType: "number" },
+      { name: "y", label: "y-Wert von S", answer: 19, inputType: "number" }
+    ],
+    eqParams: { m1: 2, b1: 3, m2: 0.5, b2: 15 }, solutionKind: "gleichsetzen",
+    keywords: ["Schnittpunkt", "günstiger", "ab 9 Einheiten"],
+    keywordGroups: [["schnittpunkt"], ["günstiger", "guenstiger", "billiger"], ["ab 9 einheiten", "mehr als 8 einheiten", "9 einheiten"]],
+    sample: "Der Schnittpunkt liegt bei 8 Einheiten und 19 €. Ab mehr als 8 Einheiten, also ab 9 Einheiten, ist Anbieter B günstiger, weil seine Steigung kleiner ist.",
+    success: "Richtig: Der Schnittpunkt ist S(8 | 19) – ab 9 Einheiten ist Anbieter B günstiger.",
+    hint: "Setze beide Funktionen gleich. Vergleiche danach die Steigungen, um zu begründen, wer ab dem Schnittpunkt günstiger ist."
+  },
+  {
+    id: "G_E2", chapter: "G", level: "E", competence: "G.4 – Fehler im Rechenweg finden",
+    type: "mixed", title: "Fehler im Gleichsetzungsverfahren finden",
+    stem: "Ein Schüler rechnet: <br><em>3x + 4 = −x + 16 ⇒ 3x = −x + 20 ⇒ x = 5</em>. Finde den Fehler und gib den korrekten Schnittpunkt von <strong>f(x) = 3x + 4</strong> und <strong>g(x) = −x + 16</strong> an.",
+    diagram: { xMin: -1, xMax: 8, yMin: -2, yMax: 18, lines: [{ m: 3, b: 4, label: "f" }, { m: -1, b: 16, label: "g" }] },
+    fields: [
+      { name: "x", label: "x-Wert von S", answer: 3, inputType: "number" },
+      { name: "y", label: "y-Wert von S", answer: 13, inputType: "number" }
+    ],
+    eqParams: { m1: 3, b1: 4, m2: -1, b2: 16 }, solutionKind: "gleichsetzen",
+    keywords: ["Fehler", "4 subtrahieren", "4x = 12"],
+    keywordGroups: [["fehler", "falsch"], ["4 subtrahieren", "minus 4", "4 abziehen"], ["4x = 12", "4 x = 12"]],
+    sample: "Der Fehler liegt beim Umformen: Von 3x + 4 = −x + 16 muss man auf beiden Seiten 4 subtrahieren, nicht addieren. Richtig ist 4x = 12, also x = 3 und der Schnittpunkt ist S(3 | 13).",
+    success: "Richtig: Der korrekte Schnittpunkt ist S(3 | 13).",
+    hint: "Beim Gleichsetzen darf der konstante Term auf beiden Seiten nur durch dieselbe Operation entfernt werden."
+  }
+];
+
+const STORAGE_KEY = "nullstellen_gleichsetzen_progress_v1";
+const LEVEL_LABEL = { M: "★ M", R: "★★ R", E: "★★★ E" };
+
+let solved = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
+let currentChapter = CHAPTERS[0].id;
+let currentLevel = "M";
+let pairState = {};
+
+function escapeHtml(str) {
+  return String(str ?? "").replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+}
+function taskById(id) { return TASKS.find(t => t.id === id); }
+function chapterCounts(chapterId) {
+  const total = TASKS.filter(t => t.chapter === chapterId).length;
+  const done = TASKS.filter(t => t.chapter === chapterId && solved.has(t.id)).length;
+  return { total, done };
+}
+function saveProgress() { localStorage.setItem(STORAGE_KEY, JSON.stringify([...solved])); }
+
+function markSolved(id) {
+  solved.add(id);
+  saveProgress();
+  const card = document.getElementById(`card-${id}`);
+  if (card) {
+    card.classList.add("solved");
+    const badge = card.querySelector(".badge");
+    if (badge) { badge.classList.add("done"); badge.textContent = "✓ gelöst"; }
+  }
+  updateProgressOnly();
+}
+
+function updateProgressOnly() {
+  const total = TASKS.length;
+  const done = solved.size;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  const totalText = document.getElementById("totalText");
+  const totalFill = document.getElementById("totalFill");
+  if (totalText) totalText.textContent = `${done} von ${total} Aufgaben gelöst ✓`;
+  if (totalFill) totalFill.style.width = `${pct}%`;
+  renderNav();
+}
+
+function renderNav() {
+  const nav = document.getElementById("chapterNav");
+  nav.innerHTML = CHAPTERS.map(ch => {
+    const { total, done } = chapterCounts(ch.id);
+    const active = ch.id === currentChapter ? "active" : "";
+    return `<button class="chapter-card ${active}" onclick="openChapter('${ch.id}')">
+      <h2>${escapeHtml(ch.title)}</h2>
+      <p>${escapeHtml(ch.subtitle)}</p>
+      <div class="chapter-meta">${done} von ${total} gelöst</div>
+    </button>`;
+  }).join("");
+}
+
+function openChapter(chapterId) {
+  currentChapter = chapterId;
+  currentLevel = "M";
+  renderAll();
+}
+function setLevel(level) {
+  currentLevel = level;
+  renderChapter();
+  renderNav();
+}
+function renderAll() {
+  renderNav();
+  renderChapter();
+  updateProgressOnly();
+}
+
+function renderChapter() {
+  const panel = document.getElementById("chapterPanel");
+  const chapter = CHAPTERS.find(ch => ch.id === currentChapter) || CHAPTERS[0];
+  const levelTasks = TASKS.filter(t => t.chapter === chapter.id && t.level === currentLevel);
+  const mCount = TASKS.filter(t => t.chapter === chapter.id && t.level === "M").length;
+  const rCount = TASKS.filter(t => t.chapter === chapter.id && t.level === "R").length;
+  const eCount = TASKS.filter(t => t.chapter === chapter.id && t.level === "E").length;
+  panel.innerHTML = `
+    <section class="panel-head">
+      <h2>${escapeHtml(chapter.title)}</h2>
+      <p>${escapeHtml(chapter.subtitle)}</p>
+      <div class="tabs" role="tablist" aria-label="Niveaustufen">
+        <button class="tab ${currentLevel === "M" ? "active" : ""}" onclick="setLevel('M')" role="tab" aria-selected="${currentLevel === "M"}">★ M <span aria-hidden="true">(${mCount})</span></button>
+        <button class="tab ${currentLevel === "R" ? "active" : ""}" onclick="setLevel('R')" role="tab" aria-selected="${currentLevel === "R"}">★★ R <span aria-hidden="true">(${rCount})</span></button>
+        <button class="tab ${currentLevel === "E" ? "active" : ""}" onclick="setLevel('E')" role="tab" aria-selected="${currentLevel === "E"}">★★★ E <span aria-hidden="true">(${eCount})</span></button>
+      </div>
+    </section>
+    <section class="tasks">
+      ${levelTasks.length ? levelTasks.map(renderTask).join("") : `<div class="empty">Für diese Niveaustufe sind in diesem Kapitel keine Aufgaben angelegt.</div>`}
+    </section>`;
+}
+
+function renderTask(task) {
+  const done = solved.has(task.id);
+  return `<article class="task-card ${done ? "solved" : ""}" id="card-${task.id}">
+    <div class="task-top">
+      <div>
+        <div class="task-kicker">${escapeHtml(task.competence)} · ${LEVEL_LABEL[task.level]}</div>
+        <h3 class="task-title">${escapeHtml(task.title)}</h3>
+      </div>
+      <span class="badge ${done ? "done" : ""}">${done ? "✓ gelöst" : "offen"}</span>
+    </div>
+    <div class="stem">${task.stem}</div>
+    ${task.diagram ? `<div class="diagram">${renderDiagram(task.diagram)}</div>` : ""}
+    ${renderTaskBody(task)}
+    <div class="actions">
+      <button class="btn" onclick="checkTask('${task.id}')">Überprüfen</button>
+      <button class="btn secondary" onclick="resetTask('${task.id}')">Nochmal</button>
+      ${task.level === "R" ? `<button class="btn secondary" onclick="generateNewTask('${task.id}')">Neue Aufgabe generieren</button>` : ""}
+    </div>
+    <div class="feedback" id="feedback-${task.id}" aria-live="polite"></div>
+  </article>`;
+}
+
+function renderTaskBody(task) {
+  switch (task.type) {
+    case "mc": return renderMC(task);
+    case "numeric": return renderNumeric(task);
+    case "freetext": return renderFreeText(task);
+    case "matrix": return renderMatrix(task);
+    case "pairs": return renderPairs(task);
+    case "mixed": return renderMixed(task);
+    default: return "";
+  }
+}
+
+function renderField(task, field) {
+  const type = field.inputType === "text" ? "text" : "number";
+  const step = type === "number" ? ' step="any"' : "";
+  const placeholder = field.placeholder ? ` placeholder="${escapeHtml(field.placeholder)}"` : "";
+  return `<div class="field">
+    <label for="${task.id}_${field.name}">${escapeHtml(field.label)}</label>
+    <input id="${task.id}_${field.name}" name="${field.name}" data-task="${task.id}" type="${type}"${step}${placeholder} inputmode="${type === "number" ? "decimal" : "text"}" oninput="unlockSolution('${task.id}')">
+  </div>`;
+}
+
+function renderNumeric(task) {
+  return `<div class="inputs">${task.fields.map(field => renderField(task, field)).join("")}</div>
+    ${task.solutionKind ? renderLockedSolution(task) : ""}`;
+}
+
+function renderMixed(task) {
+  return `<div class="inputs">${task.fields.map(field => renderField(task, field)).join("")}</div>
+    ${renderKeywordChips(task)}
+    <div class="field">
+      <label for="${task.id}_text">Antwortsatz / Begründung</label>
+      <textarea id="${task.id}_text" data-task="${task.id}" placeholder="Formuliere deine Begründung als vollständigen Satz."></textarea>
+    </div>
+    ${task.solutionKind ? renderLockedSolution(task) : (task.sample ? `<details class="solution"><summary>Musterlösung anzeigen</summary><p>${escapeHtml(task.sample)}</p></details>` : "")}`;
+}
+
+function renderMC(task) {
+  return `<div class="options">${task.options.map((opt, idx) => {
+    const inputType = task.multi ? "checkbox" : "radio";
+    return `<label class="option" id="${task.id}_opt${idx}">
+      <input type="${inputType}" name="${task.id}_opt" value="${idx}" data-task="${task.id}" onchange="unlockSolution('${task.id}')">
+      <span>${escapeHtml(opt)}</span>
+    </label>`;
+  }).join("")}</div>`;
+}
+
+function renderFreeText(task) {
+  return `<div class="field">
+    <label for="${task.id}_text">${escapeHtml(task.fieldLabel || "Deine Antwort")}</label>
+    <textarea id="${task.id}_text" data-task="${task.id}" placeholder="${escapeHtml(task.placeholder || "")}" oninput="unlockSolution('${task.id}')"></textarea>
+  </div>
+  ${renderKeywordChips(task)}
+  ${task.sample ? `<details class="solution"><summary>Musterlösung anzeigen</summary><p>${escapeHtml(task.sample)}</p></details>` : ""}`;
+}
+
+function renderKeywordChips(task) {
+  if (!task.keywords || !task.keywords.length) return "";
+  return `<div class="chips">${task.keywords.map(k => `<span class="chip">${escapeHtml(k)}</span>`).join("")}</div>`;
+}
+
+function renderMatrix(task) {
+  return `<div class="matrix-wrap"><table class="matrix" id="${task.id}_matrix">
+    <thead><tr><th></th>${task.columns.map(c => `<th>${escapeHtml(c)}</th>`).join("")}</tr></thead>
+    <tbody>${task.rows.map((row, rIdx) => `<tr id="${task.id}_row${rIdx}">
+      <th>${escapeHtml(row.label)}</th>
+      ${task.columns.map((c, cIdx) => `<td><input type="radio" name="${task.id}_row${rIdx}" value="${cIdx}" data-task="${task.id}" onchange="unlockSolution('${task.id}')"></td>`).join("")}
+    </tr>`).join("")}</tbody>
+  </table></div>`;
+}
+
+function renderPairs(task) {
+  if (!pairState[task.id]) pairState[task.id] = { selectedLeft: null, matches: {} };
+  const state = pairState[task.id];
+  return `<div class="pair-zone">
+    <div class="pair-col"><h4>${escapeHtml(task.leftLabel || "Begriffe")}</h4>
+      ${task.left.map((item, idx) => `<div class="pair-item ${state.selectedLeft === idx ? "selected" : ""} ${state.matches[idx] !== undefined ? "matched" : ""}" id="${task.id}_left${idx}" onclick="pairClick('${task.id}','left',${idx})">${escapeHtml(item)}</div>`).join("")}
+    </div>
+    <div class="pair-col"><h4>${escapeHtml(task.rightLabel || "Zuordnung")}</h4>
+      ${task.right.map((item, idx) => `<div class="pair-item" id="${task.id}_right${idx}" onclick="pairClick('${task.id}','right',${idx})">${escapeHtml(item)}</div>`).join("")}
+    </div>
+  </div>
+  <div class="match-list" id="${task.id}_matchlist"></div>`;
+}
+
+function renderDiagram(d) {
+  if (d.type === "coord" || !d.type) return coordinateSvg(d);
+  return "";
+}
+
+function formatTick(v) {
+  const r = Math.round(v * 100) / 100;
+  return Number.isInteger(r) ? String(r).replace("-", "−") : String(r).replace(".", ",").replace("-", "−");
+}
+
+function coordinateSvg(d) {
+  const xMin = d.xMin ?? -5, xMax = d.xMax ?? 5, yMin = d.yMin ?? -5, yMax = d.yMax ?? 5;
+  const xUnits = xMax - xMin, yUnits = yMax - yMin;
+  const cell = d.cell || Math.max(14, Math.min(34, Math.floor(520 / Math.max(xUnits, yUnits))));
+  const padding = 30;
+  const plotW = xUnits * cell, plotH = yUnits * cell;
+  const width = plotW + padding * 2, height = plotH + padding * 2;
+  const toPx = (x, y) => [padding + (x - xMin) * cell, padding + (yMax - y) * cell];
+
+  let svg = `<svg viewBox="0 0 ${width} ${height}" width="${Math.min(width, 560)}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Koordinatensystem">`;
+  svg += `<rect x="0" y="0" width="${width}" height="${height}" fill="#ffffff"/>`;
+
+  for (let gx = Math.ceil(xMin); gx <= Math.floor(xMax); gx++) {
+    const [px] = toPx(gx, 0);
+    svg += `<line x1="${px}" y1="${padding}" x2="${px}" y2="${padding + plotH}" stroke="#e3e6ec" stroke-width="1"/>`;
+  }
+  for (let gy = Math.ceil(yMin); gy <= Math.floor(yMax); gy++) {
+    const [, py] = toPx(0, gy);
+    svg += `<line x1="${padding}" y1="${py}" x2="${padding + plotW}" y2="${py}" stroke="#e3e6ec" stroke-width="1"/>`;
+  }
+
+  if (yMin <= 0 && yMax >= 0) {
+    const [, py0] = toPx(0, 0);
+    svg += `<line x1="${padding}" y1="${py0}" x2="${padding + plotW}" y2="${py0}" stroke="#9aa1ad" stroke-width="1.6"/>`;
+    svg += `<text x="${padding + plotW - 4}" y="${py0 - 6}" font-size="12" fill="#5d6470" text-anchor="end">x</text>`;
+  }
+  if (xMin <= 0 && xMax >= 0) {
+    const [px0] = toPx(0, 0);
+    svg += `<line x1="${px0}" y1="${padding}" x2="${px0}" y2="${padding + plotH}" stroke="#9aa1ad" stroke-width="1.6"/>`;
+    svg += `<text x="${px0 + 6}" y="${padding + 12}" font-size="12" fill="#5d6470">y</text>`;
+  }
+
+  for (let gx = Math.ceil(xMin); gx <= Math.floor(xMax); gx++) {
+    if (gx === 0) continue;
+    const [px, py0] = toPx(gx, 0);
+    const ty = (yMin <= 0 && yMax >= 0) ? py0 + 14 : padding + plotH + 14;
+    svg += `<text x="${px}" y="${ty}" font-size="11" fill="#5d6470" text-anchor="middle">${formatTick(gx)}</text>`;
+  }
+  for (let gy = Math.ceil(yMin); gy <= Math.floor(yMax); gy++) {
+    if (gy === 0) continue;
+    const [px0, py] = toPx(0, gy);
+    const tx = (xMin <= 0 && xMax >= 0) ? px0 - 8 : padding - 8;
+    svg += `<text x="${tx}" y="${py + 3}" font-size="11" fill="#5d6470" text-anchor="end">${formatTick(gy)}</text>`;
+  }
+
+  (d.lines || []).forEach((line, idx) => {
+    const color = idx === 0 ? "#6B4FA0" : idx === 1 ? "#E65100" : "#2E7D32";
+    const x1 = xMin, x2 = xMax;
+    const y1 = line.m * x1 + line.b, y2 = line.m * x2 + line.b;
+    const [px1, py1] = toPx(x1, Math.max(yMin, Math.min(yMax, y1)));
+    const [px2, py2] = toPx(x2, Math.max(yMin, Math.min(yMax, y2)));
+    svg += `<line x1="${px1}" y1="${py1}" x2="${px2}" y2="${py2}" stroke="${color}" stroke-width="2.4"/>`;
+    const labelX = xMax - (xUnits * 0.08);
+    const labelY = Math.max(yMin + (yUnits * 0.06), Math.min(yMax - (yUnits * 0.06), line.m * labelX + line.b));
+    const [lx, ly] = toPx(labelX, labelY);
+    svg += `<text x="${lx}" y="${ly - 8}" font-size="13" fill="${color}" font-weight="700" text-anchor="end">${escapeHtml(line.label || ("f" + idx))}</text>`;
+  });
+
+  (d.points || []).forEach(p => {
+    const [px, py] = toPx(p.x, p.y);
+    svg += `<circle cx="${px}" cy="${py}" r="4.5" fill="#1d1d1f"/>`;
+    if (p.label) svg += `<text x="${px + 8}" y="${py - 8}" font-size="12" fill="#1d1d1f">${escapeHtml(p.label)}</text>`;
+  });
+
+  svg += "</svg>";
+  return svg;
+}
+
+function checkTask(id) {
+  const task = taskById(id);
+  if (!task) return;
+  switch (task.type) {
+    case "mc": return checkMC(task);
+    case "numeric": return checkNumeric(task);
+    case "freetext": return checkFreeText(task);
+    case "matrix": return checkMatrix(task);
+    case "pairs": return checkPairs(task);
+    case "mixed": return checkMixed(task);
+  }
+}
+
+function parseNumberValue(raw) {
+  if (raw === null || raw === undefined) return NaN;
+  let s = String(raw).trim();
+  if (!s) return NaN;
+  s = s.replace(/[€$]/g, "").replace(/km\/h|km|m\/s|Monate|Minuten|Min\.|°C/gi, "").trim();
+  s = s.replace(/\s/g, "").replace(",", ".");
+  const v = parseFloat(s);
+  return Number.isNaN(v) ? NaN : v;
+}
+
+function normalizeTextValue(raw) {
+  let s = String(raw ?? "").trim().toLowerCase();
+  s = s.replace(/f\(x\)\s*=/g, "y=").replace(/\s+/g, "");
+  s = s.replace(/,/g, ".").replace(/−/g, "-").replace(/·/g, "").replace(/:/g, "/");
+  return s;
+}
+
+function checkFields(task) {
+  let ok = true;
+  const messages = [];
+  task.fields.forEach(field => {
+    const input = document.getElementById(`${task.id}_${field.name}`);
+    if (!input) return;
+    input.classList.remove("input-correct", "input-wrong");
+    if (field.accepted) {
+      const norm = normalizeTextValue(input.value);
+      const accepted = field.accepted.map(normalizeTextValue);
+      const fieldOk = accepted.includes(norm);
+      if (fieldOk) { input.classList.add("input-correct"); }
+      else { input.classList.add("input-wrong"); ok = false; messages.push(`${field.label}: richtig wäre ${field.accepted[0]}.`); }
+    } else {
+      const val = parseNumberValue(input.value);
+      const tol = field.tolerance ?? 0.01;
+      const fieldOk = !Number.isNaN(val) && Math.abs(val - Number(field.answer)) <= tol;
+      if (fieldOk) { input.classList.add("input-correct"); }
+      else { input.classList.add("input-wrong"); ok = false; messages.push(`${field.label}: richtig wäre ${String(field.answer).replace(".", ",")}.`); }
+    }
+  });
+  return { ok, messages };
+}
+
+function checkNumeric(task) {
+  const { ok, messages } = checkFields(task);
+  if (ok) { markSolved(task.id); showFeedback(task.id, "success", `✓ ${task.success || "Richtig gelöst!"}`); }
+  else { showFeedback(task.id, "error", `✗ Noch nicht ganz richtig. ${messages.join(" ")} ${task.hint ? "Tipp: " + task.hint : ""}`); }
+}
+
+function checkMC(task) {
+  const inputs = Array.from(document.querySelectorAll(`input[name="${task.id}_opt"]`));
+  const checked = inputs.filter(i => i.checked).map(i => Number(i.value));
+  inputs.forEach((input, idx) => {
+    const label = document.getElementById(`${task.id}_opt${idx}`);
+    label.classList.remove("correct", "wrong");
+  });
+  const correctSet = new Set(task.correct);
+  let ok = checked.length === correctSet.size && checked.every(c => correctSet.has(c));
+  inputs.forEach((input, idx) => {
+    const label = document.getElementById(`${task.id}_opt${idx}`);
+    if (correctSet.has(idx)) label.classList.add("correct");
+    else if (input.checked) label.classList.add("wrong");
+  });
+  if (ok) { markSolved(task.id); showFeedback(task.id, "success", `✓ ${task.success || "Richtig!"}`); }
+  else { showFeedback(task.id, "error", `✗ Nicht ganz richtig. ${task.hint ? "Tipp: " + task.hint : ""}`); }
+}
+
+function checkMatrix(task) {
+  let ok = true;
+  task.rows.forEach((row, rIdx) => {
+    const inputs = Array.from(document.querySelectorAll(`input[name="${task.id}_row${rIdx}"]`));
+    const checkedVal = inputs.find(i => i.checked)?.value;
+    const rowEl = document.getElementById(`${task.id}_row${rIdx}`);
+    rowEl.classList.remove("row-correct", "row-wrong");
+    const rowOk = checkedVal !== undefined && Number(checkedVal) === row.correct;
+    if (rowOk) rowEl.classList.add("row-correct");
+    else { rowEl.classList.add("row-wrong"); ok = false; }
+  });
+  if (ok) { markSolved(task.id); showFeedback(task.id, "success", `✓ ${task.success || "Alle Zeilen richtig zugeordnet!"}`); }
+  else { showFeedback(task.id, "error", `✗ Einige Zeilen sind noch falsch. ${task.hint ? "Tipp: " + task.hint : ""}`); }
+}
+
+function pairClick(taskId, side, idx) {
+  const task = taskById(taskId);
+  const state = pairState[taskId] || (pairState[taskId] = { selectedLeft: null, matches: {} });
+  if (side === "left") {
+    if (state.matches[idx] !== undefined) return;
+    state.selectedLeft = idx;
+  } else {
+    if (state.selectedLeft === null) return;
+    state.matches[state.selectedLeft] = idx;
+    state.selectedLeft = null;
+  }
+  updatePairDisplay(task);
+}
+
+function updatePairDisplay(task) {
+  const state = pairState[task.id];
+  task.left.forEach((item, idx) => {
+    const el = document.getElementById(`${task.id}_left${idx}`);
+    if (!el) return;
+    el.classList.toggle("selected", state.selectedLeft === idx);
+    el.classList.toggle("matched", state.matches[idx] !== undefined);
+  });
+  const list = document.getElementById(`${task.id}_matchlist`);
+  if (list) {
+    const entries = Object.entries(state.matches).map(([l, r]) => `${escapeHtml(task.left[l])} → ${escapeHtml(task.right[r])}`);
+    list.textContent = entries.join(" | ");
+  }
+}
+
+function checkPairs(task) {
+  const state = pairState[task.id] || { matches: {} };
+  let ok = task.left.length === Object.keys(state.matches).length;
+  task.left.forEach((item, idx) => {
+    const el = document.getElementById(`${task.id}_left${idx}`);
+    if (!el) return;
+    el.classList.remove("pair-correct", "pair-wrong");
+    const matchedRight = state.matches[idx];
+    if (matchedRight === undefined) { ok = false; return; }
+    const rowOk = task.correct[idx] === matchedRight;
+    el.classList.add(rowOk ? "pair-correct" : "pair-wrong");
+    if (!rowOk) ok = false;
+  });
+  if (ok) { markSolved(task.id); showFeedback(task.id, "success", `✓ ${task.success || "Alle Paare richtig zugeordnet!"}`); }
+  else { showFeedback(task.id, "error", `✗ Noch nicht alle Paare richtig. ${task.hint ? "Tipp: " + task.hint : ""}`); }
+}
+
+function checkFreeText(task) {
+  const input = document.getElementById(`${task.id}_text`);
+  checkFreeTextInput(task, input ? input.value : "");
+}
+
+function checkMixed(task) {
+  const { ok: fieldsOk, messages } = checkFields(task);
+  const textInput = document.getElementById(`${task.id}_text`);
+  const textOk = checkFreeTextInput(task, textInput ? textInput.value : "", true);
+  if (fieldsOk && textOk) { markSolved(task.id); showFeedback(task.id, "success", `✓ ${task.success || "Richtig und gut begründet!"}`); }
+  else if (fieldsOk && !textOk) { showFeedback(task.id, "partial", `! Die Zahlen stimmen. Ergänze noch deinen Antwortsatz mit den passenden Begriffen. ${task.hint ? "Tipp: " + task.hint : ""}`); }
+  else { showFeedback(task.id, "error", `✗ Noch nicht ganz richtig. ${messages.join(" ")} ${task.hint ? "Tipp: " + task.hint : ""}`); }
+}
+
+function normalizeForKeyword(str) {
+  return String(str ?? "").toLowerCase().replace(/ß/g, "ss").replace(/[.,;:!?]/g, "").replace(/\s+/g, " ").trim();
+}
+
+const spellingHints = {};
+
+function checkFreeTextInput(task, rawText, silent) {
+  const text = normalizeForKeyword(rawText);
+  let ok = true;
+  if (!text || text.length < (task.minLength || 8)) ok = false;
+  if (task.keywordGroups) {
+    ok = ok && task.keywordGroups.every(group => group.some(kw => text.includes(normalizeForKeyword(kw))));
+  }
+  if (!silent) {
+    if (ok) { markSolved(task.id); showFeedback(task.id, "success", `✓ ${task.success || "Gut erklärt!"}`); }
+    else { showFeedback(task.id, "error", `✗ Der Antwortsatz fehlt noch passende Begriffe. ${task.hint ? "Tipp: " + task.hint : ""}`); }
+  }
+  return ok;
+}
+
+function showFeedback(id, type, html) {
+  const el = document.getElementById(`feedback-${id}`);
+  if (!el) return;
+  el.className = `feedback show ${type}`;
+  el.innerHTML = html;
+}
+
+function resetTask(id) {
+  const task = taskById(id);
+  if (!task) return;
+  solved.delete(id);
+  saveProgress();
+  task.fields?.forEach(field => {
+    const input = document.getElementById(`${id}_${field.name}`);
+    if (input) { input.value = ""; input.classList.remove("input-correct", "input-wrong"); }
+  });
+  const textInput = document.getElementById(`${id}_text`);
+  if (textInput) textInput.value = "";
+  if (task.type === "mc") {
+    document.querySelectorAll(`input[name="${id}_opt"]`).forEach(i => { i.checked = false; });
+    task.options?.forEach((opt, idx) => document.getElementById(`${id}_opt${idx}`)?.classList.remove("correct", "wrong"));
+  }
+  if (task.type === "matrix") {
+    task.rows?.forEach((row, rIdx) => {
+      document.querySelectorAll(`input[name="${id}_row${rIdx}"]`).forEach(i => { i.checked = false; });
+      document.getElementById(`${id}_row${rIdx}`)?.classList.remove("row-correct", "row-wrong");
+    });
+  }
+  if (task.type === "pairs") {
+    pairState[id] = { selectedLeft: null, matches: {} };
+    updatePairDisplay(task);
+    task.left?.forEach((item, idx) => document.getElementById(`${id}_left${idx}`)?.classList.remove("pair-correct", "pair-wrong"));
+  }
+  const solBtn = document.getElementById(`solution-btn-${id}`);
+  const solContent = document.getElementById(`solution-content-${id}`);
+  if (solBtn) {
+    solBtn.disabled = true;
+    solBtn.setAttribute("aria-disabled", "true");
+    solBtn.classList.add("locked");
+    solBtn.textContent = "🔒 Musterlösung (zuerst Zahlen eingeben)";
+  }
+  if (solContent) solContent.hidden = true;
+  const card = document.getElementById(`card-${id}`);
+  if (card) {
+    card.classList.remove("solved");
+    const badge = card.querySelector(".badge");
+    if (badge) { badge.classList.remove("done"); badge.textContent = "offen"; }
+  }
+  const fb = document.getElementById(`feedback-${id}`);
+  if (fb) { fb.className = "feedback"; fb.innerHTML = ""; }
+  updateProgressOnly();
+}
+
+function resetAll() {
+  if (!confirm("Wirklich den gesamten Fortschritt zurücksetzen?")) return;
+  solved = new Set();
+  saveProgress();
+  renderAll();
+}
+
+function generateNewTask(id) {
+  const oldTask = taskById(id);
+  if (!oldTask) return;
+  const idx = TASKS.findIndex(t => t.id === id);
+  const next = buildGeneratedTask(oldTask);
+  next.id = oldTask.id;
+  next.chapter = oldTask.chapter;
+  next.level = oldTask.level;
+  next.competence = oldTask.competence;
+  next.repeatable = true;
+  TASKS[idx] = next;
+  solved.delete(id);
+  saveProgress();
+  pairState[id] = { selectedLeft: null, matches: {} };
+  renderChapter();
+  updateProgressOnly();
+  setTimeout(() => showFeedback(id, "partial", "! Neue Aufgabe generiert. Löse die Variante und klicke anschließend auf „Überprüfen“."), 0);
+}
+
+function buildGeneratedTask(task) {
+  if (task.id === "N_R1") return genNullstelleVariant(task);
+  if (task.id === "G_R1") return genGleichsetzenVariant(task);
+  return genDefaultVariant(task);
+}
+
+function genDefaultVariant(task) { return Object.assign({}, task); }
+
+function rndInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function shuffleCopy(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+function round2(n) { return Math.round((Number(n) + Number.EPSILON) * 100) / 100; }
+function fmt(n) {
+  const v = round2(n);
+  return Number.isInteger(v) ? String(v).replace("-", "−") : String(v).replace(".", ",").replace("-", "−");
+}
+function eqReadable(m, b, name = "y") {
+  const mm = round2(m), bb = round2(b);
+  const coef = mm === 1 ? "x" : mm === -1 ? "−x" : `${fmt(mm)}x`;
+  if (bb === 0) return `${name} = ${coef}`;
+  return `${name} = ${coef} ${bb > 0 ? "+" : "−"} ${fmt(Math.abs(bb))}`;
+}
+function num(name, label, answer, tolerance = 0.01) { return { name, label, answer: round2(answer), tolerance, inputType: "number" }; }
+function baseCopy(task, type, title, stem, fields, extra = {}) { return Object.assign({}, task, { type, title, stem, fields }, extra); }
+
+function termAbs(coef) { const a = round2(Math.abs(coef)); return (Math.abs(a - 1) < 1e-9 ? "" : fmt(a)) + "x"; }
+function termX(m) { m = round2(m); return (m < 0 ? "−" : "") + termAbs(m); }
+function constSuffix(b) { b = round2(b); if (Math.abs(b) < 1e-9) return ""; return (b > 0 ? " + " : " − ") + fmt(Math.abs(b)); }
+function divisorLabel(m) { m = round2(m); return m < 0 ? "(" + fmt(m) + ")" : fmt(m); }
+function opAddTerm(coef) { coef = round2(coef); if (Math.abs(coef) < 1e-9) return ""; return `| ${coef > 0 ? "+" : "−"}${termAbs(coef)}`; }
+function opAddConst(c) { c = round2(c); if (Math.abs(c) < 1e-9) return ""; return `| ${c > 0 ? "+" : "−"}${fmt(Math.abs(c))}`; }
+
+function nullstelleSteps(m, b) {
+  m = round2(m); b = round2(b);
+  const steps = [];
+  let curM = m, curB = b, rhs = 0;
+  let eqLine = `${termX(curM)}${constSuffix(curB)} = ${fmt(rhs)}`;
+  if (Math.abs(curB) > 1e-9) {
+    const op = opAddConst(-curB);
+    rhs = round2(rhs - curB);
+    curB = 0;
+    steps.push({ eq: eqLine, op });
+    eqLine = `${termX(curM)} = ${fmt(rhs)}`;
+  }
+  if (Math.abs(curM - 1) > 1e-9) {
+    const op = `| :${divisorLabel(curM)}`;
+    const x0 = round2(rhs / curM);
+    steps.push({ eq: eqLine, op });
+    eqLine = `x = ${fmt(x0)}`;
+    rhs = x0; curM = 1;
+  }
+  steps.push({ eq: eqLine, op: "" });
+  return { x0: rhs, steps };
+}
+
+function gleichsetzenSteps(m1, b1, m2, b2) {
+  m1 = round2(m1); b1 = round2(b1); m2 = round2(m2); b2 = round2(b2);
+  const steps = [];
+  let curM = m1, curB = b1, rhsM = m2, rhsB = b2;
+  let eqLine = `${termX(curM)}${constSuffix(curB)} = ${termX(rhsM)}${constSuffix(rhsB)}`;
+  if (Math.abs(rhsM) > 1e-9) {
+    const op = opAddTerm(-rhsM);
+    curM = round2(curM - rhsM);
+    rhsM = 0;
+    steps.push({ eq: eqLine, op });
+    eqLine = `${termX(curM)}${constSuffix(curB)} = ${fmt(rhsB)}`;
+  }
+  if (Math.abs(curB) > 1e-9) {
+    const op = opAddConst(-curB);
+    rhsB = round2(rhsB - curB);
+    curB = 0;
+    steps.push({ eq: eqLine, op });
+    eqLine = `${termX(curM)} = ${fmt(rhsB)}`;
+  }
+  if (Math.abs(curM - 1) > 1e-9) {
+    const op = `| :${divisorLabel(curM)}`;
+    const x0 = round2(rhsB / curM);
+    steps.push({ eq: eqLine, op });
+    eqLine = `x = ${fmt(x0)}`;
+    rhsB = x0; curM = 1;
+  }
+  steps.push({ eq: eqLine, op: "" });
+  const x0 = rhsB;
+  const y0 = round2(m1 * x0 + b1);
+  return { x0, y0, steps };
+}
+
+function genNullstelleVariant(task) {
+  const m = pick([2, 3, 4, -2, -3, -4, 1.5, -1.5, 0.5, -0.5]);
+  const x0 = pick([2, 3, 4, 5, 6, -2, -3, -4, -5, -6]);
+  const b = round2(-m * x0);
+  const xs = [0, x0], ys = [b, 0];
+  const xMin = Math.min(...xs) - 2, xMax = Math.max(...xs) + 2;
+  const yMin = Math.min(...ys) - 2, yMax = Math.max(...ys) + 2;
+  const r = nullstelleSteps(m, b);
+  return baseCopy(task, "numeric", "Nullstelle einer linearen Funktion (neue Variante)",
+    `Gegeben ist die Funktion <strong>${eqReadable(m, b, "f(x)")}</strong>. Berechne die Nullstelle.`,
+    [num("x", "x der Nullstelle", r.x0), num("y", "y der Nullstelle", 0)],
+    {
+      diagram: { xMin, xMax, yMin, yMax, lines: [{ m, b, label: "f" }] },
+      eqParams: { m, b }, solutionKind: "nullstelle",
+      success: `Richtig: Die Nullstelle liegt bei N(${fmt(r.x0)} | 0).`,
+      hint: "Setze f(x) = 0 und löse die Gleichung mit Kommandostrichen nach x auf."
+    });
+}
+
+function genGleichsetzenVariant(task) {
+  let m1 = pick([2, 3, 4, -2, -3, -4, 1.5, -1.5]);
+  let m2 = pick([2, 3, 4, -2, -3, -4, 1.5, -1.5]);
+  if (m1 === m2) m2 = m1 === 2 ? 3 : 2;
+  const x0 = pick([1, 2, 3, 4, -1, -2, -3, -4]);
+  const b1 = rndInt(-5, 5);
+  const y0 = round2(m1 * x0 + b1);
+  const b2 = round2(y0 - m2 * x0);
+  const r = gleichsetzenSteps(m1, b1, m2, b2);
+  const xs = [0, x0], ys = [b1, b2, y0];
+  const xMin = Math.min(...xs) - 2, xMax = Math.max(...xs) + 2;
+  const yMin = Math.min(...ys) - 2, yMax = Math.max(...ys) + 2;
+  return baseCopy(task, "numeric", "Schnittpunkt zweier Geraden (neue Variante)",
+    `Berechne den Schnittpunkt von <strong>${eqReadable(m1, b1, "f(x)")}</strong> und <strong>${eqReadable(m2, b2, "g(x)")}</strong>. Mache anschließend die Probe.`,
+    [num("x", "x-Wert von S", r.x0), num("y", "y-Wert von S", r.y0), num("check", `Probe: g(${fmt(r.x0)})`, r.y0)],
+    {
+      diagram: { xMin, xMax, yMin, yMax, lines: [{ m: m1, b: b1, label: "f" }, { m: m2, b: b2, label: "g" }] },
+      eqParams: { m1, b1, m2, b2 }, solutionKind: "gleichsetzen",
+      success: `Richtig: Der Schnittpunkt ist S(${fmt(r.x0)} | ${fmt(r.y0)}).`,
+      hint: "Setze beide Funktionen gleich. Löse zuerst nach x auf und setze x anschließend in beide Funktionen ein."
+    });
+}
+
+function buildSolutionStepsHtml(task) {
+  let stepsObj, resultHtml = "";
+  if (task.solutionKind === "nullstelle") {
+    const p = task.eqParams;
+    stepsObj = nullstelleSteps(p.m, p.b);
+    resultHtml = `<div class="calc-result">Nullstelle: <strong>N(${fmt(stepsObj.x0)} | 0)</strong></div>
+      <div class="calc-check">Probe: f(${fmt(stepsObj.x0)}) eingesetzt ergibt 0 ✓</div>`;
+  } else if (task.solutionKind === "gleichsetzen") {
+    const p = task.eqParams;
+    stepsObj = gleichsetzenSteps(p.m1, p.b1, p.m2, p.b2);
+    resultHtml = `<div class="calc-result">Schnittpunkt: <strong>S(${fmt(stepsObj.x0)} | ${fmt(stepsObj.y0)})</strong></div>
+      <div class="calc-check">Probe: f(${fmt(stepsObj.x0)}) = g(${fmt(stepsObj.x0)}) = ${fmt(stepsObj.y0)} ✓</div>`;
+  } else {
+    return task.sample ? `<p>${escapeHtml(task.sample)}</p>` : "";
+  }
+  const rows = stepsObj.steps.map(s => `<tr><td>${escapeHtml(s.eq)}</td><td class="op">${escapeHtml(s.op || "")}</td></tr>`).join("");
+  const sampleHtml = task.sample ? `<p class="calc-interpret">${escapeHtml(task.sample)}</p>` : "";
+  return `<table class="calc-table">${rows}</table>${resultHtml}${sampleHtml}`;
+}
+
+function renderLockedSolution(task) {
+  const html = buildSolutionStepsHtml(task);
+  return `<div class="solution-lock" id="solution-lock-${task.id}">
+    <button type="button" class="btn secondary solution-btn locked" id="solution-btn-${task.id}" onclick="toggleSolution('${task.id}')" disabled aria-disabled="true">🔒 Musterlösung (zuerst Zahlen eingeben)</button>
+    <div class="solution-content" id="solution-content-${task.id}" hidden>${html}</div>
+  </div>`;
+}
+
+function unlockSolution(id) {
+  const btn = document.getElementById(`solution-btn-${id}`);
+  if (!btn || !btn.disabled) return;
+  const hasInput = [...document.querySelectorAll(`[data-task="${id}"]`)].some(el => {
+    if (el.tagName === "TEXTAREA") return false;
+    return el.value !== undefined && String(el.value).trim() !== "";
+  });
+  if (hasInput) {
+    btn.disabled = false;
+    btn.removeAttribute("aria-disabled");
+    btn.classList.remove("locked");
+    btn.textContent = "🔓 Musterlösung anzeigen";
+  }
+}
+
+function toggleSolution(id) {
+  const btn = document.getElementById(`solution-btn-${id}`);
+  const content = document.getElementById(`solution-content-${id}`);
+  if (!btn || !content || btn.disabled) return;
+  const wasHidden = content.hidden;
+  content.hidden = !wasHidden;
+  btn.textContent = wasHidden ? "Musterlösung ausblenden" : "🔓 Musterlösung anzeigen";
+}
+
+renderAll();
+</script>
+</body>
+</html>

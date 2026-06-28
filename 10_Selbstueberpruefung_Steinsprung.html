@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Steinsprung – Funktionsgleichung aus zwei Punkten</title>
+<style>
+  :root {
+    --blue: #2c5f8a;
+    --blue-light: #eaf2f8;
+    --red: #8a3a2c;
+    --red-light: #faeeea;
+    --green: #2f8a4a;
+    --amber: #c98a1f;
+    --ink: #1a1a1a;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
+    color: var(--ink);
+    background: linear-gradient(180deg, #d6ecf7 0%, #eaf6ee 55%, #f3f8ea 100%);
+    min-height: 100vh;
+  }
+  .wrap {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 16px 18px 40px;
+  }
+  header h1 {
+    font-size: 1.5rem;
+    color: var(--blue);
+    margin: 0 0 2px 0;
+  }
+  header p {
+    margin: 0 0 14px 0;
+    font-size: 0.92rem;
+    color: #45525c;
+  }
+  .instructions {
+    background: #fff;
+    border-left: 4px solid var(--blue);
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 0.88rem;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .instructions b { color: var(--blue); }
+
+  /* ---- progress / score bar ---- */
+  .scorebar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    font-size: 0.85rem;
+    color: #45525c;
+  }
+  .scorebar .pill {
+    background: #fff;
+    border-radius: 20px;
+    padding: 4px 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    font-weight: 600;
+  }
+  .progress-track {
+    flex: 1;
+    height: 8px;
+    background: #ffffffaa;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #4caf6e, #2f8a4a);
+    transition: width 0.5s ease;
+  }
+
+  /* ---- river / stone game area ---- */
+  .river {
+    position: relative;
+    background: linear-gradient(180deg, #bfe0ef, #a8d4e8);
+    border-radius: 16px;
+    padding: 26px 22px 18px;
+    box-shadow: inset 0 2px 10px rgba(0,40,60,0.15);
+    margin-bottom: 18px;
+    overflow: visible;
+  }
+  .row-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.25);
+    margin-bottom: 4px;
+    letter-spacing: 0.02em;
+  }
+  .stone-row {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .stone-row:last-child { margin-bottom: 4px; }
+  .stone {
+    position: relative;
+    width: 30px;
+    height: 24px;
+    border-radius: 60% 50% 55% 50% / 65% 60% 55% 60%;
+    background: linear-gradient(155deg, #b9b2a6, #8d8579);
+    box-shadow: 0 3px 4px rgba(0,0,0,0.25), inset 0 -3px 4px rgba(0,0,0,0.15);
+    flex: 0 0 auto;
+  }
+  .stone.lvl2 { background: linear-gradient(155deg, #c9a6a0, #a17a72); }
+  .stone.solved {
+    background: linear-gradient(155deg, #79d18f, #3f9e5c) !important;
+    animation: pulse 0.5s ease;
+  }
+  .stone.skipped {
+    background: linear-gradient(155deg, #e0c069, #c79a3a) !important;
+  }
+  .stone .mark {
+    position: absolute;
+    top: -7px; right: -4px;
+    font-size: 11px;
+  }
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.35); }
+    100% { transform: scale(1); }
+  }
+
+  .runner {
+    position: absolute;
+    font-size: 26px;
+    line-height: 1;
+    transform: translate(-50%, -100%);
+    transition: left 0.55s cubic-bezier(.4,0,.2,1), top 0.55s cubic-bezier(.4,0,.2,1);
+    z-index: 5;
+    filter: drop-shadow(0 3px 2px rgba(0,0,0,0.3));
+  }
+  .runner.hop-full { animation: hopfull 0.55s ease; }
+  .runner.hop-half { animation: hophalf 0.5s ease; }
+  .runner.hop-fail { animation: shake 0.4s ease; }
+  @keyframes hopfull {
+    0%   { margin-top: 0px; }
+    45%  { margin-top: -34px; }
+    100% { margin-top: 0px; }
+  }
+  @keyframes hophalf {
+    0%   { margin-top: 0px; }
+    50%  { margin-top: -16px; }
+    100% { margin-top: 0px; }
+  }
+  @keyframes shake {
+    0%, 100% { margin-left: 0px; }
+    25% { margin-left: -6px; }
+    75% { margin-left: 6px; }
+  }
+
+  /* ---- problem card ---- */
+  .card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 18px 22px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+  .card .tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #fff;
+    background: var(--blue);
+    border-radius: 20px;
+    padding: 2px 10px;
+    margin-bottom: 8px;
+  }
+  .card .tag.lvl2 { background: var(--red); }
+  .card .points {
+    font-size: 1.15rem;
+    font-family: 'Cambria Math', Cambria, 'Times New Roman', serif;
+    margin-bottom: 14px;
+  }
+  .inputs {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .field {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .field label {
+    font-weight: 700;
+    font-size: 1.05rem;
+    font-family: 'Cambria Math', Cambria, serif;
+  }
+  .field input {
+    width: 92px;
+    font-size: 1.05rem;
+    padding: 7px 9px;
+    border: 2px solid #c7d6e3;
+    border-radius: 8px;
+    font-family: 'Cambria Math', Cambria, serif;
+    text-align: center;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .field input:focus { outline: none; border-color: var(--blue); }
+  .field input.ok { border-color: var(--green); background: #eefbf1; }
+  .field input.bad { border-color: #c0392b; background: #fdecea; }
+  .field .hint { font-size: 0.72rem; color: #8a94a0; }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  button.check-btn {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    padding: 9px 22px;
+    border-radius: 24px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  }
+  button.check-btn:hover { background: #234b6e; }
+  .skip-link {
+    font-size: 0.82rem;
+    color: #8a94a0;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  .feedback {
+    margin-top: 12px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    min-height: 1.3em;
+  }
+  .feedback.good { color: var(--green); }
+  .feedback.partial { color: var(--amber); }
+  .feedback.fail { color: #c0392b; }
+
+  /* ---- celebration ---- */
+  .celebrate {
+    display: none;
+    text-align: center;
+    padding: 30px 10px;
+  }
+  .celebrate.show { display: block; }
+  .celebrate .big { font-size: 2.4rem; margin-bottom: 6px; }
+  .celebrate h2 { color: var(--green); margin: 4px 0; }
+  .celebrate button {
+    margin-top: 14px;
+    background: var(--green);
+    color: #fff;
+    border: none;
+    padding: 9px 22px;
+    border-radius: 24px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .card.hide { display: none; }
+
+  footer {
+    margin-top: 22px;
+    font-size: 0.75rem;
+    color: #8a94a0;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>🪨 Steinsprung – Funktionsgleichung aus zwei Punkten</h1>
+    <p>Selbstüberprüfung zum Übungsblatt „Funktionsgleichung aus zwei Punkten"</p>
+  </header>
+
+  <div class="instructions">
+    Gib für jede Aufgabe die <b>Steigung m</b> und den <b>y-Achsenabschnitt t</b> ein und klicke auf „Prüfen".
+    Du kannst auch <b>Brüche</b> eingeben, z.&nbsp;B. <code>-3/4</code> oder <code>2/3</code>, sowie Dezimalzahlen mit Komma oder Punkt.<br>
+    Sind <b>m und t richtig</b>, springt das Männchen ganz zum nächsten Stein. Ist nur <b>eines von beiden richtig</b>, springt es nur halb so hoch – schau, welcher Wert noch falsch markiert ist, und versuch es nochmal!
+  </div>
+
+  <div class="scorebar">
+    <span class="pill" id="counterPill">Aufgabe 1 / 26</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <span class="pill" id="solvedPill">0 gelöst</span>
+  </div>
+
+  <div class="river">
+    <div class="row-label">Niveau 1 ★</div>
+    <div class="stone-row" id="row1"></div>
+    <div class="row-label">Niveau 2 ★★</div>
+    <div class="stone-row" id="row2"></div>
+    <div class="runner" id="runner">🏃</div>
+  </div>
+
+  <div class="card" id="problemCard">
+    <span class="tag" id="cardTag">Niveau 1 ★</span>
+    <div class="points" id="cardPoints">A(0 ; 1), B(1 ; 2)</div>
+
+    <div class="inputs">
+      <div class="field">
+        <label for="mInput">m&nbsp;=</label>
+        <input type="text" id="mInput" placeholder="z. B. -3/4" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="tInput">t&nbsp;=</label>
+        <input type="text" id="tInput" placeholder="z. B. 2,5" autocomplete="off">
+      </div>
+    </div>
+    <div class="hint">Eingabe als Ganzzahl, Dezimalzahl (Komma oder Punkt) oder Bruch (a/b) möglich.</div>
+
+    <div class="actions">
+      <button class="check-btn" id="checkBtn">Prüfen</button>
+      <span class="skip-link" id="skipLink">Aufgabe überspringen →</span>
+    </div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <div class="celebrate" id="celebrate">
+    <div class="big">🎉🐸🎉</div>
+    <h2>Geschafft! Alle 26 Aufgaben gelöst!</h2>
+    <p id="finalStats"></p>
+    <button id="restartBtn">Nochmal von vorne</button>
+  </div>
+
+  <footer>Aufgaben in Anlehnung an: Cornelsen Verlag GmbH, Berlin – „Funktionsgleichungen linearer Funktionen – Zweipunkteform" (Niveau 1/2), © 2016</footer>
+</div>
+
+<script>
+(function () {
+  // ---- Datenbasis: Punktepaare + exakte Lösung als Bruch [Zähler, Nenner] ----
+  const problems = [
+    // Niveau 1
+    {lvl:1, label:'a', p1:'A(0 ; 1)',  p2:'B(1 ; 2)',   m:[1,1],  t:[1,1]},
+    {lvl:1, label:'b', p1:'C(0 ; 0)',  p2:'D(2 ; 4)',   m:[2,1],  t:[0,1]},
+    {lvl:1, label:'c', p1:'E(0 ; −2)', p2:'F(1 ; 0)',   m:[2,1],  t:[-2,1]},
+    {lvl:1, label:'d', p1:'G(−1 ; 2)', p2:'H(0 ; 1)',   m:[-1,1], t:[1,1]},
+    {lvl:1, label:'e', p1:'I(0 ; 4)',  p2:'J(2 ; 0)',   m:[-2,1], t:[4,1]},
+    {lvl:1, label:'f', p1:'A(0 ; 1)',  p2:'B(4 ; 5)',   m:[1,1],  t:[1,1]},
+    {lvl:1, label:'g', p1:'A(0 ; −3)', p2:'B(2 ; −1)',  m:[1,1],  t:[-3,1]},
+    {lvl:1, label:'h', p1:'A(0 ; 4)',  p2:'B(4 ; 8)',   m:[1,1],  t:[4,1]},
+    {lvl:1, label:'i', p1:'A(0 ; −1)', p2:'B(3 ; 2)',   m:[1,1],  t:[-1,1]},
+    {lvl:1, label:'j', p1:'A(0 ; 0)',  p2:'B(5 ; 10)',  m:[2,1],  t:[0,1]},
+    {lvl:1, label:'k', p1:'A(0 ; −1)', p2:'B(2 ; 3)',   m:[2,1],  t:[-1,1]},
+    {lvl:1, label:'l', p1:'A(0 ; 2)',  p2:'B(2 ; 3)',   m:[1,2],  t:[2,1]},
+    {lvl:1, label:'m', p1:'A(0 ; 2)',  p2:'B(2 ; 0)',   m:[-1,1], t:[2,1]},
+    // Niveau 2
+    {lvl:2, label:'a', p1:'A(−2 ; −4)', p2:'B(1 ; −2)',   m:[2,3],   t:[-8,3]},
+    {lvl:2, label:'b', p1:'C(−3 ; 4)',  p2:'D(4 ; −2)',   m:[-6,7],  t:[10,7]},
+    {lvl:2, label:'c', p1:'E(−3 ; −3)', p2:'F(4 ; 2)',    m:[5,7],   t:[-6,7]},
+    {lvl:2, label:'d', p1:'G(−3 ; 2)',  p2:'H(4 ; −2)',   m:[-4,7],  t:[2,7]},
+    {lvl:2, label:'e', p1:'I(−2 ; −1,5)', p2:'J(1 ; 3,5)', m:[5,3],  t:[11,6]},
+    {lvl:2, label:'f', p1:'A(−3 ; 1,5)', p2:'B(0 ; 4)',   m:[5,6],   t:[4,1]},
+    {lvl:2, label:'g', p1:'A(0 ; −2)',  p2:'B(16 ; −8)',  m:[-3,8],  t:[-2,1]},
+    {lvl:2, label:'h', p1:'A(0 ; 1/5)', p2:'B(4 ; −3)',   m:[-4,5],  t:[1,5]},
+    {lvl:2, label:'i', p1:'A(−9 ; 3)',  p2:'B(0 ; 5)',    m:[2,9],   t:[5,1]},
+    {lvl:2, label:'j', p1:'A(0 ; −1,5)', p2:'B(4 ; 4,5)', m:[3,2],   t:[-3,2]},
+    {lvl:2, label:'k', p1:'A(−33 ; 22)', p2:'B(0 ; 16)',  m:[-2,11], t:[16,1]},
+    {lvl:2, label:'l', p1:'A(−1,5 ; 21)', p2:'B(0 ; 9)',  m:[-8,1],  t:[9,1]},
+    {lvl:2, label:'m', p1:'A(−50 ; 46)', p2:'B(0 ; −2)',  m:[-24,25], t:[-2,1]},
+  ];
+
+  const EPS = 1e-6;
+  let current = 0;
+  let solvedCount = 0;
+  let attempts = 0;
+
+  function parseNumber(input) {
+    if (input == null) return NaN;
+    let s = String(input).trim();
+    if (s === '') return NaN;
+    s = s.replace(/[–—−]/g, '-');
+    s = s.replace(/^[a-zA-Zµ]+\s*=\s*/, '');
+    s = s.replace(/^\(+/, '').replace(/\)+$/, '');
+    s = s.replace(/,/g, '.');
+    s = s.replace(/\s+/g, '');
+    if (s === '') return NaN;
+    if (s.includes('/')) {
+      const parts = s.split('/');
+      if (parts.length !== 2) return NaN;
+      const num = parseFloat(parts[0]);
+      const den = parseFloat(parts[1]);
+      if (isNaN(num) || isNaN(den) || den === 0) return NaN;
+      return num / den;
+    }
+    return parseFloat(s);
+  }
+
+  function fracVal(f) { return f[0] / f[1]; }
+
+  // ---- Steine erzeugen ----
+  const row1 = document.getElementById('row1');
+  const row2 = document.getElementById('row2');
+  const stoneEls = [];
+  problems.forEach((p, i) => {
+    const el = document.createElement('div');
+    el.className = 'stone' + (p.lvl === 2 ? ' lvl2' : '');
+    el.dataset.index = i;
+    (p.lvl === 1 ? row1 : row2).appendChild(el);
+    stoneEls.push(el);
+  });
+
+  const runner = document.getElementById('runner');
+  const river = document.querySelector('.river');
+
+  function placeRunner(index, animate) {
+    // index: 0..problems.length -> Stein, an dem das Männchen gerade steht
+    const target = index < stoneEls.length ? stoneEls[index] : stoneEls[stoneEls.length - 1];
+    const riverRect = river.getBoundingClientRect();
+    const stoneRect = target.getBoundingClientRect();
+    const left = stoneRect.left - riverRect.left + stoneRect.width / 2;
+    const top = stoneRect.top - riverRect.top;
+    if (!animate) runner.style.transition = 'none';
+    runner.style.left = left + 'px';
+    runner.style.top = top + 'px';
+    if (!animate) {
+      requestAnimationFrame(() => { runner.style.transition = ''; });
+    }
+  }
+
+  function updateScorebar() {
+    document.getElementById('counterPill').textContent =
+      current < problems.length ? `Aufgabe ${current + 1} / ${problems.length}` : `Alle ${problems.length} Aufgaben`;
+    document.getElementById('solvedPill').textContent = `${solvedCount} gelöst`;
+    document.getElementById('progressFill').style.width = (solvedCount / problems.length * 100) + '%';
+  }
+
+  function renderProblem() {
+    updateScorebar();
+    if (current >= problems.length) {
+      document.getElementById('problemCard').classList.add('hide');
+      document.getElementById('celebrate').classList.add('show');
+      document.getElementById('finalStats').textContent =
+        `Du hast ${solvedCount} von ${problems.length} Aufgaben direkt richtig gelöst (${attempts} Versuche insgesamt).`;
+      return;
+    }
+    const p = problems[current];
+    document.getElementById('cardTag').textContent = p.lvl === 1 ? 'Niveau 1 ★' : 'Niveau 2 ★★';
+    document.getElementById('cardTag').className = 'tag' + (p.lvl === 2 ? ' lvl2' : '');
+    document.getElementById('cardPoints').textContent = `${p.p1}, ${p.p2}`;
+    const mInput = document.getElementById('mInput');
+    const tInput = document.getElementById('tInput');
+    mInput.value = '';
+    tInput.value = '';
+    mInput.className = '';
+    tInput.className = '';
+    document.getElementById('feedback').textContent = '';
+    document.getElementById('feedback').className = 'feedback';
+    mInput.focus();
+    updateScorebar();
+  }
+
+  function hop(className, duration) {
+    runner.classList.remove('hop-full', 'hop-half', 'hop-fail');
+    // force reflow so the animation restarts
+    void runner.offsetWidth;
+    runner.classList.add(className);
+    setTimeout(() => runner.classList.remove(className), duration);
+  }
+
+  function checkCurrent() {
+    const p = problems[current];
+    const mInput = document.getElementById('mInput');
+    const tInput = document.getElementById('tInput');
+    const mVal = parseNumber(mInput.value);
+    const tVal = parseNumber(tInput.value);
+    const mOk = !isNaN(mVal) && Math.abs(mVal - fracVal(p.m)) < EPS;
+    const tOk = !isNaN(tVal) && Math.abs(tVal - fracVal(p.t)) < EPS;
+    attempts++;
+
+    mInput.className = mOk ? 'ok' : 'bad';
+    tInput.className = tOk ? 'ok' : 'bad';
+
+    const feedback = document.getElementById('feedback');
+
+    if (mOk && tOk) {
+      feedback.textContent = '✅ Richtig! m und t stimmen – weiter geht\'s!';
+      feedback.className = 'feedback good';
+      stoneEls[current].classList.add('solved');
+      stoneEls[current].innerHTML = '<span class="mark">✓</span>';
+      solvedCount++;
+      hop('hop-full', 600);
+      const next = current + 1;
+      setTimeout(() => {
+        placeRunner(next, true);
+        setTimeout(() => { current = next; renderProblem(); }, 580);
+      }, 50);
+    } else if (mOk || tOk) {
+      feedback.textContent = mOk
+        ? '🟡 m ist richtig, aber t stimmt noch nicht – das Männchen schafft nur einen halben Sprung.'
+        : '🟡 t ist richtig, aber m stimmt noch nicht – das Männchen schafft nur einen halben Sprung.';
+      feedback.className = 'feedback partial';
+      hop('hop-half', 500);
+      updateScorebar();
+    } else {
+      feedback.textContent = '❌ m und t stimmen noch nicht. Tipp: Steigung m = (y₂−y₁)/(x₂−x₁) zuerst berechnen.';
+      feedback.className = 'feedback fail';
+      hop('hop-fail', 400);
+      updateScorebar();
+    }
+  }
+
+  document.getElementById('checkBtn').addEventListener('click', checkCurrent);
+  [document.getElementById('mInput'), document.getElementById('tInput')].forEach(inp => {
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') checkCurrent(); });
+  });
+
+  document.getElementById('skipLink').addEventListener('click', () => {
+    stoneEls[current].classList.add('skipped');
+    stoneEls[current].innerHTML = '<span class="mark">→</span>';
+    const next = current + 1;
+    placeRunner(next, true);
+    setTimeout(() => { current = next; renderProblem(); }, 580);
+  });
+
+  document.getElementById('restartBtn').addEventListener('click', () => {
+    current = 0; solvedCount = 0; attempts = 0;
+    stoneEls.forEach(el => { el.className = el.className.replace(' lvl2','').includes('lvl2') ? 'stone lvl2' : 'stone'; });
+    stoneEls.forEach((el, i) => {
+      el.className = 'stone' + (problems[i].lvl === 2 ? ' lvl2' : '');
+      el.innerHTML = '';
+    });
+    document.getElementById('celebrate').classList.remove('show');
+    document.getElementById('problemCard').classList.remove('hide');
+    placeRunner(0, false);
+    renderProblem();
+  });
+
+  window.addEventListener('resize', () => placeRunner(current, false));
+  window.addEventListener('load', () => {
+    placeRunner(0, false);
+    renderProblem();
+  });
+  // Fallback, falls 'load' bereits gefeuert hat
+  if (document.readyState === 'complete') {
+    placeRunner(0, false);
+    renderProblem();
+  }
+})();
+</script>
+</body>
+</html>
